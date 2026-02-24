@@ -45,19 +45,21 @@ def add_experience():
         except Exception:
             return jsonify({"error": "Invalid end_date format. Use YYYY-MM-DD"}), 400
 
+    # Replace the strict date parsing with flexible text storage
     experience = Experience(
-        resume_id=resume_id,
-        company=data.get("company"),
-        role=data.get("role"),
-        description=data.get("description"),
-        start_date=start_date,
-        end_date=end_date
-    )
+    resume_id=resume_id,
+    company=data.get("company"),
+    role=data.get("role"),
+    description=data.get("description"),
+    start_date=data.get("start_date"),   # ✅ no parsing needed
+    end_date=data.get("end_date"),       # ✅ store as text
+)
 
     db.session.add(experience)
     db.session.commit()
 
-    return jsonify({"message": "Experience added successfully"}), 201
+    return jsonify({"message": "Experience added successfully",
+                    "id": experience.id }), 201
 
 
 @experience_bp.route("/<int:resume_id>", methods=["GET"])
@@ -74,6 +76,8 @@ def get_experience(resume_id):
         return jsonify({"error": "Invalid resume"}), 403
 
     experience_list = Experience.query.filter_by(resume_id=resume_id).all()
+
+    
 
     return jsonify([
         {

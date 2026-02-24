@@ -66,12 +66,21 @@ def get_resume(resume_id):
         return jsonify({"error": "Resume not found"}), 404
 
     return jsonify({
-        "id": resume.id,
-        "title": resume.title,
-        "summary": resume.summary,
-        "created_at": resume.created_at,
-        "updated_at": resume.updated_at
-    }), 200
+    "id": resume.id,
+    "title": resume.title,
+    "summary": resume.summary,
+    "full_name": resume.full_name,
+    "professional_title": resume.professional_title,
+    "email": resume.email,
+    "phone": resume.phone,
+    "location": resume.location,
+    "linkedin": resume.linkedin,
+    "website": resume.website,
+    "nationality": resume.nationality,
+    "date_of_birth": resume.date_of_birth,
+    "created_at": resume.created_at,
+    "updated_at": resume.updated_at
+}), 200
 
 
 @resume_bp.route("/<int:resume_id>", methods=["PUT"])
@@ -89,9 +98,15 @@ def update_resume(resume_id):
 
     data = request.get_json()
 
-    resume.title = data.get("title", resume.title)
-    resume.summary = data.get("summary", resume.summary)
-    resume.template_name = data.get("template_name", resume.template_name)
+    resume.full_name = data.get("full_name", resume.full_name)
+    resume.professional_title = data.get("professional_title", resume.professional_title)
+    resume.email = data.get("email", resume.email)
+    resume.phone = data.get("phone", resume.phone)
+    resume.location = data.get("location", resume.location)
+    resume.linkedin = data.get("linkedin", resume.linkedin)
+    resume.website = data.get("website", resume.website)
+    resume.nationality = data.get("nationality", resume.nationality)
+    resume.date_of_birth = data.get("date_of_birth", resume.date_of_birth)
 
     db.session.commit()
 

@@ -14,16 +14,18 @@ export default function Login() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const data = await loginUser(form);
-      login(data);
-      navigate("/dashboard");
-    } catch (err) {
-      alert("Login failed");
-      console.log(err);
-    }
-  };
+  e.preventDefault();
+  try {
+    const data = await loginUser(form);
+    console.log("Login response:", data);
+    data.email = form.email;
+    login(data);  // ✅ pass full Flask response to login()
+    navigate("/dashboard");
+  } catch (err) {
+    alert("Login failed");
+    console.log(err);
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">

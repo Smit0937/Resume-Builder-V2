@@ -33,7 +33,7 @@ def add_education():
     db.session.add(education)
     db.session.commit()
 
-    return jsonify({"message": "Education added"}), 201
+    return jsonify({"message": "Education added","id": education.id}), 201
 
 
 @education_bp.route("/<int:resume_id>", methods=["GET"])

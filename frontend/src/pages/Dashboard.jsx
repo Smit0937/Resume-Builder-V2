@@ -10,26 +10,25 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   const fetchResumes = async () => {
-    try {
-      const data = await resumeService.getAll();
-      setResumes(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const res = await fetch("/api/resume/all", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
+    const data = await res.json();
+    console.log("resumes:", data); // check what comes back
+    setResumes(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => { fetchResumes(); }, []);
 
-  const createResume = async () => {
-    try {
-      const data = await resumeService.create({ title: "Untitled Resume" });
-      navigate(`/resume/${data.id}/edit`);
-    } catch (err) {
-      alert("Failed to create resume");
-    }
-  };
+ const createResume = () => {
+  navigate("/resume/new");
+};
 
   const duplicateResume = async (e, resume) => {
     e.stopPropagation();
@@ -80,18 +79,20 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-500">{user?.email}</span>
-            <button
-              onClick={handleLogout}
-              className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-              title="Logout"
-            >
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"
-                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          </div>
+          <span className="text-sm text-gray-700 font-medium">
+            👋 {user?.email ? user.email.split("@")[0] : "User"}
+          </span>
+          <button
+             onClick={handleLogout}
+             className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+             title="Logout"
+          >
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+              <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+         </button>
+         </div>
         </div>
       </header>
 

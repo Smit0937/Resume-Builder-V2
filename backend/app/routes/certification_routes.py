@@ -14,25 +14,30 @@ def add_certification():
 
     resume_id = data.get("resume_id")
 
-    if not resume_id or not data.get("title"):
-        return jsonify({"error": "resume_id and title are required"}), 400
+    # ✅ frontend sends "name", fallback to "title"
+    name = data.get("name") or data.get("title")
+
+    if not resume_id or not name:
+        return jsonify({"error": "resume_id and name are required"}), 400
 
     resume = Resume.query.filter_by(id=resume_id, user_id=int(user_id)).first()
-
     if not resume:
         return jsonify({"error": "Invalid resume"}), 403
 
     certification = Certification(
         resume_id=resume_id,
-        title=data.get("title"),
-        organization=data.get("organization"),
-        issue_year=data.get("issue_year")
+        title=name,                              # ✅ store "name" as title
+        organization=data.get("issuer"),         # ✅ frontend sends "issuer"
+        issue_year=data.get("issue_date"),       # ✅ frontend sends "issue_date"
     )
 
     db.session.add(certification)
     db.session.commit()
 
-    return jsonify({"message": "Certification added successfully"}), 201
+    return jsonify({
+        "message": "Certification added successfully",
+        "id": certification.id    # ✅ return id for instant preview
+    }), 201
 
 
 @certification_bp.route("/<int:resume_id>", methods=["GET"])
@@ -41,7 +46,6 @@ def get_certifications(resume_id):
     user_id = get_jwt_identity()
 
     resume = Resume.query.filter_by(id=resume_id, user_id=int(user_id)).first()
-
     if not resume:
         return jsonify({"error": "Invalid resume"}), 403
 
@@ -50,9 +54,9 @@ def get_certifications(resume_id):
     return jsonify([
         {
             "id": c.id,
-            "title": c.title,
-            "organization": c.organization,
-            "issue_year": c.issue_year
+            "name": c.title,                # ✅ frontend expects "name"
+            "issuer": c.organization,       # ✅ frontend expects "issuer"
+            "issue_date": str(c.issue_year) if c.issue_year else ""  # ✅ frontend expects "issue_date"
         } for c in certifications
     ]), 200
 
@@ -64,24 +68,19 @@ def update_certification(cert_id):
     data = request.get_json()
 
     cert = Certification.query.get(cert_id)
-
     if not cert:
         return jsonify({"error": "Certification not found"}), 404
 
-    resume = Resume.query.filter_by(
-        id=cert.resume_id,
-        user_id=int(user_id)
-    ).first()
-
+    resume = Resume.query.filter_by(id=cert.resume_id, user_id=int(user_id)).first()
     if not resume:
         return jsonify({"error": "Unauthorized"}), 403
 
-    cert.title = data.get("title", cert.title)
-    cert.organization = data.get("organization", cert.organization)
-    cert.issue_year = data.get("issue_year", cert.issue_year)
+    # ✅ accept both field name styles
+    cert.title = data.get("name") or data.get("title", cert.title)
+    cert.organization = data.get("issuer") or data.get("organization", cert.organization)
+    cert.issue_year = data.get("issue_date") or data.get("issue_year", cert.issue_year)
 
     db.session.commit()
-
     return jsonify({"message": "Certification updated successfully"}), 200
 
 
@@ -91,19 +90,13 @@ def delete_certification(cert_id):
     user_id = get_jwt_identity()
 
     cert = Certification.query.get(cert_id)
-
     if not cert:
         return jsonify({"error": "Certification not found"}), 404
 
-    resume = Resume.query.filter_by(
-        id=cert.resume_id,
-        user_id=int(user_id)
-    ).first()
-
+    resume = Resume.query.filter_by(id=cert.resume_id, user_id=int(user_id)).first()
     if not resume:
         return jsonify({"error": "Unauthorized"}), 403
 
     db.session.delete(cert)
     db.session.commit()
-
     return jsonify({"message": "Certification deleted successfully"}), 200

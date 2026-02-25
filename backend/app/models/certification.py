@@ -14,4 +14,4 @@ class Certification(db.Model):
 
     title = db.Column(db.String(255), nullable=False)
     organization = db.Column(db.String(255), nullable=True)
-    issue_year = db.Column(db.Integer, nullable=True)
+    issue_year = db.Column(db.String(50), nullable=True)  # ✅ String not Integer

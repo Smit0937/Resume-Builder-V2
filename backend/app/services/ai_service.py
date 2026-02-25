@@ -1,32 +1,26 @@
+import os
 from groq import Groq
-from flask import current_app
-
 
 def generate_summary(data):
 
-    # Get Groq API key from config
-    client = Groq(
-        api_key=current_app.config["GROQ_API_KEY"]
-    )
+    api_key = os.getenv("GROQ_API_KEY")
 
-    # Format experience properly
-    experience_text = ""
-    for exp in data.get("experience", []):
-        experience_text += f"- {exp.get('role')} at {exp.get('company')}\n"
+    if not api_key:
+        raise ValueError("GROQ_API_KEY is not set")
+
+    client = Groq(api_key=api_key)
 
     prompt = f"""
-    Generate a professional resume summary.
+    Generate a professional resume summary for:
+    Name: {data.get('full_name', '')}
+    Professional Title: {data.get('professional_title', '')}
 
-    Resume Title: {data.get('title')}
-
-    Work Experience:
-    {experience_text}
-
-    Write a strong, concise 3-4 line professional summary.
+    Write a strong, concise 3-4 line professional summary in first person.
+    Only return the summary text, no extra explanation or labels.
     """
 
     response = client.chat.completions.create(
-        model="llama3-8b-8192",
+        model="llama-3.1-8b-instant",
         messages=[
             {"role": "system", "content": "You are a professional resume writer."},
             {"role": "user", "content": prompt}
@@ -35,6 +29,4 @@ def generate_summary(data):
         max_tokens=300,
     )
 
-    summary = response.choices[0].message.content
-
-    return summary
+    return response.choices[0].message.content.strip()

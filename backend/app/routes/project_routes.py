@@ -8,7 +8,6 @@ project_bp = Blueprint("project", __name__)
 
 
 def verify_resume_ownership(resume_id, user_id):
-    """Helper function to verify resume ownership."""
     resume = Resume.query.filter_by(id=resume_id, user_id=int(user_id)).first()
     return resume
 
@@ -23,19 +22,19 @@ def add_project():
         return jsonify({"error": "No data provided"}), 400
 
     resume_id = data.get("resume_id")
-    project_title = data.get("project_title", "").strip()
 
-    # Validation
+    # ✅ accept both "title" (frontend) and "project_title" (legacy)
+    project_title = (data.get("title") or data.get("project_title", "")).strip()
+
     if not resume_id:
         return jsonify({"error": "resume_id is required"}), 400
-    
-    if not project_title:
-        return jsonify({"error": "project_title is required"}), 400
-    
-    if len(project_title) > 255:
-        return jsonify({"error": "project_title too long (max 255 characters)"}), 400
 
-    # Verify resume ownership
+    if not project_title:
+        return jsonify({"error": "title is required"}), 400
+
+    if len(project_title) > 255:
+        return jsonify({"error": "title too long (max 255 characters)"}), 400
+
     resume = verify_resume_ownership(resume_id, user_id)
     if not resume:
         return jsonify({"error": "Resume not found or unauthorized"}), 403
@@ -54,14 +53,7 @@ def add_project():
 
         return jsonify({
             "message": "Project added successfully",
-            "project": {
-                "id": project.id,
-                "resume_id": project.resume_id,
-                "project_title": project.project_title,
-                "description": project.description,
-                "tech_stack": project.tech_stack,
-                "link": project.link
-            }
+            "id": project.id    # ✅ frontend needs "id"
         }), 201
 
     except Exception as e:
@@ -74,7 +66,6 @@ def add_project():
 def get_projects(resume_id):
     user_id = get_jwt_identity()
 
-    # Verify resume ownership
     resume = verify_resume_ownership(resume_id, user_id)
     if not resume:
         return jsonify({"error": "Resume not found or unauthorized"}), 403
@@ -84,7 +75,7 @@ def get_projects(resume_id):
     return jsonify([
         {
             "id": p.id,
-            "project_title": p.project_title,
+            "title": p.project_title,       # ✅ frontend expects "title"
             "description": p.description,
             "tech_stack": p.tech_stack,
             "link": p.link
@@ -105,19 +96,16 @@ def update_project(project_id):
     if not project:
         return jsonify({"error": "Project not found"}), 404
 
-    # Verify resume ownership
     resume = verify_resume_ownership(project.resume_id, user_id)
     if not resume:
         return jsonify({"error": "Unauthorized"}), 403
 
     try:
-        # Update fields if provided
-        if "project_title" in data:
-            project_title = data.get("project_title", "").strip()
+        # ✅ accept both "title" and "project_title"
+        if "title" in data or "project_title" in data:
+            project_title = (data.get("title") or data.get("project_title", "")).strip()
             if not project_title:
-                return jsonify({"error": "project_title cannot be empty"}), 400
-            if len(project_title) > 255:
-                return jsonify({"error": "project_title too long (max 255 characters)"}), 400
+                return jsonify({"error": "title cannot be empty"}), 400
             project.project_title = project_title
 
         if "description" in data:
@@ -133,13 +121,7 @@ def update_project(project_id):
 
         return jsonify({
             "message": "Project updated successfully",
-            "project": {
-                "id": project.id,
-                "project_title": project.project_title,
-                "description": project.description,
-                "tech_stack": project.tech_stack,
-                "link": project.link
-            }
+            "id": project.id
         }), 200
 
     except Exception as e:
@@ -156,7 +138,6 @@ def delete_project(project_id):
     if not project:
         return jsonify({"error": "Project not found"}), 404
 
-    # Verify resume ownership
     resume = verify_resume_ownership(project.resume_id, user_id)
     if not resume:
         return jsonify({"error": "Unauthorized"}), 403

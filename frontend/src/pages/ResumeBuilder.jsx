@@ -2328,6 +2328,26 @@ function EmptyState({ resume, experiences, educations }) {
 }
 
 // ── TEMPLATE MAP ──
+// ── TEMPLATE OPTIONS for the switcher dropdown ──
+const TEMPLATE_OPTIONS = [
+  { label: "Classic", style: "classic", category: "Simple" },
+  { label: "Harvard", style: "minimal", category: "Simple" },
+  { label: "Banking", style: "finance", category: "Simple" },
+  { label: "Quiet Blue", style: "quiet_blue", category: "Simple" },
+  { label: "Anna Field", style: "annafield", category: "Simple" },
+  { label: "Modern (Sidebar)", style: "sidebar", category: "Modern" },
+  { label: "Simply Blue", style: "simplyblue_modern", category: "Modern" },
+  { label: "Hunter Green", style: "hunter_green", category: "Modern" },
+  { label: "Silver", style: "silver", category: "Modern" },
+  { label: "Slate Dawn", style: "slate_dawn", category: "Modern" },
+  { label: "Creative", style: "creative", category: "Creative" },
+  { label: "Black Pattern", style: "black_pattern", category: "Creative" },
+  { label: "Atlantic Blue", style: "atlantic_blue", category: "Creative" },
+  { label: "Green Accent", style: "green_accent", category: "Creative" },
+  { label: "Rosewood", style: "rosewood", category: "Creative" },
+  { label: "Blue Accent", style: "blue_accent", category: "Creative" },
+];
+
 const TEMPLATE_MAP = {
   corporate: TemplateCorporate,
   modern: TemplateModern,
@@ -2411,6 +2431,7 @@ export default function ResumeBuilder() {
   });
   
   const [templateStyle, setTemplateStyle] = useState("classic");
+  const [showTemplateSwitcher, setShowTemplateSwitcher] = useState(false);
   const [experiences, setExperiences] = useState([]);
   const [expForm, setExpForm] = useState({ company: "", role: "", start_date: "", end_date: "", description: "" });
 
@@ -2495,6 +2516,31 @@ export default function ResumeBuilder() {
     finally { setSaving(false); }
   };
 
+  // ── TEMPLATE SWITCHER: change template & save to backend ──
+  const handleTemplateSwitch = async (newStyle) => {
+    // Find the category for the chosen style
+    const opt = TEMPLATE_OPTIONS.find(o => o.style === newStyle);
+    const newCategory = opt ? opt.category.toLowerCase() : resume.template_name;
+
+    // Update local state instantly (live preview updates immediately)
+    setTemplateStyle(newStyle);
+    setResume(prev => ({ ...prev, template_name: newCategory, template_style: newStyle }));
+    setShowTemplateSwitcher(false);
+
+    // Save to backend
+    try {
+      const res = await fetch(`/api/resume/${id}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ ...resume, template_name: newCategory, template_style: newStyle })
+      });
+      if (res.ok) showToast("✅ Template changed!");
+      else showToast("❌ Failed to save template");
+    } catch {
+      showToast("❌ Failed to save template");
+    }
+  };
+
   const addItem = async (url, body, resetFn, type) => {
     try {
       const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
@@ -2535,7 +2581,40 @@ export default function ResumeBuilder() {
           <input value={resume.title} onChange={e => setResume({ ...resume, title: e.target.value })} placeholder="Resume Title"
             style={{ border: "none", outline: "none", fontSize: 14, fontWeight: 700, color: "#111827", background: "transparent", width: 200 }} />
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+  {/* ── TEMPLATE SWITCHER BUTTON ── */}
+  <div style={{ position: "relative" }}>
+    <button
+      onClick={() => setShowTemplateSwitcher(!showTemplateSwitcher)}
+      style={{ background: "#7c3aed", color: "#fff", border: "none", borderRadius: 8, padding: "7px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+      🎨 Change Template
+    </button>
+    {showTemplateSwitcher && (
+      <div style={{
+        position: "absolute", top: 42, right: 0, background: "#fff", border: "1px solid #e5e7eb",
+        borderRadius: 12, boxShadow: "0 8px 30px rgba(0,0,0,0.18)", width: 280, maxHeight: 400,
+        overflowY: "auto", zIndex: 999, padding: "8px 0"
+      }}>
+        {["Simple", "Modern", "Creative"].map(cat => (
+          <div key={cat}>
+            <div style={{ padding: "8px 16px 4px", fontSize: 11, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>{cat}</div>
+            {TEMPLATE_OPTIONS.filter(o => o.category === cat).map(opt => (
+              <button key={opt.style} onClick={() => handleTemplateSwitch(opt.style)}
+                style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "8px 16px", border: "none",
+                  background: templateStyle === opt.style ? "#ede9fe" : "transparent",
+                  color: templateStyle === opt.style ? "#7c3aed" : "#374151",
+                  fontWeight: templateStyle === opt.style ? 700 : 400,
+                  fontSize: 13, cursor: "pointer"
+                }}>
+                {opt.label} {templateStyle === opt.style && "✓"}
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
   <button
     onClick={() => {
       showToast("📄 Preparing PDF...");

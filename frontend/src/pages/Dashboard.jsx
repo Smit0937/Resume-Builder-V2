@@ -13,8 +13,8 @@ export default function Dashboard() {
     try {
       const res = await fetch("/api/resume/all", {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!res.ok) {
@@ -33,7 +33,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (!token) {
       navigate("/login");
       return;
@@ -61,8 +60,7 @@ export default function Dashboard() {
         linkedin: resume.linkedin,
       });
       // Refetch everything to keep state perfectly in sync
-      const token = localStorage.getItem("token");
-      fetchResumes(token);
+      fetchResumes();
     } catch (err) {
       alert("Failed to duplicate");
       setLoading(false);

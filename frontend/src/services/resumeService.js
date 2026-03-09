@@ -3,7 +3,9 @@ import axios from "axios";
 const API_BASE = "/api/resume";
 
 const getHeaders = () => ({
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
 });
 
 export const resumeService = {

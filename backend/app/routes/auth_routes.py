@@ -10,6 +10,9 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 auth = Blueprint("auth", __name__)
 
 
+# -------------------------------
+# Register
+# -------------------------------
 @auth.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
@@ -18,18 +21,14 @@ def register():
     email = data.get("email")
     password = data.get("password")
 
-    # Validate input
     if not name or not email or not password:
         return jsonify({"error": "All fields are required"}), 400
 
-    # Check if email already exists
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already exists"}), 400
 
-    # Hash password
     hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
-    # Create user
     new_user = User(
         name=name,
         email=email,
@@ -42,6 +41,9 @@ def register():
     return jsonify({"message": "User registered successfully"}), 201
 
 
+# -------------------------------
+# Login
+# -------------------------------
 @auth.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -61,7 +63,7 @@ def login():
         return jsonify({"error": "Invalid credentials"}), 401
 
     access_token = create_access_token(
-        identity=str(user.id),   # MUST be string
+        identity=str(user.id),
         additional_claims={
             "email": user.email,
             "role": user.role
@@ -76,6 +78,9 @@ def login():
     }), 200
 
 
+# -------------------------------
+# Profile
+# -------------------------------
 @auth.route("/profile", methods=["GET"])
 @jwt_required()
 def profile():
@@ -89,6 +94,9 @@ def profile():
     })
 
 
+# -------------------------------
+# Admin Test
+# -------------------------------
 @auth.route("/admin-test", methods=["GET"])
 @jwt_required()
 def admin_test():
@@ -107,7 +115,6 @@ def admin_test():
 # -------------------------------
 # Forgot Password
 # -------------------------------
-
 @auth.route("/forgot-password", methods=["POST"])
 def forgot_password():
 
@@ -119,22 +126,16 @@ def forgot_password():
 
     user = User.query.filter_by(email=email).first()
 
-    # Security: don't reveal if email exists
     if not user:
         return jsonify({"message": "If email exists, reset link sent"}), 200
 
-    # Generate token
     token = secrets.token_urlsafe(32)
-
-    # Expiry time
     expiry = datetime.utcnow() + timedelta(minutes=15)
 
     user.reset_token = token
     user.reset_token_expiry = expiry
-
     db.session.commit()
 
-    # Reset link
     reset_link = f"http://localhost:5173/reset-password/{token}"
 
     msg = Message(
@@ -149,15 +150,20 @@ This link will expire in 15 minutes.
 """
     )
 
-    mail.send(msg)
+    try:
+        mail.send(msg)
+        print("EMAIL SENT SUCCESSFULLY")
 
-    return jsonify({"message": "Reset email sent"})
+    except Exception as e:
+        print("EMAIL ERROR:", str(e))
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({"message": "Reset email sent"}), 200
 
 
 # -------------------------------
 # Reset Password
 # -------------------------------
-
 @auth.route("/reset-password/<token>", methods=["POST"])
 def reset_password(token):
 
@@ -183,4 +189,4 @@ def reset_password(token):
 
     db.session.commit()
 
-    return jsonify({"message": "Password reset successful"})
+    return jsonify({"message": "Password reset successful"}), 200

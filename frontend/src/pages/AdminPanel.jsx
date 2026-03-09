@@ -25,8 +25,7 @@ export default function AdminPanel() {
   // ─── FETCH ───
   const fetchStats = async () => {
     try {
-      const t = localStorage.getItem("token");
-      const res = await fetch("/api/admin/stats", { headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` } });
+      const res = await fetch("/api/admin/stats", { headers });
       if (res.status === 403) { navigate("/dashboard"); return; }
       if (!res.ok) { console.error("Stats error:", res.status); return; }
       const data = await res.json();
@@ -36,8 +35,7 @@ export default function AdminPanel() {
 
   const fetchUsers = async () => {
     try {
-      const t = localStorage.getItem("token");
-      const res = await fetch("/api/admin/users", { headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` } });
+      const res = await fetch("/api/admin/users", { headers });
       if (!res.ok) { console.error("Users error:", res.status); return; }
       const data = await res.json();
       console.log("Admin users loaded:", data.length);
@@ -47,8 +45,7 @@ export default function AdminPanel() {
 
   const fetchResumes = async () => {
     try {
-      const t = localStorage.getItem("token");
-      const res = await fetch("/api/admin/resumes", { headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` } });
+      const res = await fetch("/api/admin/resumes", { headers });
       if (!res.ok) { console.error("Resumes error:", res.status); return; }
       const data = await res.json();
       console.log("Admin resumes loaded:", data.length);

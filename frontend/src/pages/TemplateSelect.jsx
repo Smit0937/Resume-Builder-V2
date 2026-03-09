@@ -1108,11 +1108,9 @@ export default function TemplateSelect() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("Session expired. Please login again.");
         navigate("/login");
         return;
       }
-
       const res = await fetch("/api/resume/", {
         method: "POST",
         headers: {

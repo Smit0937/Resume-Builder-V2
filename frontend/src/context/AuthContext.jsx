@@ -7,30 +7,20 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const token = localStorage.getItem("token");
-      const userData = localStorage.getItem("user");
-      if (token && userData) {
-        setUser(JSON.parse(userData));
-      }
-    } catch (e) {
-      localStorage.clear();
-    } finally {
-      setLoading(false);
+    const token = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
+    if (token && savedUser) {
+      setUser(JSON.parse(savedUser));
     }
+    setLoading(false);
   }, []);
 
- const login = (data) => {
-  const token = data.access_token;
-  // email comes from data.email (we set it in Login.jsx)
-  const userData = { 
-    email: data.email, 
-    role: data.role 
+  const login = (data) => {
+    localStorage.setItem("token", data.access_token);
+    const userData = { email: data.email, role: data.role };
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
   };
-  localStorage.setItem("token", token);
-  localStorage.setItem("user", JSON.stringify(userData));
-  setUser(userData);
-};
 
   const logout = () => {
     localStorage.removeItem("token");

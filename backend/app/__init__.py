@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, app
 from .config import Config
 from .extensions import db, jwt, bcrypt, mail
 from flask_cors import CORS
@@ -23,10 +23,10 @@ def create_app():
 
     # Enable CORS for frontend (React running on port 5173 or 3000)
     CORS(
-        app,
-        resources={r"/api/*": {"origins": "http://localhost:5173"}},
-        supports_credentials=True
-    )
+    app,
+    resources={r"/api/*": {"origins": "*"}},
+    supports_credentials=True
+)
 
     # Initialize Extensions
     jwt.init_app(app)

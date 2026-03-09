@@ -2464,6 +2464,7 @@ export default function ResumeBuilder() {
     inner.style.transformOrigin = savedOrigin;
     inner.style.width = savedWidth;
   };
+  // Token-based auth: attach JWT from localStorage
   const token = localStorage.getItem("token");
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
 

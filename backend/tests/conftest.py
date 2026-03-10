@@ -4,23 +4,20 @@ from app.extensions import db
 
 @pytest.fixture
 def client():
-    # 1. Get the app ready
-    app = create_app()
-    
-    # 2. Tell the app it is in "Test Mode" and give it a fake memory database!
-    app.config.update({
+    # 1. Pass the Sandbox config directly INSIDE create_app!
+    app = create_app({
         "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:" ,
-        "JWT_SECRET_KEY": "this-is-a-super-long-fake-secret-key-just-for-testing-purposes-12345"  # This means "save it in RAM, not on the hard drive!"
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",  
+        "JWT_SECRET_KEY": "this-is-a-super-long-fake-secret-key-just-for-testing-purposes-12345" 
     })
 
-    # 3. Build the Sandbox
+    # 2. Build the Sandbox
     with app.app_context():
-        db.create_all() # Create the fake tables
+        db.create_all() 
         
-        # Hand the Crash Test Dummy (client) to the test
+        # Hand the Crash Test Dummy to the test
         yield app.test_client() 
         
-        # 4. Destroy the Sandbox when the test is done
+        # 3. Destroy the Sandbox
         db.session.remove()
         db.drop_all()

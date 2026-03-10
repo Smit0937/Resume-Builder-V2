@@ -7,6 +7,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from .config import Config
 from .extensions import db, jwt, bcrypt, mail
 from flask_cors import CORS
+from datetime import timedelta
 
 # Import Blueprints
 from .routes.auth_routes import auth
@@ -20,18 +21,31 @@ from .routes.ai_routes import ai_bp
 from .routes.admin_routes import admin_bp
 
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
     app.config['CORS_HEADERS'] = 'Content-Type'
 
     # Load configuration from Config class (includes JWT, DB, Mail settings)
     app.config.from_object(Config)
 
+    # JWT Cookie Configuration
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "jwtsecret")
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = False
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)
     app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"
+
+    # Production (HTTPS) vs Development (HTTP) cookie settings
+    is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("RENDER")
+    app.config["JWT_COOKIE_SECURE"] = is_prod
+    app.config["JWT_COOKIE_SAMESITE"] = "None" if is_prod else "Lax"
 
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-    # Enable CORS for frontend
+    if test_config:
+        app.config.update(test_config)
+
+    # CORS: allow frontend origins with credentials
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
     CORS(
         app,
@@ -40,6 +54,7 @@ def create_app():
             "http://localhost:5173",
             "http://localhost:5174",
             "http://localhost:5175",
+            "http://127.0.0.1:5173",
             frontend_url,
         ]
     )

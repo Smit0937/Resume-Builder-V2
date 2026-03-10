@@ -93,7 +93,7 @@ def login():
             max_age=7*24*60*60,             # 7 days in seconds
             httponly=True,                   # Secure: JS can't access
             secure=False,                    # False for HTTP (dev), True for HTTPS (prod)
-            samesite='Lax',                  # CSRF protection
+            samesite='None',                  # CSRF protection
             path='/'                         # Available on all paths
         )
 
@@ -126,7 +126,7 @@ def logout():
             value="",                       # Empty value
             httponly=True,
             secure=False,
-            samesite="Lax",
+            samesite="None",
             max_age=0,                      # Expires immediately
             path="/"
         )

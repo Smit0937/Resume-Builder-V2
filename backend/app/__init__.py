@@ -2,6 +2,7 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 from flask import Flask, app
+from werkzeug.middleware.proxy_fix import ProxyFix
 from .config import Config
 from .extensions import db, jwt, bcrypt, mail
 from flask_cors import CORS
@@ -37,18 +38,17 @@ def create_app():
 
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)
     app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     # Enable CORS for frontend
     CORS(
     app,
-    resources={
-        r"/api/*": {
-            "origins": [
-                "http://localhost:5173",
-                "https://ai-resume-builder-git-main-anands-projects-45523b63.vercel.app"
-            ]
-        }
-    },
-    supports_credentials=True
+    supports_credentials=True,
+    resources={r"/api/*": {"origins": [
+        "http://localhost:5173",
+        "https://ai-resume-builder-git-main-anands-projects-45523b63.vercel.app"
+    ]}},
+    allow_headers=["Content-Type", "Authorization"],
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 )
 
     # Initialize extensions

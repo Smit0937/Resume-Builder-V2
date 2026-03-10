@@ -16,12 +16,13 @@ from .routes.ai_routes import ai_bp
 from .routes.admin_routes import admin_bp
 
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
 
     # Load Configuration
     app.config.from_object(Config)
     
+
     # ✅ ADDED: JWT Cookie Configuration (5 lines)
     app.config["JWT_SECRET_KEY"] = "jwtsecret"  
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]           # Look for JWT in cookies
@@ -30,7 +31,9 @@ def create_app():
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)  # Token expires in 7 days
     app.config["JWT_COOKIE_SAMESITE"] = "Lax"   
     app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"            # CSRF protection
-
+    
+    if test_config:
+        app.config.update(test_config)
     # Enable CORS for frontend (React running on port 5173 or 3000)
     # ✅ KEEP supports_credentials=True (already correct!)
     CORS(

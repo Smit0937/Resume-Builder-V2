@@ -69,7 +69,7 @@ def update_education(edu_id):
     user_id = get_jwt_identity()
     data = request.get_json()
 
-    education = Education.query.get(edu_id)
+    education = db.session.get(Education, edu_id)
     if not education:
         return jsonify({"error": "Education entry not found"}), 404
 
@@ -91,7 +91,7 @@ def update_education(edu_id):
 @jwt_required()
 def delete_education(edu_id):
     # Find the specific education entry in the database by its ID
-    education = Education.query.get(edu_id)
+    education = db.session.get(Education, edu_id)
     
     # If it doesn't exist, tell the frontend we couldn't find it
     if not education:

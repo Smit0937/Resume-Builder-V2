@@ -21,6 +21,7 @@ from .routes.admin_routes import admin_bp
 
 def create_app():
     app = Flask(__name__)
+    app.config['CORS_HEADERS'] = 'Content-Type'
 
     # Load configuration
     app.config.from_object(Config)
@@ -33,13 +34,13 @@ def create_app():
 
     # Enable CORS for frontend
     CORS(
-        app,
-        supports_credentials=True,
-        origins=[
-            "http://localhost:5173",
-            "https://ai-resume-builder-git-main-anands-projects-45523b63.vercel.app"
-        ]
-    )
+    app,
+    supports_credentials=True,
+    origins=[
+        "http://localhost:5173",
+        "https://ai-resume-builder-git-main-anands-projects-45523b63.vercel.app"
+    ]
+)
 
     # Initialize extensions
     jwt.init_app(app)

@@ -14,6 +14,10 @@ from .routes.project_routes import project_bp
 from .routes.certification_routes import certification_bp
 from .routes.ai_routes import ai_bp
 from .routes.admin_routes import admin_bp
+import pymysql
+
+
+pymysql.install_as_MySQLdb()
 
 
 def create_app():

@@ -7,8 +7,6 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from .config import Config
 from .extensions import db, jwt, bcrypt, mail
 from flask_cors import CORS
-from datetime import timedelta
-import os
 
 # Import Blueprints
 from .routes.auth_routes import auth
@@ -28,36 +26,24 @@ def create_app(test_config=None):
 
     # Load Configuration (JWT settings are in Config class)
     app.config.from_object(Config)
-    
-    # JWT Cookie Configuration
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "jwtsecret")
-    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-    app.config["JWT_COOKIE_CSRF_PROTECT"] = False
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)
-    app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"
 
-    # Production (HTTPS) vs Development (HTTP) cookie settings
-    is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("RENDER")
-    app.config["JWT_COOKIE_SECURE"] = is_prod       # True for HTTPS, False for HTTP
-    app.config["JWT_COOKIE_SAMESITE"] = "None" if is_prod else "Lax"
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     
     if test_config:
         app.config.update(test_config)
 
     # CORS: allow frontend origins with credentials
-    frontend_url = os.getenv("FRONTEND_URL", "")
-    allowed_origins = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:5173",
-    ]
-    if frontend_url:
-        allowed_origins.append(frontend_url)
-
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
     CORS(
         app,
-        resources={r"/api/*": {"origins": allowed_origins}},
-        supports_credentials=True
+        supports_credentials=True,
+        origins=[
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:5175",
+            "http://127.0.0.1:5173",
+            frontend_url,
+        ]
     )
 
     # Initialize Extensions

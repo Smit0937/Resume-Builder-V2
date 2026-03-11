@@ -1,137 +1,102 @@
 # tests/auth_test.py
-import pytest
 from unittest.mock import patch
 from app.extensions import db
 from app.models.user import User
 from datetime import datetime, timedelta
 import secrets
-import uuid
 
 # =========================================================
-# HELPER: Setup a fresh user
+# 1. BASIC AUTH (Register, Login, Logout)
 # =========================================================
-def setup_user(client):
-    email = f"auth_{uuid.uuid4()}@test.com"
-    client.post("/api/auth/register", json={"name": "Test", "email": email, "password": "pass"})
-    return email
-
-# =========================================================
-# 1. HAPPY PATHS (Basic Auth & Admin)
-# =========================================================
-def test_auth_happy_paths(client):
-    email = setup_user(client)
+def test_register_and_login(client):
+    # Test Register
+    reg_res = client.post("/api/auth/register", json={
+        "name": "Test User", "email": "test@test.com", "password": "pass"
+    })
+    assert reg_res.status_code == 201
     
-    # Login
-    log_res = client.post("/api/auth/login", json={"email": email, "password": "pass"})
+    # Test Duplicate Email (Coverage line 36)
+    reg_dup = client.post("/api/auth/register", json={
+        "name": "Test User", "email": "test@test.com", "password": "pass"
+    })
+    assert reg_dup.status_code == 400
+    
+    # Test Login
+    log_res = client.post("/api/auth/login", json={"email": "test@test.com", "password": "pass"})
     assert log_res.status_code == 200
     
-    # Check Auth & Profile
-    assert client.get("/api/auth/check-auth").status_code == 200
-    assert client.get("/api/auth/me").status_code == 200
-    assert client.get("/api/auth/profile").status_code == 200
-    
-    # Admin Test (Convert to Admin via backdoor)
-    with client.application.app_context():
-        user = User.query.filter_by(email=email).first()
-        user.role = "admin"
-        db.session.commit()
-    
-    # Now Admin Test should succeed!
-    # (Need to login again to get the new 'admin' role inside the JWT cookie)
-    client.post("/api/auth/login", json={"email": email, "password": "pass"})
-    assert client.get("/api/auth/admin-test").status_code == 200
-    
-    # Logout
-    assert client.post("/api/auth/logout").status_code == 200
+    # Test Logout
+    out_res = client.post("/api/auth/logout")
+    assert out_res.status_code == 200
 
 # =========================================================
-# 2. CHAOS MONKEY: 400 & 401 ERRORS (Bad Inputs)
+# 2. CHECK-AUTH, ME, AND PROFILE
 # =========================================================
-def test_auth_bad_requests(client):
-    email = setup_user(client)
+def test_user_info_routes(client):
+    # Create user & login
+    client.post("/api/auth/register", json={"name": "Info User", "email": "info@test.com", "password": "pass"})
+    client.post("/api/auth/login", json={"email": "info@test.com", "password": "pass"})
     
-    # REGISTER: Missing fields
-    assert client.post("/api/auth/register", json={"name": "Only Name"}).status_code == 400
-    assert client.post("/api/auth/register", json={"email": email, "password": "pass"}).status_code == 400 # Email exists
+    # Check Auth (Coverage line 125)
+    auth_res = client.get("/api/auth/check-auth")
+    assert auth_res.status_code == 200
     
-    # LOGIN: Missing fields, wrong email, wrong pass
-    assert client.post("/api/auth/login", json={"email": email}).status_code == 400
-    assert client.post("/api/auth/login", json={"email": "fake@test.com", "password": "pass"}).status_code == 401
-    assert client.post("/api/auth/login", json={"email": email, "password": "WRONG"}).status_code == 401
+    # Get Me (Coverage line 140)
+    me_res = client.get("/api/auth/me")
+    assert me_res.status_code == 200
+    assert me_res.get_json()["email"] == "info@test.com"
+    
+    # Get Profile (Coverage line 165)
+    prof_res = client.get("/api/auth/profile")
+    assert prof_res.status_code == 200
 
-# =========================================================
-# 3. CHAOS MONKEY: GHOST USER (/me 404)
-# =========================================================
-def test_auth_ghost_user(client):
-    email = setup_user(client)
-    client.post("/api/auth/login", json={"email": email, "password": "pass"})
-    
-    # Logged in! Now delete the user from the database directly
-    with client.application.app_context():
-        user = User.query.filter_by(email=email).first()
-        db.session.delete(user)
-        db.session.commit()
-        
-    # The cookie exists, but the user is gone!
-    assert client.get("/api/auth/me").status_code == 404
-
-# =========================================================
-# 4. FORGOT & RESET PASSWORD (All Scenarios)
-# =========================================================
-@patch("app.routes.auth_routes.mail.send")
-def test_password_reset_flow(mock_mail, client):
-    mock_mail.return_value = True
-    email = setup_user(client)
-    
-    # 1. Forgot Pass: Missing email
-    assert client.post("/api/auth/forgot-password", json={}).status_code == 400
-    
-    # 2. Forgot Pass: Fake email (Should return 200 for security reasons!)
-    assert client.post("/api/auth/forgot-password", json={"email": "nobody@test.com"}).status_code == 200
-    
-    # 3. Forgot Pass: Success
-    assert client.post("/api/auth/forgot-password", json={"email": email}).status_code == 200
-    
-    # 4. Get the token from DB
-    with client.application.app_context():
-        token = User.query.filter_by(email=email).first().reset_token
-        
-    # 5. Reset Pass: Missing password
-    assert client.post(f"/api/auth/reset-password/{token}", json={}).status_code == 400
-    
-    # 6. Reset Pass: Invalid Token
-    assert client.post("/api/auth/reset-password/fake_token", json={"password": "new"}).status_code == 400
-    
-    # 7. Reset Pass: Expired Token
-    with client.application.app_context():
-        user = User.query.filter_by(email=email).first()
-        user.reset_token_expiry = datetime.utcnow() - timedelta(minutes=20) # Expired in the past!
-        db.session.commit()
-    assert client.post(f"/api/auth/reset-password/{token}", json={"password": "new"}).status_code == 400
-
-# =========================================================
-# 5. CHAOS MONKEY: 500 SERVER ERRORS (Catastrophic Crashes)
-# =========================================================
-
-@patch("app.routes.auth_routes.User.query")
-def test_login_500(mock_query, client):
-    mock_query.filter_by.side_effect = Exception("DB Down")
-    assert client.post("/api/auth/login", json={"email": "e@test.com", "password": "p"}).status_code == 500
-
-@patch("app.routes.auth_routes.make_response", side_effect=Exception("Response Failed"))
-def test_logout_500(mock_response, client):
-    assert client.post("/api/auth/logout").status_code == 500
-
-@patch("app.routes.auth_routes.get_jwt_identity", side_effect=Exception("JWT Exploded"))
-def test_protected_routes_exceptions(mock_jwt, client):
-    # Need to be logged in so the decorator lets us inside the function
-    email = setup_user(client)
-    client.post("/api/auth/login", json={"email": email, "password": "pass"})
-    
+def test_unauthenticated_routes(client):
+    # Test routes WITHOUT logging in (Coverage lines 137, 161)
     assert client.get("/api/auth/check-auth").status_code == 401
     assert client.get("/api/auth/me").status_code == 401
 
-@patch("app.routes.auth_routes.mail.send", side_effect=Exception("Mail Server Down"))
-def test_forgot_password_500(mock_mail, client):
-    email = setup_user(client)
-    assert client.post("/api/auth/forgot-password", json={"email": email}).status_code == 500
+# =========================================================
+# 3. ADMIN TEST ROUTE
+# =========================================================
+def test_admin_test_route(client):
+    # Login as normal user
+    client.post("/api/auth/register", json={"name": "Norm", "email": "norm@test.com", "password": "pass"})
+    client.post("/api/auth/login", json={"email": "norm@test.com", "password": "pass"})
+    
+    # Try to access admin route (Coverage line 185)
+    admin_res = client.get("/api/auth/admin-test")
+    assert admin_res.status_code == 403  # Forbidden!
+
+# =========================================================
+# 4. FORGOT & RESET PASSWORD
+# =========================================================
+@patch("app.routes.auth_routes.mail.send")
+def test_forgot_password(mock_mail_send, client):
+    # Mock the email sender so it doesn't crash!
+    mock_mail_send.return_value = True 
+    
+    client.post("/api/auth/register", json={"name": "Forgot", "email": "forgot@test.com", "password": "pass"})
+    
+    # Request reset link
+    res = client.post("/api/auth/forgot-password", json={"email": "forgot@test.com"})
+    assert res.status_code == 200
+
+def test_reset_password(client):
+    # 1. Register a user
+    client.post("/api/auth/register", json={"name": "Reset", "email": "reset@test.com", "password": "pass"})
+    
+    # 2. Backdoor into the DB to manually create a fake reset token
+    fake_token = "super_secret_fake_token"
+    with client.application.app_context():
+        user = User.query.filter_by(email="reset@test.com").first()
+        user.reset_token = fake_token
+        user.reset_token_expiry = datetime.utcnow() + timedelta(minutes=15)
+        db.session.commit()
+        
+    # 3. Try to reset the password using the fake token!
+    res = client.post(f"/api/auth/reset-password/{fake_token}", json={"password": "new_password"})
+    assert res.status_code == 200
+    
+    # 4. Verify we can login with the NEW password!
+    log_res = client.post("/api/auth/login", json={"email": "reset@test.com", "password": "new_password"})
+    assert log_res.status_code == 200

@@ -170,7 +170,7 @@ def get_current_user():
         user_id = get_jwt_identity()
         print(f"✅ /me route - user_id from JWT: {user_id}")
         
-        user = User.query.get(int(user_id))
+        user = db.session.get(User, int(user_id))
         
         if not user:
             print(f"❌ User {user_id} not found in database")

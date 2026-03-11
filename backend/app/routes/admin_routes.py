@@ -65,7 +65,7 @@ def list_users():
 @admin_bp.route("/users/<int:user_id>", methods=["GET"])
 @admin_required
 def get_user_detail(user_id):
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -88,7 +88,7 @@ def get_user_detail(user_id):
 @admin_bp.route("/users/<int:user_id>", methods=["DELETE"])
 @admin_required
 def delete_user(user_id):
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -116,7 +116,7 @@ def delete_user(user_id):
 @admin_bp.route("/users/<int:user_id>/role", methods=["PUT"])
 @admin_required
 def change_role(user_id):
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -141,7 +141,7 @@ def list_all_resumes():
     resumes = Resume.query.order_by(Resume.created_at.desc()).all()
     result = []
     for r in resumes:
-        user = User.query.get(r.user_id)
+        user = db.session.get(User, r.user_id)
         result.append({
             "id": r.id,
             "title": r.title,
@@ -159,7 +159,7 @@ def list_all_resumes():
 @admin_bp.route("/resumes/<int:resume_id>", methods=["DELETE"])
 @admin_required
 def admin_delete_resume(resume_id):
-    resume = Resume.query.get(resume_id)
+    resume = db.session.get(Resume, resume_id)
     if not resume:
         return jsonify({"error": "Resume not found"}), 404
 

@@ -1,32 +1,24 @@
-import axios from "axios";
-
-const API_BASE = "/api/resume";
-
-const getHeaders = () => ({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
+import api from "./api";
 
 export const resumeService = {
   getAll: async () => {
-    const res = await axios.get(`${API_BASE}/`, getHeaders());
+    const res = await api.get("/resume/");
     return res.data;
   },
   getById: async (id) => {
-    const res = await axios.get(`${API_BASE}/${id}`, getHeaders());
+    const res = await api.get(`/resume/${id}`);
     return res.data;
   },
   create: async (data) => {
-    const res = await axios.post(`${API_BASE}/`, data, getHeaders());
+    const res = await api.post("/resume/", data);
     return res.data;
   },
   update: async (id, data) => {
-    const res = await axios.put(`${API_BASE}/${id}`, data, getHeaders());
+    const res = await api.put(`/resume/${id}`, data);
     return res.data;
   },
   delete: async (id) => {
-    const res = await axios.delete(`${API_BASE}/${id}`, getHeaders());
+    const res = await api.delete(`/resume/${id}`);
     return res.data;
   },
 };

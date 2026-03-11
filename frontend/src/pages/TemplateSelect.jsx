@@ -1106,17 +1106,12 @@ export default function TemplateSelect() {
 
   const createWithTemplate = async (templateId, templateStyle) => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login");
-        return;
-      }
       const res = await fetch("/api/resume/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           title: "Untitled Resume",
           template_name: templateId,

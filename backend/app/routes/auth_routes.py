@@ -1,19 +1,24 @@
-from flask import Blueprint, request, jsonify,make_response
+from flask import Blueprint, request, jsonify, make_response
 from app.extensions import db, bcrypt, mail
 from app.models.user import User
 from flask_mail import Message
 import secrets
+import os
 from datetime import datetime, timedelta
 from flask_jwt_extended import (
     create_access_token, 
     jwt_required, 
     get_jwt_identity, 
     get_jwt,
-    unset_jwt_cookies  # ✅ NEW: For logout
+    unset_jwt_cookies
 )
 
-
 auth = Blueprint("auth", __name__)
+
+# Dynamic cookie settings based on environment
+_is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("RENDER")
+COOKIE_SECURE = _is_prod
+COOKIE_SAMESITE = "None" if _is_prod else "Lax"
 
 
 # -------------------------------
@@ -86,20 +91,18 @@ def login():
             "user_id": user.id
         }), 200)
 
-        # ✅ CRITICAL: Set the cookie
+        # Set the cookie
         response.set_cookie(
-            'access_token_cookie',          # Cookie name (must match JWT config)
-            value=access_token,              # JWT token value
-            max_age=7*24*60*60,             # 7 days in seconds
-            httponly=True,                   # Secure: JS can't access
-            secure=False,                    # False for HTTP (dev), True for HTTPS (prod)
-            samesite='Lax',                  # CSRF protection
-            path='/'                         # Available on all paths
+            'access_token_cookie',
+            value=access_token,
+            max_age=7*24*60*60,
+            httponly=True,
+            secure=COOKIE_SECURE,
+            samesite=COOKIE_SAMESITE,
+            path='/'
         )
 
-        # ✅ DEBUG: Confirm cookie was set
         print(f"✅ Login successful for {email}")
-        print(f"✅ Cookie 'access_token_cookie' set with value: {access_token[:50]}...")
         
         return response
 
@@ -120,14 +123,14 @@ def logout():
             "message": "Logged out successfully"
         }), 200)
         
-        # ✅ DELETE THE COOKIE
+        # Clear the cookie
         response.set_cookie(
             key="access_token_cookie",
-            value="",                       # Empty value
+            value="",
             httponly=True,
-            secure=False,
-            samesite="Lax",
-            max_age=0,                      # Expires immediately
+            secure=COOKIE_SECURE,
+            samesite=COOKIE_SAMESITE,
+            max_age=0,
             path="/"
         )
         

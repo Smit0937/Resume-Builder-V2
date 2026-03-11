@@ -2,7 +2,8 @@ from flask import Flask
 from .config import Config
 from .extensions import db, jwt, bcrypt, mail
 from flask_cors import CORS
-from datetime import timedelta  # ✅ ADDED: For token expiry
+from datetime import timedelta
+import os
 
 # Import Blueprints
 from .routes.auth_routes import auth
@@ -22,24 +23,35 @@ def create_app(test_config=None):
     # Load Configuration
     app.config.from_object(Config)
     
+    # JWT Cookie Configuration
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "jwtsecret")
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = False
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)
+    app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"
 
-    # ✅ ADDED: JWT Cookie Configuration (5 lines)
-    app.config["JWT_SECRET_KEY"] = "jwtsecret"  
-    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]           # Look for JWT in cookies
-    app.config["JWT_COOKIE_SECURE"] = False                  # Set True in production with HTTPS
-    app.config["JWT_COOKIE_CSRF_PROTECT"] = False            # Disable CSRF for now (can enable later)
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)  # Token expires in 7 days
-    app.config["JWT_COOKIE_SAMESITE"] = "Lax"   
-    app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"            # CSRF protection
+    # Production (HTTPS) vs Development (HTTP) cookie settings
+    is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("RENDER")
+    app.config["JWT_COOKIE_SECURE"] = is_prod       # True for HTTPS, False for HTTP
+    app.config["JWT_COOKIE_SAMESITE"] = "None" if is_prod else "Lax"
     
     if test_config:
         app.config.update(test_config)
-    # Enable CORS for frontend (React running on port 5173 or 3000)
-    # ✅ KEEP supports_credentials=True (already correct!)
+
+    # CORS: allow frontend origins with credentials
+    frontend_url = os.getenv("FRONTEND_URL", "")
+    allowed_origins = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+    ]
+    if frontend_url:
+        allowed_origins.append(frontend_url)
+
     CORS(
         app,
-        resources={r"/api/*": {"origins": "*"}},
-        supports_credentials=True  # ✅ This allows cookies to be sent/received
+        resources={r"/api/*": {"origins": allowed_origins}},
+        supports_credentials=True
     )
 
     # Initialize Extensions

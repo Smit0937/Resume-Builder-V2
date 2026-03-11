@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import api from "../services/api";
 
 const TABS = ["Dashboard", "Users", "Resumes"];
 
 export default function AdminPanel() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+
 
   const [activeTab, setActiveTab] = useState(0);
   const [stats, setStats] = useState(null);
@@ -25,31 +25,25 @@ export default function AdminPanel() {
   // ─── FETCH ───
   const fetchStats = async () => {
     try {
-      const res = await fetch("/api/admin/stats", { headers });
-      if (res.status === 403) { navigate("/dashboard"); return; }
-      if (!res.ok) { console.error("Stats error:", res.status); return; }
-      const data = await res.json();
-      setStats(data);
-    } catch (err) { console.error("Stats fetch error:", err); showToast("❌ Failed to load stats"); }
+      const res = await api.get("/admin/stats");
+      setStats(res.data);
+    } catch (err) {
+      if (err.response?.status === 403) { navigate("/dashboard"); return; }
+      console.error("Stats fetch error:", err); showToast("❌ Failed to load stats");
+    }
   };
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch("/api/admin/users", { headers });
-      if (!res.ok) { console.error("Users error:", res.status); return; }
-      const data = await res.json();
-      console.log("Admin users loaded:", data.length);
-      setUsers(Array.isArray(data) ? data : []);
+      const res = await api.get("/admin/users");
+      setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error("Users fetch error:", err); showToast("❌ Failed to load users"); }
   };
 
   const fetchResumes = async () => {
     try {
-      const res = await fetch("/api/admin/resumes", { headers });
-      if (!res.ok) { console.error("Resumes error:", res.status); return; }
-      const data = await res.json();
-      console.log("Admin resumes loaded:", data.length);
-      setResumes(Array.isArray(data) ? data : []);
+      const res = await api.get("/admin/resumes");
+      setResumes(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error("Resumes fetch error:", err); showToast("❌ Failed to load resumes"); }
   };
 
@@ -60,49 +54,34 @@ export default function AdminPanel() {
   }, []);
 
   // ─── ACTIONS ───
-  const getAuthHeaders = () => ({
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("token")}`
-  });
-
   const deleteUser = async (userId) => {
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE", headers: getAuthHeaders() });
-      const data = await res.json();
-      if (res.ok) {
-        showToast("✅ " + data.message);
-        setUsers(prev => prev.filter(u => u.id !== userId));
-        setResumes(prev => prev.filter(r => r.user_id !== userId));
-        setConfirmDelete(null);
-        setSelectedUser(null);
-        fetchStats();
-      } else { showToast("❌ " + (data.error || "Failed")); }
-    } catch { showToast("❌ Failed to delete user"); }
+      const res = await api.delete(`/admin/users/${userId}`);
+      showToast("✅ " + res.data.message);
+      setUsers(prev => prev.filter(u => u.id !== userId));
+      setResumes(prev => prev.filter(r => r.user_id !== userId));
+      setConfirmDelete(null);
+      setSelectedUser(null);
+      fetchStats();
+    } catch (err) { showToast("❌ " + (err.response?.data?.error || "Failed to delete user")); }
   };
 
   const changeRole = async (userId, newRole) => {
     try {
-      const res = await fetch(`/api/admin/users/${userId}/role`, {
-        method: "PUT", headers: getAuthHeaders(), body: JSON.stringify({ role: newRole })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        showToast("✅ " + data.message);
-        setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
-        fetchStats();
-      } else { showToast("❌ " + (data.error || "Failed")); }
-    } catch { showToast("❌ Failed to change role"); }
+      const res = await api.put(`/admin/users/${userId}/role`, { role: newRole });
+      showToast("✅ " + res.data.message);
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
+      fetchStats();
+    } catch (err) { showToast("❌ " + (err.response?.data?.error || "Failed to change role")); }
   };
 
   const deleteResume = async (resumeId) => {
     try {
-      const res = await fetch(`/api/admin/resumes/${resumeId}`, { method: "DELETE", headers: getAuthHeaders() });
-      if (res.ok) {
-        showToast("✅ Resume deleted");
-        setResumes(prev => prev.filter(r => r.id !== resumeId));
-        setConfirmDelete(null);
-        fetchStats();
-      } else { showToast("❌ Failed to delete resume"); }
+      await api.delete(`/admin/resumes/${resumeId}`);
+      showToast("✅ Resume deleted");
+      setResumes(prev => prev.filter(r => r.id !== resumeId));
+      setConfirmDelete(null);
+      fetchStats();
     } catch { showToast("❌ Failed to delete resume"); }
   };
 

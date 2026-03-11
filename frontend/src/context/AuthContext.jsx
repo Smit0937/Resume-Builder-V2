@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
@@ -12,22 +13,9 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      console.log('🔍 Checking authentication...');
-      
-      const res = await fetch('/api/auth/me', {
-        credentials: 'include',
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        console.log('✅ User authenticated:', data);
-        setUser(data);
-      } else {
-        console.log('❌ Not authenticated');
-        setUser(null);
-      }
+      const res = await api.get('/auth/me');
+      setUser(res.data);
     } catch (err) {
-      console.error('❌ Auth check failed:', err);
       setUser(null);
     } finally {
       setLoading(false);
@@ -35,24 +23,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = (userData) => {
-    console.log('✅ Login - setting user:', userData);
     setUser(userData);
   };
 
   const logout = async () => {
     try {
-      console.log('🚪 Logging out...');
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-      console.log('✅ Logout successful');
+      await api.post('/auth/logout');
     } catch (err) {
-      console.error('❌ Logout error:', err);
+      console.error('Logout error:', err);
     }
-    
     setUser(null);
-    // ✅ Don't navigate here - let components handle it
   };
 
   return (

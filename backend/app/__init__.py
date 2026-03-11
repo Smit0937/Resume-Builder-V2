@@ -7,7 +7,6 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from .config import Config
 from .extensions import db, jwt, bcrypt, mail
 from flask_cors import CORS
-from datetime import timedelta
 
 # Import Blueprints
 from .routes.auth_routes import auth
@@ -25,20 +24,8 @@ def create_app(test_config=None):
     app = Flask(__name__)
     app.config['CORS_HEADERS'] = 'Content-Type'
 
-    # Load Configuration
+    # Load Configuration (JWT settings are in Config class)
     app.config.from_object(Config)
-    
-    # JWT Cookie Configuration
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "jwtsecret")
-    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-    app.config["JWT_COOKIE_CSRF_PROTECT"] = False
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)
-    app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"
-
-    # Production (HTTPS) vs Development (HTTP) cookie settings
-    is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("RENDER")
-    app.config["JWT_COOKIE_SECURE"] = is_prod
-    app.config["JWT_COOKIE_SAMESITE"] = "None" if is_prod else "Lax"
 
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     

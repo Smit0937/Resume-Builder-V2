@@ -16,9 +16,9 @@ from flask_jwt_extended import (
 auth = Blueprint("auth", __name__)
 
 # Dynamic cookie settings based on environment
-_is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("RENDER")
+_is_prod = bool(os.getenv("FLASK_ENV") == "production" or os.getenv("RENDER"))
 COOKIE_SECURE = _is_prod
-COOKIE_SAMESITE = "None" if _is_prod else "Lax"
+COOKIE_SAMESITE = "Lax"
 
 
 # -------------------------------

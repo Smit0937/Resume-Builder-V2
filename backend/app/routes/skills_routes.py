@@ -62,7 +62,7 @@ def update_skill(skill_id):
     user_id = get_jwt_identity()
     data = request.get_json()
 
-    skill = Skill.query.get(skill_id)
+    skill = db.session.get(Skill, skill_id)
     if not skill:
         return jsonify({"error": "Not found"}), 404
 
@@ -82,7 +82,7 @@ def update_skill(skill_id):
 def delete_skill(skill_id):
     user_id = get_jwt_identity()
 
-    skill = Skill.query.get(skill_id)
+    skill = db.session.get(Skill, skill_id)
     if not skill:
         return jsonify({"error": "Not found"}), 404
 

@@ -92,7 +92,7 @@ def update_project(project_id):
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
-    project = Project.query.get(project_id)
+    project = db.session.get(Project, project_id)
     if not project:
         return jsonify({"error": "Project not found"}), 404
 
@@ -134,7 +134,7 @@ def update_project(project_id):
 def delete_project(project_id):
     user_id = get_jwt_identity()
 
-    project = Project.query.get(project_id)
+    project = db.session.get(Project, project_id)
     if not project:
         return jsonify({"error": "Project not found"}), 404
 

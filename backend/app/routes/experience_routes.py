@@ -71,7 +71,7 @@ def update_experience(experience_id):
     user_id = get_jwt_identity()
     data = request.get_json()
 
-    experience = Experience.query.get(experience_id)
+    experience = db.session.get(Experience, experience_id)
     if not experience:
         return jsonify({"error": "Not found"}), 404
 
@@ -94,7 +94,7 @@ def update_experience(experience_id):
 def delete_experience(experience_id):
     user_id = get_jwt_identity()
 
-    experience = Experience.query.get(experience_id)
+    experience = db.session.get(Experience, experience_id)
     if not experience:
         return jsonify({"error": "Not found"}), 404
 

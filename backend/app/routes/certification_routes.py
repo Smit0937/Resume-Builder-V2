@@ -67,7 +67,7 @@ def update_certification(cert_id):
     user_id = get_jwt_identity()
     data = request.get_json()
 
-    cert = Certification.query.get(cert_id)
+    cert = db.session.get(Certification, cert_id)
     if not cert:
         return jsonify({"error": "Certification not found"}), 404
 
@@ -89,7 +89,7 @@ def update_certification(cert_id):
 def delete_certification(cert_id):
     user_id = get_jwt_identity()
 
-    cert = Certification.query.get(cert_id)
+    cert = db.session.get(Certification, cert_id)
     if not cert:
         return jsonify({"error": "Certification not found"}), 404
 

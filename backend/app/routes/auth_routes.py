@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify,make_response
+from flask import Blueprint, request, jsonify, make_response
 from app.extensions import db, bcrypt, mail
 from app.models.user import User
 from flask_mail import Message
@@ -10,11 +10,15 @@ from flask_jwt_extended import (
     jwt_required, 
     get_jwt_identity, 
     get_jwt,
-    unset_jwt_cookies  # ✅ NEW: For logout
+    unset_jwt_cookies
 )
 
-
 auth = Blueprint("auth", __name__)
+
+# Dynamic cookie settings based on environment
+_is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("RENDER")
+COOKIE_SECURE = _is_prod
+COOKIE_SAMESITE = "None" if _is_prod else "Lax"
 
 
 # -------------------------------
@@ -87,21 +91,18 @@ def login():
             "user_id": user.id
         }), 200)
 
-        # ✅ CRITICAL: Set the cookie
-        is_secure = request.is_secure
+        # Set the cookie
         response.set_cookie(
             'access_token_cookie',
             value=access_token,
             max_age=7*24*60*60,
             httponly=True,
-            secure=is_secure,
-            samesite='None' if is_secure else 'Lax',
+            secure=COOKIE_SECURE,
+            samesite=COOKIE_SAMESITE,
             path='/'
         )
 
-        # ✅ DEBUG: Confirm cookie was set
         print(f"✅ Login successful for {email}")
-        print(f"✅ Cookie 'access_token_cookie' set with value: {access_token[:50]}...")
         
         return response
 
@@ -122,14 +123,13 @@ def logout():
             "message": "Logged out successfully"
         }), 200)
         
-        # ✅ DELETE THE COOKIE
-        is_secure = request.is_secure
+        # Clear the cookie
         response.set_cookie(
             key="access_token_cookie",
             value="",
             httponly=True,
-            secure=is_secure,
-            samesite="None" if is_secure else "Lax",
+            secure=COOKIE_SECURE,
+            samesite=COOKIE_SAMESITE,
             max_age=0,
             path="/"
         )
@@ -255,7 +255,7 @@ def forgot_password():
     user.reset_token_expiry = expiry
     db.session.commit()
 
-    reset_link = f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/reset-password/{token}"
+    reset_link = f"http://localhost:5173/reset-password/{token}"
 
     msg = Message(
         subject="Reset Your ResumeAI Password",

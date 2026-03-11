@@ -43,8 +43,7 @@ export default function Dashboard() {
   const fetchResumes = async () => {
     try {
       const res = await api.get("/resume/all");
-      const data = res.data;
-      setResumes(Array.isArray(data) ? data : []);
+      setResumes(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error(err);
     } finally {

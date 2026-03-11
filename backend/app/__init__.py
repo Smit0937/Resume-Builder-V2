@@ -25,9 +25,9 @@ def create_app(test_config=None):
     app = Flask(__name__)
     app.config['CORS_HEADERS'] = 'Content-Type'
 
-    # Load configuration from Config class (includes JWT, DB, Mail settings)
+    # Load Configuration
     app.config.from_object(Config)
-
+    
     # JWT Cookie Configuration
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "jwtsecret")
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
@@ -41,7 +41,7 @@ def create_app(test_config=None):
     app.config["JWT_COOKIE_SAMESITE"] = "None" if is_prod else "Lax"
 
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-
+    
     if test_config:
         app.config.update(test_config)
 
@@ -58,13 +58,14 @@ def create_app(test_config=None):
             frontend_url,
         ]
     )
-    # Initialize extensions
+
+    # Initialize Extensions
     jwt.init_app(app)
     db.init_app(app)
     bcrypt.init_app(app)
     mail.init_app(app)
 
-    # Register Blueprints
+    # Register Blueprints with prefix
     app.register_blueprint(auth, url_prefix="/api/auth")
     app.register_blueprint(resume_bp, url_prefix="/api/resume")
     app.register_blueprint(education_bp, url_prefix="/api/education")

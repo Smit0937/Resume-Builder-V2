@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import html2pdf from "html2pdf.js";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import { API_URL } from "../services/api";
 
 const TABS = ["Personal", "Experience", "Education", "Skills", "Projects", "Certifications"];
 
@@ -2465,11 +2464,9 @@ export default function ResumeBuilder() {
     inner.style.transformOrigin = savedOrigin;
     inner.style.width = savedWidth;
   };
-  const apiFetch = (path, opts = {}) => fetch(`${API_URL}${path}`, {
-    ...opts,
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...opts.headers },
-  });
+  // Cookie-based auth: credentials "include" sends the httpOnly cookie automatically
+  const headers = { "Content-Type": "application/json" };
+  const fetchOpts = { headers, credentials: "include" };
 
   const [activeTab, setActiveTab] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -2510,7 +2507,7 @@ export default function ResumeBuilder() {
  const fetchAll = async () => {
     try {
       // 1. Fetch Resume Basic Info
-      const resResume = await apiFetch(`/resume/${id}`);
+      const resResume = await fetch(`/api/resume/${id}`, fetchOpts);
       const data = await resResume.json();
       
       // Note: your backend returns { resume: {...}, message: "..." } 
@@ -2539,11 +2536,11 @@ export default function ResumeBuilder() {
 
       // 2. Fetch all related data in parallel
       const [resExp, resEdu, resSkills, resProj, resCerts] = await Promise.all([
-        apiFetch(`/experience/${id}`),
-        apiFetch(`/education/${id}`),
-        apiFetch(`/skills/${id}`),
-        apiFetch(`/projects/${id}`),
-        apiFetch(`/certifications/${id}`)
+        fetch(`/api/experience/${id}`, fetchOpts),
+        fetch(`/api/education/${id}`, fetchOpts),
+        fetch(`/api/skills/${id}`, fetchOpts),
+        fetch(`/api/projects/${id}`, fetchOpts),
+        fetch(`/api/certifications/${id}`, fetchOpts)
       ]);
 
       // Convert all responses to JSON
@@ -2562,7 +2559,7 @@ export default function ResumeBuilder() {
   const saveResume = async () => {
     setSaving(true);
     try {
-      const res = await apiFetch(`/resume/${id}`, { method: "PUT", body: JSON.stringify(resume) });
+      const res = await fetch(`/api/resume/${id}`, { method: "PUT", ...fetchOpts, body: JSON.stringify(resume) });
       if (res.ok) showToast("✅ Resume saved successfully!");
       else showToast("❌ Failed to save");
     } catch { showToast("❌ Failed to save"); }
@@ -2571,7 +2568,7 @@ export default function ResumeBuilder() {
 
   const addItem = async (url, body, resetFn, type) => {
     try {
-      const res = await apiFetch(url, { method: "POST", body: JSON.stringify(body) });
+      const res = await fetch(url, { method: "POST", ...fetchOpts, body: JSON.stringify(body) });
       const data = await res.json();
       if (!res.ok) { console.error("Backend error:", data); alert(data.error || "Failed to add"); return; }
       resetFn();
@@ -2585,7 +2582,7 @@ export default function ResumeBuilder() {
 
   const deleteItem = async (url, type, index) => {
     try {
-      await apiFetch(url, { method: "DELETE" });
+      await fetch(url, { method: "DELETE", ...fetchOpts });
       if (type === "experience") setExperiences(prev => prev.filter((_, i) => i !== index));
       if (type === "education") setEducations(prev => prev.filter((_, i) => i !== index));
       if (type === "skills") setSkills(prev => prev.filter((_, i) => i !== index));
@@ -2596,7 +2593,7 @@ export default function ResumeBuilder() {
 
   const updateItem = async (url, data, type, index) => {
     try {
-      const res = await apiFetch(url, { method: "PUT", body: JSON.stringify(data) });
+      const res = await fetch(url, { method: "PUT", ...fetchOpts, body: JSON.stringify(data) });
       if (!res.ok) { const d = await res.json(); alert(d.error || "Failed to update"); return; }
       if (type === "experience") setExperiences(prev => prev.map((item, i) => i === index ? { ...item, ...data } : item));
       if (type === "education") setEducations(prev => prev.map((item, i) => i === index ? { ...item, ...data } : item));
@@ -2772,7 +2769,7 @@ export default function ResumeBuilder() {
             <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "flex-end" }}>
               <button onClick={() => setEditingItem(null)} style={{ background: "#f1f5f9", border: "1.5px solid #e2e8f0", borderRadius: 10, padding: "9px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#64748b", fontFamily: "inherit" }}>Cancel</button>
               <button onClick={() => {
-                const urlMap = { experience: `/experience/${editingItem.data.id}`, education: `/education/${editingItem.data.id}`, skills: `/skills/${editingItem.data.id}`, projects: `/projects/${editingItem.data.id}`, certs: `/certifications/${editingItem.data.id}` };
+                const urlMap = { experience: `/api/experience/${editingItem.data.id}`, education: `/api/education/${editingItem.data.id}`, skills: `/api/skills/${editingItem.data.id}`, projects: `/api/projects/${editingItem.data.id}`, certs: `/api/certifications/${editingItem.data.id}` };
                 updateItem(urlMap[editingItem.type], editingItem.data, editingItem.type, editingItem.index);
               }} style={{ ...btn, fontFamily: "inherit" }}>Save Changes</button>
             </div>
@@ -2829,10 +2826,10 @@ export default function ResumeBuilder() {
           showToast("❌ Please fill in Full Name and Professional Title first!");
           return;
         }
-        await apiFetch(`/resume/${id}`, { method: "PUT", body: JSON.stringify(resume) });
+        await fetch(`/api/resume/${id}`, { method: "PUT", ...fetchOpts, body: JSON.stringify(resume) });
         showToast("✨ Generating summary...");
         try {
-          const res = await apiFetch(`/ai/generate-summary/${id}`);
+          const res = await fetch(`/api/ai/generate-summary/${id}`, fetchOpts);
           const data = await res.json();
           if (data.ai_generated_summary) {
             setResume(prev => ({ ...prev, summary: data.ai_generated_summary }));
@@ -2866,7 +2863,7 @@ export default function ResumeBuilder() {
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
                       <button style={editBtn} onClick={() => setEditingItem({ type: "experience", index: i, data: { ...exp } })}>✏️ Edit</button>
-                      <button style={delBtn} onClick={() => deleteItem(`/experience/${exp.id}`, "experience", i)}>🗑️</button>
+                      <button style={delBtn} onClick={() => deleteItem(`/api/experience/${exp.id}`, "experience", i)}>🗑️</button>
                     </div>
                   </div>
                 ))}
@@ -2887,8 +2884,9 @@ export default function ResumeBuilder() {
         }
         showToast("✨ Generating description...");
         try {
-          const res = await apiFetch("/ai/generate-experience", {
+          const res = await fetch("/api/ai/generate-experience", {
             method: "POST",
+            ...fetchOpts,
             body: JSON.stringify({
               role: expForm.role,
               company: expForm.company,
@@ -2916,7 +2914,7 @@ export default function ResumeBuilder() {
     value={expForm.description}
     onChange={e => setExpForm({ ...expForm, description: e.target.value })} />
 </div>
-                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`/experience/`, { ...expForm, resume_id: parseInt(id) }, () => setExpForm({ company: "", role: "", start_date: "", end_date: "", description: "" }), "experience")}>+ Add Experience</button>
+                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`/api/experience/`, { ...expForm, resume_id: parseInt(id) }, () => setExpForm({ company: "", role: "", start_date: "", end_date: "", description: "" }), "experience")}>+ Add Experience</button>
               </div>
             )}
 
@@ -2932,7 +2930,7 @@ export default function ResumeBuilder() {
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
                       <button style={editBtn} onClick={() => setEditingItem({ type: "education", index: i, data: { ...edu } })}>✏️ Edit</button>
-                      <button style={delBtn} onClick={() => deleteItem(`/education/${edu.id}`, "education", i)}>🗑️</button>
+                      <button style={delBtn} onClick={() => deleteItem(`/api/education/${edu.id}`, "education", i)}>🗑️</button>
                     </div>
                   </div>
                 ))}
@@ -2942,7 +2940,7 @@ export default function ResumeBuilder() {
                     <div key={key}><label style={lbl}>{label}</label><input className="rb-inp" style={inp} placeholder={ph} value={eduForm[key]} onChange={e => setEduForm({ ...eduForm, [key]: e.target.value })} /></div>
                   ))}
                 </div>
-                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`/education/`, { ...eduForm, resume_id: parseInt(id) }, () => setEduForm({ degree: "", institution: "", start_year: "", end_year: "", gpa: "" }), "education")}>+ Add Education</button>
+                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`/api/education/`, { ...eduForm, resume_id: parseInt(id) }, () => setEduForm({ degree: "", institution: "", start_year: "", end_year: "", gpa: "" }), "education")}>+ Add Education</button>
               </div>
             )}
 
@@ -2955,7 +2953,7 @@ export default function ResumeBuilder() {
                     <span key={i} style={{ background: "linear-gradient(135deg, #eef2ff, #f5f3ff)", color: "#4f46e5", border: "1.5px solid #c7d2fe", borderRadius: 20, padding: "5px 12px", fontSize: 12.5, display: "flex", alignItems: "center", gap: 6, fontWeight: 500 }}>
                       {s.name} <span style={{ fontSize: 10, color: "#818cf8", fontWeight: 600 }}>· {s.level}</span>
                       <button onClick={() => setEditingItem({ type: "skills", index: i, data: { ...s } })} style={{ ...editBtn, fontSize: 10, padding: 0 }}>✏️</button>
-                      <button onClick={() => deleteItem(`/skills/${s.id}`, "skills", i)} style={{ ...delBtn, fontSize: 10, padding: 0 }}>✕</button>
+                      <button onClick={() => deleteItem(`/api/skills/${s.id}`, "skills", i)} style={{ ...delBtn, fontSize: 10, padding: 0 }}>✕</button>
                     </span>
                   ))}
                 </div>
@@ -2967,7 +2965,7 @@ export default function ResumeBuilder() {
                       {["Beginner", "Intermediate", "Advanced", "Expert"].map(l => <option key={l}>{l}</option>)}
                     </select>
                   </div>
-                  <button style={{ ...btn, fontFamily: "inherit" }} onClick={() => addItem(`/skills/`, { ...skillForm, resume_id: parseInt(id) }, () => setSkillForm({ name: "", level: "Intermediate" }), "skills")}>+ Add</button>
+                  <button style={{ ...btn, fontFamily: "inherit" }} onClick={() => addItem(`/api/skills/`, { ...skillForm, resume_id: parseInt(id) }, () => setSkillForm({ name: "", level: "Intermediate" }), "skills")}>+ Add</button>
                 </div>
               </div>
             )}
@@ -2984,7 +2982,7 @@ export default function ResumeBuilder() {
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
                       <button style={editBtn} onClick={() => setEditingItem({ type: "projects", index: i, data: { ...p } })}>✏️ Edit</button>
-                      <button style={delBtn} onClick={() => deleteItem(`/projects/${p.id}`, "projects", i)}>🗑️</button>
+                      <button style={delBtn} onClick={() => deleteItem(`/api/projects/${p.id}`, "projects", i)}>🗑️</button>
                     </div>
                   </div>
                 ))}
@@ -3005,8 +3003,9 @@ export default function ResumeBuilder() {
         }
         showToast("✨ Generating description...");
         try {
-          const res = await apiFetch("/ai/generate-project", {
+          const res = await fetch("/api/ai/generate-project", {
             method: "POST",
+            ...fetchOpts,
             body: JSON.stringify({
               title: projForm.title,
               tech_stack: projForm.tech_stack
@@ -3032,7 +3031,7 @@ export default function ResumeBuilder() {
     value={projForm.description}
     onChange={e => setProjForm({ ...projForm, description: e.target.value })} />
 </div>
-                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`/projects/`, { ...projForm, resume_id: parseInt(id) }, () => setProjForm({ title: "", description: "", tech_stack: "", link: "" }), "projects")}>+ Add Project</button>
+                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`/api/projects/`, { ...projForm, resume_id: parseInt(id) }, () => setProjForm({ title: "", description: "", tech_stack: "", link: "" }), "projects")}>+ Add Project</button>
               </div>
             )}
 
@@ -3048,7 +3047,7 @@ export default function ResumeBuilder() {
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
                       <button style={editBtn} onClick={() => setEditingItem({ type: "certs", index: i, data: { ...c } })}>✏️ Edit</button>
-                      <button style={delBtn} onClick={() => deleteItem(`/certifications/${c.id}`, "certs", i)}>🗑️</button>
+                      <button style={delBtn} onClick={() => deleteItem(`/api/certifications/${c.id}`, "certs", i)}>🗑️</button>
                     </div>
                   </div>
                 ))}
@@ -3058,7 +3057,7 @@ export default function ResumeBuilder() {
                     <div key={key}><label style={lbl}>{label}</label><input className="rb-inp" style={inp} placeholder={ph} value={certForm[key]} onChange={e => setCertForm({ ...certForm, [key]: e.target.value })} /></div>
                   ))}
                 </div>
-                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`/certifications/`, { ...certForm, resume_id: parseInt(id) }, () => setCertForm({ name: "", issuer: "", issue_date: "", expiry_date: "" }), "certs")}>+ Add Certification</button>
+                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`/api/certifications/`, { ...certForm, resume_id: parseInt(id) }, () => setCertForm({ name: "", issuer: "", issue_date: "", expiry_date: "" }), "certs")}>+ Add Certification</button>
               </div>
             )}
           </div>

@@ -1,3 +1,4 @@
+from app.extensions import db
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, HRFlowable
 from reportlab.platypus import BaseDocTemplate, Frame, PageTemplate, FrameBreak, Table, TableStyle
 from reportlab.lib.styles import ParagraphStyle
@@ -21,7 +22,7 @@ def clean(line):
 
 def fetch(resume_id):
     return {
-        "resume":      Resume.query.get(resume_id),
+        "resume":      db.session.get(Resume, resume_id),
         "experiences": Experience.query.filter_by(resume_id=resume_id).all(),
         "educations":  Education.query.filter_by(resume_id=resume_id).all(),
         "skills":      Skill.query.filter_by(resume_id=resume_id).all(),

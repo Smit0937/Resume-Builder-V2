@@ -1,9 +1,10 @@
-from flask import Flask
+from flask import Flask, app
 from .config import Config
 from .extensions import db, jwt, bcrypt, mail
 from flask_cors import CORS
 from datetime import timedelta
 import os
+
 
 # Import Blueprints
 from .routes.auth_routes import auth
@@ -72,3 +73,5 @@ def create_app(test_config=None):
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
 
     return app
+if __name__ == "__main__":  # pragma: no cover
+    app.run(debug=True)

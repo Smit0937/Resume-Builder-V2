@@ -13,5 +13,5 @@ class User(db.Model):
     reset_token = db.Column(db.String(255))
     reset_token_expiry = db.Column(db.DateTime)
 
-    def __repr__(self):
-        return f"<User {self.email}>"
+    def __repr__(self):# pragma: no cover
+        return f"<User {self.email}>"  

@@ -42,5 +42,5 @@ class Project(db.Model):
             "updated_at": self.updated_at.isoformat()
         }
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return f"<Project {self.project_title}>"

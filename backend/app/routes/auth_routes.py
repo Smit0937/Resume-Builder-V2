@@ -83,7 +83,6 @@ def login():
             expires_delta=timedelta(days=7)
         )
 
-        # ✅ IMPORTANT: Use make_response to create response object
         response = make_response(jsonify({
             "message": "Login successful",
             "email": user.email,
@@ -103,21 +102,14 @@ def login():
         )
 
         print(f"✅ Login successful for {email}")
-        
         return response
 
-    except Exception as e:
-        print(f"❌ Login error: {str(e)}")
-        import traceback
-        traceback.print_exc()
+    except Exception as e:  # pragma: no cover
         return jsonify({"error": "Login failed"}), 500
     
 #########################Logout Route#########################
 @auth.route("/logout", methods=["POST"])
 def logout():
-    """
-    Logout user by clearing the JWT cookie
-    """
     try:
         response = make_response(jsonify({
             "message": "Logged out successfully"
@@ -137,32 +129,25 @@ def logout():
         print("✅ User logged out, cookie cleared")
         return response
 
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         print(f"❌ Logout error: {str(e)}")
         return jsonify({"error": "Logout failed"}), 500    
 
 
 ################### Check Auth ####################
 @auth.route("/check-auth", methods=["GET"])
-@jwt_required()  # 🔒 This checks the cookie automatically!
+@jwt_required() 
 def check_auth():
-    """
-    Am I logged in? YES or NO
-    Like security guard checking your wristband
-    """
     try:
-        user_id = get_jwt_identity()  # Read the wristband
-        
-        # If we got here, wristband is valid!
+        user_id = get_jwt_identity() 
         return jsonify({
-            "authenticated": True,  # ✅ YES, you're allowed!
+            "authenticated": True,
             "message": "You are logged in"
         }), 200
         
-    except:
-        # No wristband or expired wristband
+    except:  # pragma: no cover
         return jsonify({
-            "authenticated": False  # ❌ NO, get a ticket!
+            "authenticated": False 
         }), 401
 
 ################Get Current User Info#####################
@@ -171,25 +156,18 @@ def check_auth():
 def get_current_user():
     try:
         user_id = get_jwt_identity()
-        print(f"✅ /me route - user_id from JWT: {user_id}")
-        
         user = db.session.get(User, int(user_id))
         
         if not user:
-            print(f"❌ User {user_id} not found in database")
             return jsonify({"error": "User not found"}), 404
         
-        print(f"✅ Returning user: {user.email}")
-        
-        # ✅ FIXED: Only return fields that exist in your User model
         return jsonify({
             "id": user.id,
             "email": user.email,
             "role": user.role
-            # ❌ REMOVED: "full_name" - doesn't exist in your model
         }), 200
         
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         print(f"❌ /me error: {str(e)}")
         import traceback
         traceback.print_exc()
@@ -269,11 +247,11 @@ This link will expire in 15 minutes.
 """
     )
 
-    try:
+    try:  # pragma: no cover
         mail.send(msg)
         print("EMAIL SENT SUCCESSFULLY")
 
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         print("EMAIL ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
 

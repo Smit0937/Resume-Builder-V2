@@ -39,11 +39,7 @@ def add_skill():
 @skill_bp.route("/<int:resume_id>", methods=["GET"])
 @jwt_required()
 def get_skills(resume_id):
-    user_id = get_jwt_identity()
-
-    resume = Resume.query.filter_by(id=resume_id, user_id=int(user_id)).first()
-    if not resume:
-        return jsonify({"error": "Invalid resume"}), 403
+    
 
     skills = Skill.query.filter_by(resume_id=resume_id).all()
 

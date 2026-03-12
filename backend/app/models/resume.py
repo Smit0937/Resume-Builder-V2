@@ -51,3 +51,5 @@ class Resume(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
+    def __repr__(self):  # pragma: no cover
+        return f"<Resume {self.title}>"

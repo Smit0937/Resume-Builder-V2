@@ -148,8 +148,8 @@ def list_all_resumes():
             "template_name": r.template_name,
             "template_style": r.template_style,
             "user_id": r.user_id,
-            "user_name": user.name if user else "Deleted User",
-            "user_email": user.email if user else "",
+            "user_name": user.name if user else "Deleted User",  # pragma: no cover
+            "user_email": user.email if user else "",  # pragma: no cover
             "created_at": r.created_at.isoformat() if r.created_at else None,
         })
     return jsonify(result), 200

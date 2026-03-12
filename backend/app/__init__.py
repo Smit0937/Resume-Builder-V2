@@ -54,7 +54,7 @@ def create_app(test_config=None):
 
     CORS(
         app,
-        resources={r"/api/*": {"origins": allowed_origins}},
+        resources={r"/*": {"origins": allowed_origins}},
         supports_credentials=True
     )
 

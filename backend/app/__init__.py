@@ -40,12 +40,15 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     # CORS: allow frontend origins with credentials
-    frontend_url = os.getenv("FRONTEND_URL", "")
+    frontend_url = os.getenv("FRONTEND_URL", "").rstrip("/") # <-- Added .rstrip("/") for safety
+    
     allowed_origins = [
         "http://localhost:5173",
         "http://localhost:3000",
         "http://127.0.0.1:5173",
     ]
+    
+    # If a Vercel URL is provided, add it to the VIP list!
     if frontend_url:
         allowed_origins.append(frontend_url)
 

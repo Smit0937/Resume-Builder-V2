@@ -87,6 +87,7 @@ def create_resume():
 
 
 @resume_bp.route("/", methods=["GET"])
+@resume_bp.route("/all", methods=["GET"])
 @jwt_required()
 def get_resumes():
     """

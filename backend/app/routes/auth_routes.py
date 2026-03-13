@@ -19,11 +19,18 @@ auth = Blueprint("auth", __name__)
 _is_prod = any([
     os.getenv("FLASK_ENV") == "production",
     os.getenv("RENDER"),
+    os.getenv("RAILWAY_ENVIRONMENT"),
     os.getenv("RAILWAY_ENVIRONMENT_NAME"),
     os.getenv("RAILWAY_PUBLIC_DOMAIN"),
 ])
 COOKIE_SECURE = _is_prod
 COOKIE_SAMESITE = "None" if _is_prod else "Lax"
+
+
+def _build_reset_link(token):
+    # Use configured frontend URL in production, falling back to local dev URL.
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+    return f"{frontend_url}/reset-password/{token}"
 
 
 # -------------------------------
@@ -238,7 +245,7 @@ def forgot_password():
     user.reset_token_expiry = expiry
     db.session.commit()
 
-    reset_link = f"http://localhost:5173/reset-password/{token}"
+    reset_link = _build_reset_link(token)
 
     msg = Message(
         subject="Reset Your ResumeAI Password",

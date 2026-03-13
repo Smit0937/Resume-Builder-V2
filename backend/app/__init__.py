@@ -1,4 +1,4 @@
-from flask import Flask, app
+from flask import Flask
 from .config import Config
 from .extensions import db, jwt, bcrypt, mail
 from flask_cors import CORS
@@ -43,8 +43,8 @@ def create_app(test_config=None):
 
     # Production (HTTPS) vs Development (HTTP) cookie settings
     is_prod = _is_production_env()
-    app.config["JWT_COOKIE_SECURE"] = is_prod
-    app.config["JWT_COOKIE_SAMESITE"] = "None" if is_prod else "Lax"
+    app.config["JWT_COOKIE_SECURE"] = is_prod  # ✅ Already correct
+    app.config["JWT_COOKIE_SAMESITE"] = "None" if is_prod else "Lax"  # ✅ Already correct
     
     if test_config:
         app.config.update(test_config)
@@ -56,6 +56,7 @@ def create_app(test_config=None):
         "http://localhost:5173",
         "http://localhost:3000",
         "http://127.0.0.1:5173",
+        "https://resume-psi-drab-27.vercel.app",  # ✅ ADDED: Your Vercel URL
     ]
 
     if frontend_url:
@@ -67,6 +68,7 @@ def create_app(test_config=None):
         supports_credentials=True,
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        expose_headers=["Set-Cookie"],  # ✅ ADDED: Allow Set-Cookie header
     )
 
     # Initialize Extensions
@@ -87,5 +89,7 @@ def create_app(test_config=None):
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
 
     return app
+
 if __name__ == "__main__":  # pragma: no cover
+    app = create_app()  # ✅ FIXED: Must call create_app() first
     app.run(debug=True)

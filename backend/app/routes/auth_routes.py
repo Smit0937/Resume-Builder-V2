@@ -107,8 +107,9 @@ def login():
             value=access_token,
             max_age=7*24*60*60,
             httponly=True,
-            secure=COOKIE_SECURE,
-            samesite=COOKIE_SAMESITE,
+            secure=True,                   # ✅ HTTPS only
+            samesite='None',               # ✅ MUST be None for cross-origin
+            domain=None,                   # ✅ Let browser handle
             path='/'
         )
 

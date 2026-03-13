@@ -73,15 +73,20 @@ def login():
         email = data.get("email")
         password = data.get("password")
 
+        print(f"🔍 Login attempt for: {email}")
+        print(f"🔍 Request origin: {request.headers.get('Origin')}")
+
         if not email or not password:
             return jsonify({"error": "Email and password are required"}), 400
 
         user = User.query.filter_by(email=email).first()
 
         if not user:
+            print(f"❌ User not found: {email}")
             return jsonify({"error": "Invalid credentials"}), 401
 
         if not bcrypt.check_password_hash(user.password, password):
+            print(f"❌ Invalid password for: {email}")
             return jsonify({"error": "Invalid credentials"}), 401
 
         # Create JWT token
@@ -94,6 +99,7 @@ def login():
             expires_delta=timedelta(days=7)
         )
 
+        # Create response
         response = make_response(jsonify({
             "message": "Login successful",
             "email": user.email,
@@ -101,22 +107,28 @@ def login():
             "user_id": user.id
         }), 200)
 
-        # Set the cookie
+        # ✅ Cookie settings for production cross-origin
         response.set_cookie(
             'access_token_cookie',
             value=access_token,
             max_age=7*24*60*60,
             httponly=True,
-            secure=True,                   # ✅ HTTPS only
-            samesite='None',               # ✅ MUST be None for cross-origin
-            domain=None,                   # ✅ Let browser handle
+            secure=True,        # HTTPS only
+            samesite='None',    # Cross-origin
+            domain=None,
             path='/'
         )
 
-        print(f"✅ Login successful for {email}")
+        print(f"✅ Login successful for: {email}")
+        print(f"✅ Cookie set with: Secure=True, SameSite=None")
+        print(f"✅ Token: {access_token[:50]}...")
+        
         return response
 
-    except Exception as e:  # pragma: no cover
+    except Exception as e:
+        print(f"❌ Login error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": "Login failed"}), 500
     
 #########################Logout Route#########################

@@ -1,10 +1,9 @@
-from flask import Flask
+from flask import Flask, request
 from .config import Config
 from .extensions import db, jwt, bcrypt, mail
 from flask_cors import CORS
 from datetime import timedelta
 import os
-
 
 # Import Blueprints
 from .routes.auth_routes import auth
@@ -43,32 +42,36 @@ def create_app(test_config=None):
 
     # Production (HTTPS) vs Development (HTTP) cookie settings
     is_prod = _is_production_env()
-    app.config["JWT_COOKIE_SECURE"] = is_prod  # ✅ Already correct
-    app.config["JWT_COOKIE_SAMESITE"] = "None" if is_prod else "Lax"  # ✅ Already correct
+    app.config["JWT_COOKIE_SECURE"] = is_prod
+    app.config["JWT_COOKIE_SAMESITE"] = "None" if is_prod else "Lax"
     
     if test_config:
         app.config.update(test_config)
 
-    # CORS: allow frontend origins with credentials
+    # CORS: Build allowed origins
     frontend_url = os.getenv("FRONTEND_URL", "").rstrip("/")
 
     allowed_origins = [
         "http://localhost:5173",
         "http://localhost:3000",
         "http://127.0.0.1:5173",
-        "https://resume-psi-drab-27.vercel.app",  # ✅ ADDED: Your Vercel URL
     ]
 
     if frontend_url:
         allowed_origins.append(frontend_url)
+    
+    # Hardcoded fallback for Vercel
+    if "https://resume-psi-drab-27.vercel.app" not in allowed_origins:
+        allowed_origins.append("https://resume-psi-drab-27.vercel.app")
 
+    # CORS Configuration
     CORS(
         app,
-        resources={r"/api/*": {"origins": allowed_origins}},
+        origins=allowed_origins,
         supports_credentials=True,
-        allow_headers=["Content-Type", "Authorization"],
+        allow_headers=["Content-Type", "Authorization", "Cookie"],
+        expose_headers=["Set-Cookie"],
         methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        expose_headers=["Set-Cookie"],  # ✅ ADDED: Allow Set-Cookie header
     )
 
     # Initialize Extensions
@@ -77,7 +80,19 @@ def create_app(test_config=None):
     bcrypt.init_app(app)
     mail.init_app(app)
 
-    # Register Blueprints with prefix
+    # Handle CORS manually for extra compatibility
+    @app.after_request
+    def after_request(response):
+        origin = request.headers.get('Origin')
+        if origin in allowed_origins:
+            response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,Cookie'
+            response.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,PATCH,DELETE,OPTIONS'
+            response.headers['Access-Control-Expose-Headers'] = 'Set-Cookie'
+        return response
+
+    # Register Blueprints
     app.register_blueprint(auth, url_prefix="/api/auth")
     app.register_blueprint(resume_bp, url_prefix="/api/resume")
     app.register_blueprint(education_bp, url_prefix="/api/education")
@@ -90,6 +105,6 @@ def create_app(test_config=None):
 
     return app
 
-if __name__ == "__main__":  # pragma: no cover
-    app = create_app()  # ✅ FIXED: Must call create_app() first
+if __name__ == "__main__":
+    app = create_app()
     app.run(debug=True)

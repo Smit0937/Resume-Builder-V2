@@ -2614,29 +2614,27 @@ export default function ResumeBuilder() {
     try {
       let targetResumeId = currentResumeId;
 
-      // 1. Fetch Resume Basic Info
-      let resResume = await apiFetch(`/resume/${targetResumeId}`, fetchOpts);
-      if (resResume.ok === false) {
-        // If route has an old/invalid resume id, recover by redirecting to the first resume.
-        if (resResume.status === 404) {
-          const resAll = await apiFetch("/resume/all", fetchOpts);
-          const allResumes = await readJsonSafe(resAll);
-          if (Array.isArray(allResumes) && allResumes.length > 0) {
-            targetResumeId = allResumes[0].id;
-            setResolvedResumeId(targetResumeId);
-            navigate(`/resume/${targetResumeId}/edit`, { replace: true });
-            resResume = await apiFetch(`/resume/${targetResumeId}`, fetchOpts);
-            showToast("Loaded your latest resume");
-          } else {
-            navigate("/dashboard", { replace: true });
-            showToast("No resume found. Create one from dashboard.");
-            return;
-          }
-        }
+      // 1. Resolve a valid resume id first, so stale /resume/:id/edit links cannot break the page.
+      const resAll = await apiFetch("/resume/all", fetchOpts);
+      const allResumes = await readJsonSafe(resAll);
+      if (!Array.isArray(allResumes) || allResumes.length === 0) {
+        navigate("/dashboard", { replace: true });
+        showToast("No resume found. Create one from dashboard.");
+        return;
+      }
 
-        if (resResume.ok === false) {
-          throw new Error(`Resume fetch failed (${resResume.status})`);
-        }
+      const hasCurrentId = allResumes.some((r) => Number(r.id) === Number(targetResumeId));
+      if (!hasCurrentId) {
+        targetResumeId = Number(allResumes[0].id);
+        setResolvedResumeId(targetResumeId);
+        navigate(`/resume/${targetResumeId}/edit`, { replace: true });
+        showToast("Loaded your latest resume");
+      }
+
+      // 2. Fetch Resume Basic Info using the resolved id
+      const resResume = await apiFetch(`/resume/${targetResumeId}`, fetchOpts);
+      if (resResume.ok === false) {
+        throw new Error(`Resume fetch failed (${resResume.status})`);
       }
       const data = await readJsonSafe(resResume);
       setResolvedResumeId(targetResumeId);
@@ -2662,7 +2660,7 @@ export default function ResumeBuilder() {
         }
       }
 
-      // 2. Fetch all related data in parallel
+      // 3. Fetch all related data in parallel
       const [resExp, resEdu, resSkills, resProj, resCerts] = await Promise.all([
         apiFetch(`/experience/${targetResumeId}`, fetchOpts),
         apiFetch(`/education/${targetResumeId}`, fetchOpts),

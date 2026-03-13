@@ -32,7 +32,12 @@ def create_app(test_config=None):
     app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"
 
     # Production (HTTPS) vs Development (HTTP) cookie settings
-    is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("RENDER")
+    is_prod = any([
+        os.getenv("FLASK_ENV") == "production",
+        os.getenv("RENDER"),
+        os.getenv("RAILWAY_ENVIRONMENT_NAME"),
+        os.getenv("RAILWAY_PUBLIC_DOMAIN"),
+    ])
     app.config["JWT_COOKIE_SECURE"] = is_prod       # True for HTTPS, False for HTTP
     app.config["JWT_COOKIE_SAMESITE"] = "None" if is_prod else "Lax"
     

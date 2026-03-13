@@ -1,13 +1,9 @@
 import axios from "axios";
 
-// For production deployment on Vercel, use the Railway backend URL
-// For local development, use localhost
-const RAILWAY_API_URL = "https://resume-builder-v2-production-7b7d.up.railway.app/api";
-const LOCAL_API_URL = "http://localhost:5000";
-
-export const API_URL = 
-  import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD ? RAILWAY_API_URL : LOCAL_API_URL);
+// Use relative paths /api for all requests
+// On localhost, this goes to the local backend (http://localhost:5000/api)
+// On Vercel, this is rewritten by vercel.json to Railway backend
+export const API_URL = "/api";
 
 console.log("🔌 API_URL:", API_URL);
 

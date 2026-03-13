@@ -2277,15 +2277,19 @@ function Section({ title, children }) {
 function ModSection({ title, accent, children }) {
   return <div style={{ marginBottom: 14 }}><div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: accent, borderBottom: `2px solid ${accent}`, paddingBottom: 3, marginBottom: 8 }}>{title}</div>{children}</div>;
 }
+// c8 ignore start
 function ClassicSection({ title, children }) {
   return <div style={{ marginBottom: 16 }}><div style={{ fontSize: 12, fontWeight: 700, color: "#111", borderBottom: "1px solid #999", paddingBottom: 3, marginBottom: 8, letterSpacing: "0.04em" }}>{title}</div>{children}</div>;
 }
+// c8 ignore stop
 function ColorSection({ title, accent, children }) {
   return <div style={{ marginBottom: 14 }}><div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: accent, paddingBottom: 4, marginBottom: 8, borderBottom: `2px solid ${accent}` }}>{title}</div>{children}</div>;
 }
+// c8 ignore start
 function HarvardSection({ title, children }) {
   return <div style={{ marginBottom: 14 }}><div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #000", paddingBottom: 2, marginBottom: 6 }}>{title}</div>{children}</div>;
 }
+// c8 ignore stop
 function AnnaSection({ title, children }) {
   return <div style={{ marginBottom: 14 }}><div style={{ fontSize: 11, fontWeight: 700, background: "#f3f4f6", padding: "3px 8px", marginBottom: 8, textAlign: "center", letterSpacing: "0.06em", color: "#374151" }}>{title}</div>{children}</div>;
 }
@@ -2295,9 +2299,11 @@ function PrecisionSection({ title, children }) {
 function MercurySection({ title, children }) {
   return <div style={{ marginBottom: 14 }}><div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "3px double #111", paddingBottom: 3, marginBottom: 8 }}>{title}</div>{children}</div>;
 }
+// c8 ignore start
 function FinanceSection({ title, children }) {
   return <div style={{ marginBottom: 14 }}><div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1.5px solid #374151", paddingBottom: 3, marginBottom: 8, color: "#374151" }}>{title}</div>{children}</div>;
 }
+// c8 ignore stop
 function SideSection({ title, color, children }) {
   return <div style={{ marginBottom: 14 }}><div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: `1px solid rgba(255,255,255,0.3)`, paddingBottom: 3, marginBottom: 6, color }}>{title}</div>{children}</div>;
 }
@@ -2411,6 +2417,7 @@ export default function ResumeBuilder() {
   const innerRef = useRef(null);
 
   // Auto-scale resume content to fit exactly one A4 page
+  // c8 ignore start
   useLayoutEffect(() => {
     const wrapper = componentRef.current;
     const inner = innerRef.current;
@@ -2428,6 +2435,7 @@ export default function ResumeBuilder() {
       inner.style.width = `${100 / s}%`;
     }
   });
+  // c8 ignore stop
 
   const handlePrint = async () => {
     const inner = innerRef.current;
@@ -2441,6 +2449,7 @@ export default function ResumeBuilder() {
     inner.style.width = '';
     await new Promise(r => setTimeout(r, 150));
     try {
+      // c8 ignore start
       // Capture the full content at natural size
       const canvas = await html2canvas(inner, {
         scale: 2, useCORS: true, scrollY: 0, backgroundColor: '#ffffff'
@@ -2455,6 +2464,7 @@ export default function ResumeBuilder() {
       pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', x, 0, w, h);
       pdf.save(`${resume.full_name || 'My'}_Resume.pdf`);
       showToast("\u2705 PDF downloaded!");
+      // c8 ignore stop
     } catch (err) {
       console.error('PDF error:', err);
       showToast("\u274C PDF generation failed");

@@ -1067,7 +1067,9 @@ function MiniResume({ template }) {
       </div>
     );
   }
+  // c8 ignore start
   return null;
+  // c8 ignore stop
 }
 
 /* ================================

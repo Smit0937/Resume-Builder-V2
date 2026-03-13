@@ -36,13 +36,13 @@ export default function ForgotPassword() {
         <h2 style={{ fontSize: 24, fontWeight: 800, textAlign: "center", color: "#0f172a", margin: "0 0 24px", letterSpacing: "-0.02em" }}>Forgot Password</h2>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <input type="email" placeholder="Enter your email" className="fp-input" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <button type="submit" disabled={loading} className="fp-btn">{loading ? "Sending..." : "Send Reset Link"}</button>
+          <input type="email" placeholder="Enter your email" className="fp-input" value={email} onChange={(e) => setEmail(e.target.value)} required data-testid="email-input" />
+          <button type="submit" disabled={loading} className="fp-btn" data-testid="submit-button">{loading ? "Sending..." : "Send Reset Link"}</button>
         </form>
 
         <p style={{ fontSize: 14, marginTop: 20, textAlign: "center", color: "#64748b" }}>
           Remember your password?{" "}
-          <Link to="/login" style={{ color: "#6366f1", textDecoration: "none", fontWeight: 600 }}>Login</Link>
+          <Link to="/login" style={{ color: "#6366f1", textDecoration: "none", fontWeight: 600 }} data-testid="login-link">Login</Link>
         </p>
       </div>
     </div>

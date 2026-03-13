@@ -38,8 +38,8 @@ export default function ResetPassword() {
         <h2 style={{ fontSize: 24, fontWeight: 800, textAlign: "center", color: "#0f172a", margin: "0 0 24px", letterSpacing: "-0.02em" }}>Reset Password</h2>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <input type="password" placeholder="Enter new password" className="rp-input" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <button type="submit" disabled={loading} className="rp-btn">{loading ? "Updating..." : "Reset Password"}</button>
+          <input type="password" placeholder="Enter new password" className="rp-input" value={password} onChange={(e) => setPassword(e.target.value)} required data-testid="password-input" />
+          <button type="submit" disabled={loading} className="rp-btn" data-testid="submit-button">{loading ? "Updating..." : "Reset Password"}</button>
         </form>
       </div>
     </div>

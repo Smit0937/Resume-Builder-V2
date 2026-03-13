@@ -3172,7 +3172,13 @@
 <a name='L3107'></a><a href='#L3107'>3107</a>
 <a name='L3108'></a><a href='#L3108'>3108</a>
 <a name='L3109'></a><a href='#L3109'>3109</a>
-<a name='L3110'></a><a href='#L3110'>3110</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L3110'></a><a href='#L3110'>3110</a>
+<a name='L3111'></a><a href='#L3111'>3111</a>
+<a name='L3112'></a><a href='#L3112'>3112</a>
+<a name='L3113'></a><a href='#L3113'>3113</a>
+<a name='L3114'></a><a href='#L3114'>3114</a>
+<a name='L3115'></a><a href='#L3115'>3115</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -5697,15 +5703,18 @@
 <span class="cline-any cline-yes">139x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">139x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">140x</span>
 <span class="cline-any cline-yes">139x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">139x</span>
 <span class="cline-any cline-yes">137x</span>
 <span class="cline-any cline-yes">137x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -5732,6 +5741,7 @@
 <span class="cline-any cline-yes">140x</span>
 <span class="cline-any cline-yes">140x</span>
 <span class="cline-any cline-yes">140x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -6284,6 +6294,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useEffect, useLayoutEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { API_URL } from "../services/api";
+import html2pdf from "html2pdf.js";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 &nbsp;
@@ -8804,23 +8815,26 @@ export default function ResumeBuilder() {
       // 1. Fetch Resume Basic Info
       const resResume = await fetch(`${API_URL}/resume/${id}`, fetchOpts);
       const data = await resResume.json();
-&nbsp;
-      // Note: backend returns { resume: {...}, message: "..." }
-      const resumeData = data.resume || data;
+      
+      // Note: your backend returns { resume: {...}, message: "..." } 
+      // based on the route code you shared earlier.
+      const resumeData = data.resume || data; 
 &nbsp;
       if (resumeData) {
         setResume(resumeData);
-&nbsp;
+        
+        // ✅ STEP 5 LOGIC: Handle the Template Style
         if (resumeData.template_style) {
           setTemplateStyle(resumeData.template_style);
           console.log("✅ Applied saved style:", resumeData.template_style);
         } else {
+          // Fallback logic for older resumes that don't have a style saved yet
           const fallbackMap = {
-            simple: "classic",
-            modern: "sidebar",
-            creative: "creative",
+            'simple': 'classic',
+            'modern': 'sidebar',
+            'creative': 'creative'
           };
-          const fallback = fallbackMap[resumeData.template_name] || "classic";
+          const fallback = fallbackMap[resumeData.template_name] || 'classic';
           setTemplateStyle(fallback);
           console.log("⚠️ No style found, using fallback:", fallback);
         }
@@ -8832,15 +8846,16 @@ export default function ResumeBuilder() {
         fetch(`${API_URL}/education/${id}`, fetchOpts),
         fetch(`${API_URL}/skills/${id}`, fetchOpts),
         fetch(`${API_URL}/projects/${id}`, fetchOpts),
-        fetch(`${API_URL}/certifications/${id}`, fetchOpts),
+        fetch(`${API_URL}/certifications/${id}`, fetchOpts)
       ]);
 &nbsp;
       // Convert all responses to JSON
-      setExperiences((await resExp.json()) || []);
-      setEducations((await resEdu.json()) || []);
-      setSkills((await resSkills.json()) || []);
-      setProjects((await resProj.json()) || []);
-      setCerts((await resCerts.json()) || []);
+      setExperiences(await resExp.json() || []);
+      setEducations(await resEdu.json() || []);
+      setSkills(await resSkills.json() || []);
+      setProjects(await resProj.json() || []);
+      setCerts(await resCerts.json() || []);
+&nbsp;
     } catch (err) {
       console.error("❌ Error in fetchAll:", err);
       showToast("Failed to load resume data");
@@ -9397,7 +9412,7 @@ export default function ResumeBuilder() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-13T09:36:21.738Z
+                at 2026-03-13T09:06:58.327Z
             </div>
         <script src="../prettify.js"></script>
         <script>

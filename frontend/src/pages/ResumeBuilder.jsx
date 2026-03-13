@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { API_URL } from "../services/api";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
+import api from "../services/api";
 
 const TABS = ["Personal", "Experience", "Education", "Skills", "Projects", "Certifications"];
 
@@ -2518,62 +2519,53 @@ export default function ResumeBuilder() {
 
  const fetchAll = async () => {
     try {
-      // 1. Fetch Resume Basic Info
-      const resResume = await fetch(`${API_URL}/resume/${id}`, fetchOpts);
-      if (resResume.ok === false) {
-        throw new Error(`Resume fetch failed (${resResume.status})`);
-      }
-      const data = await resResume.json();
-
-      // Note: backend returns { resume: {...}, message: "..." }
-      const resumeData = data.resume || data;
+      // 1. Fetch Resume Basic Info using the Axios 'api' instance
+      const resResume = await api.get(`/resume/${id}`);
+      const data = resResume.data; // Axios automatically parses JSON into .data
+      
+      // Note: your backend returns { resume: {...}, message: "..." } 
+      // based on the route code you shared earlier.
+      const resumeData = data.resume || data; 
 
       if (resumeData) {
         setResume(resumeData);
-
+        
+        // ✅ STEP 5 LOGIC: Handle the Template Style
         if (resumeData.template_style) {
           setTemplateStyle(resumeData.template_style);
           console.log("✅ Applied saved style:", resumeData.template_style);
         } else {
+          // Fallback logic for older resumes that don't have a style saved yet
           const fallbackMap = {
-            simple: "classic",
-            modern: "sidebar",
-            creative: "creative",
+            'simple': 'classic',
+            'modern': 'sidebar',
+            'creative': 'creative'
           };
-          const fallback = fallbackMap[resumeData.template_name] || "classic";
+          const fallback = fallbackMap[resumeData.template_name] || 'classic';
           setTemplateStyle(fallback);
           console.log("⚠️ No style found, using fallback:", fallback);
         }
       }
 
-      // 2. Fetch all related data in parallel
+      // 2. Fetch all related data in parallel using Axios
       const [resExp, resEdu, resSkills, resProj, resCerts] = await Promise.all([
-        fetch(`${API_URL}/experience/${id}`, fetchOpts),
-        fetch(`${API_URL}/education/${id}`, fetchOpts),
-        fetch(`${API_URL}/skills/${id}`, fetchOpts),
-        fetch(`${API_URL}/projects/${id}`, fetchOpts),
-        fetch(`${API_URL}/certifications/${id}`, fetchOpts),
+        api.get(`/experience/${id}`),
+        api.get(`/education/${id}`),
+        api.get(`/skills/${id}`),
+        api.get(`/projects/${id}`),
+        api.get(`/certifications/${id}`)
       ]);
 
-      if (
-        resExp.ok === false ||
-        resEdu.ok === false ||
-        resSkills.ok === false ||
-        resProj.ok === false ||
-        resCerts.ok === false
-      ) {
-        throw new Error("Related data fetch failed");
-      }
+      // Set the states using the .data property from Axios
+      setExperiences(resExp.data || []);
+      setEducations(resEdu.data || []);
+      setSkills(resSkills.data || []);
+      setProjects(resProj.data || []);
+      setCerts(resCerts.data || []);
 
-      // Convert all responses to JSON
-      setExperiences((await resExp.json()) || []);
-      setEducations((await resEdu.json()) || []);
-      setSkills((await resSkills.json()) || []);
-      setProjects((await resProj.json()) || []);
-      setCerts((await resCerts.json()) || []);
     } catch (err) {
       console.error("❌ Error in fetchAll:", err);
-      showToast("Failed to load resume data");
+      // Optional: showToast("Failed to load resume data");
     }
   };
 

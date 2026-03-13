@@ -2675,7 +2675,6 @@ export default function ResumeBuilder() {
             display: flex;
             flex-wrap: wrap;
             justify-content: flex-start;
-            gap: 8px;
           }
 
           .rb-title-input {
@@ -2714,36 +2713,6 @@ export default function ResumeBuilder() {
 
           .rb-form-shell {
             padding: 16px 12px !important;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .rb-header-left {
-            gap: 8px;
-          }
-
-          .rb-header-right {
-            width: 100%;
-          }
-
-          .rb-header-right > button,
-          .rb-header-right > div > button {
-            padding: 8px 10px !important;
-            font-size: 12px !important;
-          }
-
-          .rb-header-right > button {
-            flex: 1 1 32%;
-            justify-content: center;
-          }
-
-          .rb-tabs {
-            padding: 4px;
-          }
-
-          .rb-tab {
-            min-width: 84px;
-            font-size: 11px;
           }
         }
       `}</style>

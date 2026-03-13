@@ -122,13 +122,14 @@ def login():
         }), 200)
 
         # ✅ Cookie settings for production cross-origin
+        # ✅ Cookie settings dynamically switch for Localhost vs Production
         response.set_cookie(
             'access_token_cookie',
             value=access_token,
             max_age=7*24*60*60,
             httponly=True,
-            secure=True,        # HTTPS only
-            samesite='None',    # Cross-origin
+            secure=COOKIE_SECURE,       # <-- FIXED THIS
+            samesite=COOKIE_SAMESITE,   # <-- FIXED THIS
             domain=None,
             path='/'
         )

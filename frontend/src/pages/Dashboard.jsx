@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { resumeService } from "../services/resumeService";
 import api from "../services/api";
-import { API_URL } from '../config';
+
 
 export default function Dashboard() {
   const { user, logout, loading: authLoading } = useAuth();

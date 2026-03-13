@@ -18,6 +18,16 @@ from .routes.ai_routes import ai_bp
 from .routes.admin_routes import admin_bp
 
 
+def _is_production_env():
+    return any([
+        os.getenv("FLASK_ENV") == "production",
+        os.getenv("RENDER"),
+        os.getenv("RAILWAY_ENVIRONMENT"),
+        os.getenv("RAILWAY_PUBLIC_DOMAIN"),
+        os.getenv("RAILWAY_PROJECT_ID"),
+    ])
+
+
 def create_app(test_config=None):
     app = Flask(__name__)
 
@@ -32,30 +42,31 @@ def create_app(test_config=None):
     app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"
 
     # Production (HTTPS) vs Development (HTTP) cookie settings
-    is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("RENDER")
-    app.config["JWT_COOKIE_SECURE"] = is_prod       # True for HTTPS, False for HTTP
+    is_prod = _is_production_env()
+    app.config["JWT_COOKIE_SECURE"] = is_prod
     app.config["JWT_COOKIE_SAMESITE"] = "None" if is_prod else "Lax"
     
     if test_config:
         app.config.update(test_config)
 
     # CORS: allow frontend origins with credentials
-    frontend_url = os.getenv("FRONTEND_URL", "").rstrip("/") # <-- Added .rstrip("/") for safety
-    
+    frontend_url = os.getenv("FRONTEND_URL", "").rstrip("/")
+
     allowed_origins = [
         "http://localhost:5173",
         "http://localhost:3000",
         "http://127.0.0.1:5173",
     ]
-    
-    # If a Vercel URL is provided, add it to the VIP list!
+
     if frontend_url:
         allowed_origins.append(frontend_url)
 
     CORS(
         app,
-        resources={r"/*": {"origins": allowed_origins}},
-        supports_credentials=True
+        resources={r"/api/*": {"origins": allowed_origins}},
+        supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization"],
+        methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     )
 
     # Initialize Extensions

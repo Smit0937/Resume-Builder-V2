@@ -10,3 +10,13 @@ export const loginUser = async (credentials) => {
   return res.data;
 };
 
+export const getCurrentUser = async () => {
+  const res = await api.get("/auth/me");
+  return res.data;
+};
+
+export const logoutUser = async () => {
+  const res = await api.post("/auth/logout");
+  return res.data;
+};
+

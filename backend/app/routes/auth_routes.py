@@ -16,9 +16,20 @@ from flask_jwt_extended import (
 auth = Blueprint("auth", __name__)
 
 # Dynamic cookie settings based on environment
-_is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("RENDER")
+_is_prod = any([
+    os.getenv("FLASK_ENV") == "production",
+    os.getenv("RENDER"),
+    os.getenv("RAILWAY_ENVIRONMENT"),
+    os.getenv("RAILWAY_PUBLIC_DOMAIN"),
+    os.getenv("RAILWAY_PROJECT_ID"),
+])
 COOKIE_SECURE = _is_prod
 COOKIE_SAMESITE = "None" if _is_prod else "Lax"
+
+
+def _build_reset_link(token):
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+    return f"{frontend_url}/reset-password/{token}"
 
 
 # -------------------------------
@@ -233,7 +244,7 @@ def forgot_password():
     user.reset_token_expiry = expiry
     db.session.commit()
 
-    reset_link = f"http://localhost:5173/reset-password/{token}"
+    reset_link = _build_reset_link(token)
 
     msg = Message(
         subject="Reset Your ResumeAI Password",

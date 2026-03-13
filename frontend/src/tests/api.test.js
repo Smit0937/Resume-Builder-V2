@@ -18,16 +18,19 @@ import api, { API_URL } from "../services/api";
 
 // ────────── TESTS ──────────
 
-// 1. API_URL falls back to "/api" when env var is missing
-test("API_URL defaults to /api", () => {
-  expect(API_URL).toBe("/api");
+// 1. API_URL falls back to the local Flask API when env var is missing
+test("API_URL defaults to localhost Flask API", () => {
+  expect(API_URL).toBe("http://localhost:5000/api");
 });
 
 // 2. axios.create was called with correct config
 test("axios.create is called with baseURL and withCredentials", () => {
   expect(axios.create).toHaveBeenCalledWith({
-    baseURL: "/api",
+    baseURL: "http://localhost:5000/api",
     withCredentials: true,
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
 });
 

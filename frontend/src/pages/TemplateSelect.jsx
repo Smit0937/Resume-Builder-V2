@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../services/api";
 
 /* ================================
    TEMPLATE CONFIGURATION
@@ -1112,7 +1113,7 @@ export default function TemplateSelect() {
 
   const createWithTemplate = async (templateId, templateStyle) => {
     try {
-      const res = await fetch("/api/resume/", {
+      const res = await fetch(`${API_URL}/resume/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

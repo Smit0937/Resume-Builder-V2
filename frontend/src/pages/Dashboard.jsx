@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { resumeService } from "../services/resumeService";
 import api from "../services/api";
+import { API_URL } from '../config';
 
 export default function Dashboard() {
   const { user, logout, loading: authLoading } = useAuth();
@@ -42,7 +43,7 @@ export default function Dashboard() {
 
   const fetchResumes = async () => {
     try {
-      const res = await api.get("/resume/all");
+      const res = await fetch(`${API_URL}/api/resume/all`);
       setResumes(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error(err);

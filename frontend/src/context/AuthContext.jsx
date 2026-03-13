@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const res = await api.get('/auth/me');
+      const res = await fetch(`${API_URL}/api/auth/me`);
       setUser(res.data);
     } catch (err) {
       setUser(null);
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.post('/auth/logout');
+      await fetch(`${API_URL}/api/auth/logout`);
     } catch (err) {
       console.error('Logout error:', err);
     }

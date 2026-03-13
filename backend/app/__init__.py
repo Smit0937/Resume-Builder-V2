@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, make_response
 from .config import Config
 from .extensions import db, jwt, bcrypt, mail
 from flask_cors import CORS
@@ -48,7 +48,7 @@ def create_app(test_config=None):
     if test_config:
         app.config.update(test_config)
 
-    # CORS: Build allowed origins
+    # Build allowed origins
     frontend_url = os.getenv("FRONTEND_URL", "").rstrip("/")
 
     allowed_origins = [
@@ -60,7 +60,6 @@ def create_app(test_config=None):
     if frontend_url:
         allowed_origins.append(frontend_url)
     
-    # Hardcoded fallback for Vercel
     if "https://resume-psi-drab-27.vercel.app" not in allowed_origins:
         allowed_origins.append("https://resume-psi-drab-27.vercel.app")
 
@@ -80,7 +79,21 @@ def create_app(test_config=None):
     bcrypt.init_app(app)
     mail.init_app(app)
 
-    # Handle CORS manually for extra compatibility
+    # ✅ Handle OPTIONS preflight requests
+    @app.before_request
+    def handle_preflight():
+        if request.method == "OPTIONS":
+            response = make_response()
+            origin = request.headers.get('Origin')
+            if origin in allowed_origins:
+                response.headers['Access-Control-Allow-Origin'] = origin
+                response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Cookie'
+                response.headers['Access-Control-Allow-Credentials'] = 'true'
+                response.headers['Access-Control-Max-Age'] = '3600'
+            return response, 200
+
+    # ✅ Add CORS headers to all responses
     @app.after_request
     def after_request(response):
         origin = request.headers.get('Origin')

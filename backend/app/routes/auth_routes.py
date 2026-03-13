@@ -15,6 +15,20 @@ from flask_jwt_extended import (
 
 auth = Blueprint("auth", __name__)
 
+# ✅ ADD THIS: Handle OPTIONS preflight for ALL auth routes
+@auth.route("/<path:path>", methods=["OPTIONS"])
+@auth.route("/", methods=["OPTIONS"])
+def handle_options(path=None):
+    """Handle CORS preflight requests"""
+    response = make_response()
+    response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Cookie'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Access-Control-Max-Age'] = '3600'
+    return response, 200
+
+
 # Dynamic cookie settings based on environment
 _is_prod = any([
     os.getenv("FLASK_ENV") == "production",

@@ -2417,6 +2417,18 @@ export default function ResumeBuilder() {
   const navigate = useNavigate();
   const componentRef = useRef(null);
   const innerRef = useRef(null);
+  const [viewportWidth, setViewportWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1280
+  );
+
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const isMobile = viewportWidth <= 1024;
+  const previewScale = isMobile ? Math.min(1, (viewportWidth - 24) / 794) : 1;
 
   // Auto-scale resume content to fit exactly one A4 page
   // c8 ignore start
@@ -2645,15 +2657,73 @@ export default function ResumeBuilder() {
         .rb-card:hover { border-color: #c7d2fe; box-shadow: 0 4px 12px rgba(99,102,241,0.08); }
         .rb-inp:focus { border-color: #818cf8; box-shadow: 0 0 0 3px rgba(129,140,248,0.12); background: #fff; }
         .rb-edit-modal { animation: slideIn 0.25s ease; }
+
+        @media (max-width: 1024px) {
+          .rb-header {
+            height: auto !important;
+            padding: 10px 12px !important;
+            gap: 10px;
+            flex-wrap: wrap;
+          }
+
+          .rb-header-left,
+          .rb-header-right {
+            width: 100%;
+          }
+
+          .rb-header-right {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+          }
+
+          .rb-title-input {
+            width: 100% !important;
+            max-width: 100%;
+          }
+
+          .rb-main-layout {
+            grid-template-columns: 1fr !important;
+            height: auto !important;
+          }
+
+          .rb-left-panel {
+            border-right: none !important;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 12px !important;
+          }
+
+          .rb-right-panel {
+            padding: 14px 0 24px !important;
+            align-items: flex-start;
+          }
+
+          .rb-tabs {
+            overflow-x: auto;
+            white-space: nowrap;
+            gap: 6px !important;
+            scrollbar-width: thin;
+          }
+
+          .rb-tab {
+            flex: 0 0 auto;
+            min-width: 90px;
+            padding: 8px 10px;
+          }
+
+          .rb-form-shell {
+            padding: 16px 12px !important;
+          }
+        }
       `}</style>
 
-      <header style={{
+      <header className="rb-header" style={{
         background: "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)",
         borderBottom: "1px solid rgba(226,232,240,0.7)", padding: "0 20px", height: 56,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         position: "sticky", top: 0, zIndex: 50
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="rb-header-left" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <button onClick={() => navigate("/dashboard")} style={{
             background: "none", border: "1.5px solid #e2e8f0", borderRadius: 8, padding: "6px 12px",
             cursor: "pointer", color: "#64748b", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s ease", fontFamily: "inherit"
@@ -2662,10 +2732,10 @@ export default function ResumeBuilder() {
             Dashboard
           </button>
           <div style={{ width: 1, height: 24, background: "#e2e8f0" }} />
-          <input value={resume.title} onChange={e => setResume({ ...resume, title: e.target.value })} placeholder="Resume Title"
+          <input className="rb-title-input" value={resume.title} onChange={e => setResume({ ...resume, title: e.target.value })} placeholder="Resume Title"
             style={{ border: "none", outline: "none", fontSize: 15, fontWeight: 700, color: "#0f172a", background: "transparent", width: 220, fontFamily: "inherit" }} />
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div className="rb-header-right" style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {/* Template Selector */}
           <div style={{ position: "relative" }}>
             <button onClick={() => setShowTemplateDropdown(!showTemplateDropdown)} style={{
@@ -2798,10 +2868,10 @@ export default function ResumeBuilder() {
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "480px 1fr", height: "calc(100vh - 56px)" }}>
+      <div className="rb-main-layout" style={{ display: "grid", gridTemplateColumns: "480px 1fr", height: "calc(100vh - 56px)" }}>
         {/* LEFT */}
-        <div style={{ overflowY: "auto", padding: "24px 22px", borderRight: "1px solid #e2e8f0", background: "#fff" }}>
-          <div style={{ display: "flex", gap: 3, backgroundColor: "#f1f5f9", borderRadius: 10, padding: 3, marginBottom: 24 }}>
+        <div className="rb-left-panel" style={{ overflowY: "auto", padding: "24px 22px", borderRight: "1px solid #e2e8f0", background: "#fff" }}>
+          <div className="rb-tabs" style={{ display: "flex", gap: 3, backgroundColor: "#f1f5f9", borderRadius: 10, padding: 3, marginBottom: 24 }}>
             {TABS.map((tab, i) => (
               <button key={tab} onClick={() => setActiveTab(i)} className="rb-tab"
                 style={{ backgroundColor: activeTab === i ? "#fff" : "transparent", color: activeTab === i ? "#6366f1" : "#64748b", boxShadow: activeTab === i ? "0 1px 4px rgba(0,0,0,0.08)" : "none" }}>
@@ -2810,7 +2880,7 @@ export default function ResumeBuilder() {
             ))}
           </div>
 
-          <div style={{ backgroundColor: "#fff", borderRadius: 14, border: "1.5px solid #e2e8f0", padding: 26, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+          <div className="rb-form-shell" style={{ backgroundColor: "#fff", borderRadius: 14, border: "1.5px solid #e2e8f0", padding: 26, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
 
             {/* PERSONAL */}
             {activeTab === 0 && (
@@ -3085,7 +3155,7 @@ export default function ResumeBuilder() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div style={{ overflowY: "auto", background: "linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)", padding: "24px 0", display: "flex", justifyContent: "center" }}>
+        <div className="rb-right-panel" style={{ overflowY: "auto", background: "linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)", padding: "24px 0", display: "flex", justifyContent: "center" }}>
           
           {/* ✅ The A4 Canvas Wrapper */}
           <div 
@@ -3097,6 +3167,8 @@ export default function ResumeBuilder() {
               overflow: "hidden",
               boxSizing: "border-box",
               position: "relative",
+              transform: `scale(${previewScale})`,
+              transformOrigin: "top center",
               boxShadow: "0 4px 24px rgba(0,0,0,0.1)", 
               WebkitPrintColorAdjust: "exact",
               printColorAdjust: "exact" 

@@ -48,11 +48,13 @@ const FULL_EXPERIENCES = [
 
 const FULL_EDUCATIONS = [
   { id: 1, degree: "BS CS", institution: "MIT", start_year: "2016", end_year: "2020", score: "3.9", location: "Cambridge" },
-  { id: 2, degree: "MS CS", institution: "Stanford", start_year: "2020", end_year: "2022", score: "" },
+  { id: 2, degree: "MS CS", institution: "Stanford", start_year: "2020", end_year: "", score: "" },
 ];
 
 const FULL_SKILLS = [
   { id: 1, name: "React", level: "Expert" },
+  { id: 3, name: "TypeScript", level: "Advanced" },
+  { id: 4, name: "CSS", level: "Intermediate" },
   { id: 2, name: "Node", level: "" },
 ];
 
@@ -134,6 +136,37 @@ function renderPage() {
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ BASIC TESTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 test("renders resume title with fetched data", async () => {
+  renderPage();
+  await waitFor(() => {
+    expect(screen.getByPlaceholderText("Resume Title")).toHaveValue("Test Resume");
+  });
+});
+
+test("fetchAll supports direct resume payload and null section payloads", async () => {
+  global.fetch = vi.fn((url, opts) => {
+    if (typeof url === "string" && url.match(/\/api\/resume\/\d+$/) && (!opts || opts.method !== "PUT")) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          id: 1,
+          title: "Test Resume",
+          full_name: "John Doe",
+          professional_title: "Developer",
+          email: "john@test.com",
+          phone: "123-456",
+          template_name: "unknown_template",
+          template_style: "",
+        }),
+      });
+    }
+    if (typeof url === "string" && url.includes("/api/experience/")) return Promise.resolve({ ok: true, json: () => Promise.resolve(null) });
+    if (typeof url === "string" && url.includes("/api/education/")) return Promise.resolve({ ok: true, json: () => Promise.resolve(null) });
+    if (typeof url === "string" && url.includes("/api/skills/")) return Promise.resolve({ ok: true, json: () => Promise.resolve(null) });
+    if (typeof url === "string" && url.includes("/api/projects/")) return Promise.resolve({ ok: true, json: () => Promise.resolve(null) });
+    if (typeof url === "string" && url.includes("/api/certifications/")) return Promise.resolve({ ok: true, json: () => Promise.resolve(null) });
+    return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+  });
+
   renderPage();
   await waitFor(() => {
     expect(screen.getByPlaceholderText("Resume Title")).toHaveValue("Test Resume");
@@ -475,6 +508,26 @@ test("add experience backend error shows alert", async () => {
   });
 });
 
+test("add experience backend error fallback shows default alert", async () => {
+  vi.spyOn(window, "alert").mockImplementation(() => {});
+  global.fetch = vi.fn((url, opts) => {
+    if (opts?.method === "POST" && url.includes("/api/experience/")) {
+      return Promise.resolve({ ok: false, json: () => Promise.resolve({}) });
+    }
+    return createFetchMock("classic")(url, opts);
+  });
+  const user = userEvent.setup();
+  renderPage();
+  await waitFor(() => expect(screen.getByText("Personal")).toBeInTheDocument());
+  await user.click(screen.getByText("Experience"));
+  await waitFor(() => expect(screen.getByText("Work Experience")).toBeInTheDocument());
+  await user.type(screen.getByPlaceholderText("e.g. Google"), "X");
+  await user.click(screen.getByText("+ Add Experience"));
+  await waitFor(() => {
+    expect(window.alert).toHaveBeenCalledWith("Failed to add");
+  });
+});
+
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ DELETE EXPERIENCE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 test("delete experience item", async () => {
@@ -622,6 +675,27 @@ test("update item backend error shows alert", async () => {
   await user.click(screen.getByText("Save Changes"));
   await waitFor(() => {
     expect(window.alert).toHaveBeenCalledWith("Bad data");
+  });
+});
+
+test("update item backend error fallback shows default alert", async () => {
+  vi.spyOn(window, "alert").mockImplementation(() => {});
+  global.fetch = vi.fn((url, opts) => {
+    if (opts?.method === "PUT" && url.includes("/api/experience/")) {
+      return Promise.resolve({ ok: false, json: () => Promise.resolve({}) });
+    }
+    return createFetchMock("classic")(url, opts);
+  });
+  const user = userEvent.setup();
+  renderPage();
+  await waitFor(() => expect(screen.getByText("Personal")).toBeInTheDocument());
+  await user.click(screen.getByText("Experience"));
+  await waitFor(() => expect(screen.getByText("Work Experience")).toBeInTheDocument());
+  await user.click(screen.getAllByText("✏️ Edit")[0]);
+  await waitFor(() => expect(screen.getByText("Edit Experience")).toBeInTheDocument());
+  await user.click(screen.getByText("Save Changes"));
+  await waitFor(() => {
+    expect(window.alert).toHaveBeenCalledWith("Failed to update");
   });
 });
 
@@ -1358,6 +1432,20 @@ test("edit skill modal fields can be changed", async () => {
   fireEvent.change(selects[0], { target: { value: "Beginner" } });
 });
 
+test("edit skill modal uses Intermediate fallback when level is empty", async () => {
+  const user = userEvent.setup();
+  renderPage();
+  await waitFor(() => expect(screen.getByText("Personal")).toBeInTheDocument());
+  await user.click(screen.getAllByText("Skills")[0]);
+  await waitFor(() => expect(screen.getByPlaceholderText("e.g. React")).toBeInTheDocument());
+
+  await user.click(screen.getAllByText("✏️")[3]);
+  await waitFor(() => expect(screen.getByText("Edit Skills")).toBeInTheDocument());
+
+  const fallbackSelects = screen.getAllByDisplayValue("Intermediate");
+  expect(fallbackSelects.length).toBeGreaterThan(0);
+});
+
 // ────────── EDIT PROJECT MODAL FIELDS ──────────
 
 test("edit project modal fields can be changed", async () => {
@@ -1379,6 +1467,27 @@ test("edit project modal fields can be changed", async () => {
   const descTextarea = screen.getByDisplayValue("Cool project");
   fireEvent.change(descTextarea, { target: { value: "Updated desc" } });
   expect(descTextarea).toHaveValue("Updated desc");
+});
+
+test("edit experience and project modal fallback textareas handle empty values", async () => {
+  const user = userEvent.setup();
+  renderPage();
+  await waitFor(() => expect(screen.getByText("Personal")).toBeInTheDocument());
+
+  await user.click(screen.getByText("Experience"));
+  await waitFor(() => expect(screen.getByText("Work Experience")).toBeInTheDocument());
+  await user.click(screen.getAllByText("✏️ Edit")[1]);
+  await waitFor(() => expect(screen.getByText("Edit Experience")).toBeInTheDocument());
+  const expTextareas = screen.getAllByRole("textbox");
+  expect(expTextareas[expTextareas.length - 1]).toHaveValue("");
+  await user.click(screen.getByText("Cancel"));
+
+  await user.click(screen.getAllByText("Projects")[0]);
+  await waitFor(() => expect(screen.getByPlaceholderText("e.g. AI Resume Builder")).toBeInTheDocument());
+  await user.click(screen.getAllByText("✏️ Edit")[1]);
+  await waitFor(() => expect(screen.getByText("Edit Projects")).toBeInTheDocument());
+  const projTextareas = screen.getAllByRole("textbox");
+  expect(projTextareas[projTextareas.length - 1]).toHaveValue("");
 });
 
 // ────────── EDIT CERTIFICATION MODAL FIELDS ──────────

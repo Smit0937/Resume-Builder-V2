@@ -202,6 +202,25 @@ test("delete user failure shows error toast", async () => {
   });
 });
 
+test("delete user failure without backend message uses fallback toast", async () => {
+  api.delete.mockRejectedValue(new Error("fail"));
+  const user = userEvent.setup();
+  renderPage();
+  await waitFor(() => expect(screen.getByText("Dashboard")).toBeInTheDocument());
+
+  await user.click(screen.getByText("Users"));
+  await waitFor(() => expect(screen.getByText("John")).toBeInTheDocument());
+
+  const deleteButtons = screen.getAllByText("Delete");
+  await user.click(deleteButtons[0]);
+  await waitFor(() => expect(screen.getByText("Delete Forever")).toBeInTheDocument());
+  await user.click(screen.getByText("Delete Forever"));
+
+  await waitFor(() => {
+    expect(screen.getByText(/Failed to delete user/)).toBeInTheDocument();
+  });
+});
+
 // 11. Change user role
 test("change role button toggles user role", async () => {
   api.put.mockResolvedValue({ data: { message: "Role changed" } });
@@ -233,6 +252,21 @@ test("change role failure shows error toast", async () => {
   await user.click(screen.getByText("→ Admin"));
   await waitFor(() => {
     expect(screen.getByText(/Failed/)).toBeInTheDocument();
+  });
+});
+
+test("change role failure without backend message uses fallback toast", async () => {
+  api.put.mockRejectedValue(new Error("fail"));
+  const user = userEvent.setup();
+  renderPage();
+  await waitFor(() => expect(screen.getByText("Dashboard")).toBeInTheDocument());
+
+  await user.click(screen.getByText("Users"));
+  await waitFor(() => expect(screen.getByText("John")).toBeInTheDocument());
+
+  await user.click(screen.getByText("→ Admin"));
+  await waitFor(() => {
+    expect(screen.getByText(/Failed to change role/)).toBeInTheDocument();
   });
 });
 
@@ -556,5 +590,64 @@ test("clicking overlay closes confirm delete modal", async () => {
 
   await waitFor(() => {
     expect(screen.queryByText("Delete Forever")).not.toBeInTheDocument();
+  });
+});
+
+test("change role from admin detail view can demote", async () => {
+  api.put.mockResolvedValue({ data: { message: "Role changed" } });
+  const user = userEvent.setup();
+  renderPage();
+  await waitFor(() => expect(screen.getByText("Dashboard")).toBeInTheDocument());
+
+  await user.click(screen.getByText("Users"));
+  await waitFor(() => expect(screen.getByText("Admin")).toBeInTheDocument());
+  await user.click(screen.getByText("Admin"));
+  await waitFor(() => expect(screen.getByText("Demote to User")).toBeInTheDocument());
+  await user.click(screen.getByText("Demote to User"));
+
+  await waitFor(() => {
+    expect(api.put).toHaveBeenCalledWith("/admin/users/2/role", { role: "user" });
+  });
+});
+
+test("resumes tab shows em dash when template style is missing", async () => {
+  const resumesWithoutStyle = [
+    { id: 1, title: "Resume A", user_id: 1, user_name: "John", user_email: "john@test.com", template_name: "simple", template_style: "", created_at: "2024-01-01" },
+  ];
+  api.get.mockImplementation((url) => {
+    if (url === "/admin/stats") return Promise.resolve({ data: mockStats });
+    if (url === "/admin/users") return Promise.resolve({ data: mockUsers });
+    if (url === "/admin/resumes") return Promise.resolve({ data: resumesWithoutStyle });
+    return Promise.resolve({ data: {} });
+  });
+  const user = userEvent.setup();
+  renderPage();
+  await waitFor(() => expect(screen.getByText("Dashboard")).toBeInTheDocument());
+
+  await user.click(screen.getByText("Resumes"));
+  await waitFor(() => {
+    expect(screen.getByText("—")).toBeInTheDocument();
+  });
+});
+
+test("users and resumes endpoints handle non-array data", async () => {
+  api.get.mockImplementation((url) => {
+    if (url === "/admin/stats") return Promise.resolve({ data: mockStats });
+    if (url === "/admin/users") return Promise.resolve({ data: { invalid: true } });
+    if (url === "/admin/resumes") return Promise.resolve({ data: { invalid: true } });
+    return Promise.resolve({ data: {} });
+  });
+  const user = userEvent.setup();
+  renderPage();
+  await waitFor(() => expect(screen.getByText("Dashboard")).toBeInTheDocument());
+
+  await user.click(screen.getByText("Users"));
+  await waitFor(() => {
+    expect(screen.getByText(/All Users \(0\)/)).toBeInTheDocument();
+  });
+
+  await user.click(screen.getByText("Resumes"));
+  await waitFor(() => {
+    expect(screen.getByText(/All Resumes \(0\)/)).toBeInTheDocument();
   });
 });

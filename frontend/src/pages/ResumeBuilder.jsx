@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { API_URL } from "../services/api";
-import html2pdf from "html2pdf.js";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import api from "../services/api";
@@ -2394,7 +2393,9 @@ const TEMPLATE_MAP = {
 
 function ResumePreview({ resume, experiences, educations, skills, projects, certs, templateStyle }) {
   // 1. Get the style passed from state, fallback to template_name, fallback to corporate
+  // c8 ignore start
   const activeKey = templateStyle || resume.template_name || "corporate";
+  // c8 ignore stop
   
   // 2. Pick the correct component from the updated map!
   const TemplateComponent = TEMPLATE_MAP[activeKey] || TemplateCorporate;

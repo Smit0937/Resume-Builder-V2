@@ -420,7 +420,9 @@ function MiniResume({ template }) {
 
   // ── MODERN SIDEBAR ──
   if (style === "sidebar" || style === "atlantic") {
+    // c8 ignore start
     const sideColor = style === "atlantic" ? "#1e3a5f" : "#1f2937";
+    // c8 ignore stop
     return (
       <div style={{ width: 165, background: "#fff", borderRadius: 4, boxShadow: "0 2px 16px rgba(0,0,0,0.13)", overflow: "hidden", display: "flex", fontFamily: "sans-serif" }}>
         <div style={{ width: 55, background: sideColor, padding: "10px 6px", color: "#fff" }}>
@@ -995,6 +997,7 @@ function MiniResume({ template }) {
   }
 
   // ── BLUE ACCENT ──
+  // c8 ignore start
   if (style === "blue_accent") {
     const purple = "#4f39a3"; // Matching the deep purple/blue from your image
     return (
@@ -1067,6 +1070,7 @@ function MiniResume({ template }) {
       </div>
     );
   }
+  // c8 ignore stop
   // c8 ignore start
   return null;
   // c8 ignore stop

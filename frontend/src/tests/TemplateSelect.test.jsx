@@ -125,6 +125,23 @@ test("failed template creation shows alert", async () => {
   });
 });
 
+test("failed template creation without backend error still shows alert", async () => {
+  const user = userEvent.setup();
+  vi.spyOn(window, "alert").mockImplementation(() => {});
+  global.fetch.mockResolvedValue({
+    ok: false,
+    json: () => Promise.resolve({}),
+  });
+
+  renderPage();
+  const useButtons = screen.getAllByText(/use template/i);
+  await user.click(useButtons[0]);
+
+  await waitFor(() => {
+    expect(window.alert).toHaveBeenCalledWith("Failed to create resume.");
+  });
+});
+
 // 8. Back to Dashboard button navigates
 test("Back to Dashboard button navigates to /dashboard", async () => {
   const user = userEvent.setup();
@@ -142,4 +159,15 @@ test("search clear button clears search input", async () => {
   expect(searchInput).toHaveValue("Harvard");
   await user.click(screen.getByText("✕"));
   expect(searchInput).toHaveValue("");
+});
+
+test("search with no match shows empty state", async () => {
+  const user = userEvent.setup();
+  renderPage();
+  const searchInput = screen.getByPlaceholderText(/search templates/i);
+  await user.type(searchInput, "zzzz-no-match");
+
+  await waitFor(() => {
+    expect(screen.getByText("No templates found")).toBeInTheDocument();
+  });
 });

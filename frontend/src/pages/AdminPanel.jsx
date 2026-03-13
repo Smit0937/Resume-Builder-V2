@@ -102,6 +102,8 @@ export default function AdminPanel() {
     r.user_email.toLowerCase().includes(search.toLowerCase())
   );
 
+  const getToggledRole = (role) => (role === "admin" ? "user" : "admin");
+
   // ─── STYLES ───
   const s = {
     page: { minHeight: "100vh", background: "linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f5f3ff 100%)", fontFamily: "'Inter', system-ui, sans-serif" },
@@ -281,7 +283,7 @@ export default function AdminPanel() {
                       <td style={s.td} onClick={e => e.stopPropagation()}>
                         <div style={{ display: "flex", gap: 6 }}>
                           <button style={s.btnRole}
-                            onClick={() => changeRole(u.id, u.role === "admin" ? "user" : "admin")}>
+                            onClick={() => changeRole(u.id, getToggledRole(u.role))}>
                             {u.role === "admin" ? "→ User" : "→ Admin"}
                           </button>
                           <button style={s.btnDanger}
@@ -312,7 +314,7 @@ export default function AdminPanel() {
                   <div style={{ display: "flex", gap: 8 }}>
                     <span style={s.badge(selectedUser.role)}>{selectedUser.role}</span>
                     <button style={s.btnRole}
-                      onClick={() => { changeRole(selectedUser.id, selectedUser.role === "admin" ? "user" : "admin"); setSelectedUser(prev => ({ ...prev, role: prev.role === "admin" ? "user" : "admin" })); }}>
+                      onClick={() => { changeRole(selectedUser.id, getToggledRole(selectedUser.role)); setSelectedUser(prev => ({ ...prev, role: getToggledRole(prev.role) })); }}>
                       {selectedUser.role === "admin" ? "Demote to User" : "Promote to Admin"}
                     </button>
                   </div>

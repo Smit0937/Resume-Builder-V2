@@ -90,6 +90,14 @@ test("shows resume cards when resumes exist", async () => {
   });
 });
 
+test("handles non-array resume payload safely", async () => {
+  api.get.mockResolvedValue({ data: { bad: true } });
+  renderPage();
+  await waitFor(() => {
+    expect(screen.getByText("No resumes yet")).toBeInTheDocument();
+  });
+});
+
 // 4. "New Resume" button navigates to /resume/new
 test("New Resume button navigates to /resume/new", async () => {
   const user = userEvent.setup();
@@ -120,6 +128,25 @@ test("shows user initial in avatar", async () => {
   renderPage();
   await waitFor(() => {
     expect(screen.getByText("T")).toBeInTheDocument();
+  });
+});
+
+test("uses avatar and username fallbacks when email is missing", async () => {
+  mockUser = { email: "", role: "user" };
+  renderPage();
+  await waitFor(() => {
+    expect(screen.getByText("U")).toBeInTheDocument();
+    expect(screen.getByText("User")).toBeInTheDocument();
+  });
+});
+
+test("uses Untitled Resume fallback for empty title", async () => {
+  api.get.mockResolvedValue({
+    data: [{ id: 1, title: "", updated_at: "2024-01-01T00:00:00Z" }],
+  });
+  renderPage();
+  await waitFor(() => {
+    expect(screen.getByText("Untitled Resume")).toBeInTheDocument();
   });
 });
 

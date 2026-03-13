@@ -3,6 +3,7 @@ import { vi, test, expect } from "vitest";
 // ─── MOCK axios before importing api ───
 vi.mock("axios", () => ({
   default: {
+    defaults: {},
     create: vi.fn(() => ({
       get: vi.fn(),
       post: vi.fn(),

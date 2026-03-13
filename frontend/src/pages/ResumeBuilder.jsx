@@ -2528,14 +2528,60 @@ export default function ResumeBuilder() {
     setTimeout(() => setToast(""), 3000);
   };
 
+  const readJsonSafe = async (res) => {
+    if (!res) return null;
+
+    // Test mocks often only expose json(); real fetch responses expose both.
+    if (typeof res.text !== "function" && typeof res.json === "function") {
+      try {
+        return await res.json();
+      } catch {
+        return null;
+      }
+    }
+
+    if (typeof res.text === "function") {
+      const text = await res.text();
+      if (!text) return null;
+      try {
+        return JSON.parse(text);
+      } catch {
+        return { error: text };
+      }
+    }
+
+    if (typeof res.json === "function") {
+      try {
+        return await res.json();
+      } catch {
+        return null;
+      }
+    }
+
+    return null;
+  };
+
  const fetchAll = async () => {
     try {
       // 1. Fetch Resume Basic Info
       const resResume = await fetch(`${API_URL}/resume/${id}`, fetchOpts);
       if (resResume.ok === false) {
+        // If route has an old/invalid resume id, recover by redirecting to the first resume.
+        if (resResume.status === 404) {
+          const resAll = await fetch(`${API_URL}/resume/all`, fetchOpts);
+          const allResumes = await readJsonSafe(resAll);
+          if (Array.isArray(allResumes) && allResumes.length > 0) {
+            navigate(`/resume/${allResumes[0].id}/edit`, { replace: true });
+            showToast("Loaded your latest resume");
+            return;
+          }
+          navigate("/dashboard", { replace: true });
+          showToast("No resume found. Create one from dashboard.");
+          return;
+        }
         throw new Error(`Resume fetch failed (${resResume.status})`);
       }
-      const data = await resResume.json();
+      const data = await readJsonSafe(resResume);
 
       // Note: backend returns { resume: {...}, message: "..." }
       const resumeData = data.resume || data;
@@ -2578,11 +2624,11 @@ export default function ResumeBuilder() {
       }
 
       // Convert all responses to JSON
-      setExperiences((await resExp.json()) || []);
-      setEducations((await resEdu.json()) || []);
-      setSkills((await resSkills.json()) || []);
-      setProjects((await resProj.json()) || []);
-      setCerts((await resCerts.json()) || []);
+      setExperiences((await readJsonSafe(resExp)) || []);
+      setEducations((await readJsonSafe(resEdu)) || []);
+      setSkills((await readJsonSafe(resSkills)) || []);
+      setProjects((await readJsonSafe(resProj)) || []);
+      setCerts((await readJsonSafe(resCerts)) || []);
     } catch (err) {
       console.error("❌ Error in fetchAll:", err);
       showToast("Failed to load resume data");

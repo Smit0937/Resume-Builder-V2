@@ -1113,7 +1113,7 @@ export default function TemplateSelect() {
 
   const createWithTemplate = async (templateId, templateStyle) => {
     try {
-      const res = await fetch(`${API_URL}/resume/`, {
+      const res = await fetch(`${API_URL}/api/resume/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

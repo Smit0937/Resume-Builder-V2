@@ -8,28 +8,34 @@ import api from "../services/api";
 const TABS = ["Personal", "Experience", "Education", "Skills", "Projects", "Certifications"];
 
 const TEMPLATE_OPTIONS = [
-  { group: "Simple", items: [
-    { name: "Classic", style: "classic" },
-    { name: "Harvard", style: "minimal" },
-    { name: "Banking", style: "finance" },
-    { name: "Quiet Blue", style: "quiet_blue" },
-    { name: "Anna Field", style: "annafield" },
-  ]},
-  { group: "Modern", items: [
-    { name: "Modern", style: "sidebar" },
-    { name: "Simply Blue", style: "simplyblue_modern" },
-    { name: "Hunter Green", style: "hunter_green" },
-    { name: "Silver", style: "silver" },
-    { name: "Slate Dawn", style: "slate_dawn" },
-  ]},
-  { group: "Creative", items: [
-    { name: "Creative", style: "creative" },
-    { name: "Black Pattern", style: "black_pattern" },
-    { name: "Atlantic Blue", style: "atlantic_blue" },
-    { name: "Green Accent", style: "green_accent" },
-    { name: "Rosewood", style: "rosewood" },
-    { name: "Blue Accent", style: "blue_accent" },
-  ]},
+  {
+    group: "Simple", items: [
+      { name: "Classic", style: "classic" },
+      { name: "Harvard", style: "minimal" },
+      { name: "Banking", style: "finance" },
+      { name: "Quiet Blue", style: "quiet_blue" },
+      { name: "Anna Field", style: "annafield" },
+    ]
+  },
+  {
+    group: "Modern", items: [
+      { name: "Modern", style: "sidebar" },
+      { name: "Simply Blue", style: "simplyblue_modern" },
+      { name: "Hunter Green", style: "hunter_green" },
+      { name: "Silver", style: "silver" },
+      { name: "Slate Dawn", style: "slate_dawn" },
+    ]
+  },
+  {
+    group: "Creative", items: [
+      { name: "Creative", style: "creative" },
+      { name: "Black Pattern", style: "black_pattern" },
+      { name: "Atlantic Blue", style: "atlantic_blue" },
+      { name: "Green Accent", style: "green_accent" },
+      { name: "Rosewood", style: "rosewood" },
+      { name: "Blue Accent", style: "blue_accent" },
+    ]
+  },
 ];
 
 // ── 12 UNIQUE ATS-FRIENDLY TEMPLATE RENDERERS ──
@@ -59,11 +65,11 @@ function TemplateCorporate({ resume, experiences, educations, skills, projects, 
 function TemplateModern({ resume, experiences, educations, skills, projects, certs }) {
   const { full_name, professional_title, email, phone, location, linkedin, summary } = resume;
   const accent = "#0f172a";
-  
+
   return (
     // GOLDILOCKS SQUEEZE: Tightened padding, lowered line-height to 1.45
     <div style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 10.5, color: "#111", lineHeight: 1.45, background: "#fff", minHeight: "100%", display: "flex", boxSizing: "border-box" }}>
-      
+
       {/* LEFT SIDEBAR */}
       <div style={{ width: 180, background: accent, padding: "24px 16px", color: "#fff", flexShrink: 0 }}>
         <div style={{ marginBottom: 18, pageBreakInside: "avoid", breakInside: "avoid" }}>
@@ -151,11 +157,11 @@ function TemplateClassic({ resume, experiences, educations, skills, projects, ce
   // Goldilocks section header - balanced margins
   const ClassicSection = ({ title }) => (
     <div style={{ marginBottom: 8, marginTop: 14 }}>
-      <h2 style={{ 
-        fontSize: 13.5, 
-        fontWeight: 900, 
-        color: "#111", 
-        margin: 0, 
+      <h2 style={{
+        fontSize: 13.5,
+        fontWeight: 900,
+        color: "#111",
+        margin: 0,
         textTransform: "uppercase",
         letterSpacing: "0.05em",
         borderBottom: "1.5px solid #111",
@@ -169,14 +175,14 @@ function TemplateClassic({ resume, experiences, educations, skills, projects, ce
   return (
     // MIDDLE GROUND: 11 base font, 1.45 line height, balanced 24px 40px padding
     <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 11, color: "#222", lineHeight: 1.45, padding: "24px 40px", background: "#fff", minHeight: "100%", boxSizing: "border-box" }}>
-      
+
       {/* HEADER SECTION */}
       <div style={{ textAlign: "center", marginBottom: 16 }}>
         <h1 style={{ fontSize: 28, fontWeight: 900, margin: "0 0 4px", color: "#111", letterSpacing: "0.02em" }}>
           {full_name || <span style={{ opacity: 0.5 }}>Andrew O'Sullivan</span>}
         </h1>
         {professional_title && <div style={{ fontSize: 15, color: "#444", fontStyle: "italic", marginBottom: 10 }}>{professional_title}</div>}
-        
+
         {/* Contact Info Row */}
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px 18px", fontSize: 11, color: "#111", fontWeight: 600 }}>
           {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 {location}</span>}
@@ -416,12 +422,12 @@ function TemplateBanking({ resume, experiences, educations, skills, projects, ce
         <div>
           <BankSection title={certs.length > 0 ? "Certificates & Projects" : "Projects"} />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 24px" }}>
-            
+
             {certs.map((c, i) => (
               <div key={`c${i}`} style={{ pageBreakInside: "avoid", breakInside: "avoid", display: "inline-block", width: "100%" }}>
                 <div style={{ fontWeight: 800, fontSize: 11, color: "#000" }}>{c.name}</div>
                 <div style={{ fontSize: 10, fontStyle: "italic", color: "#444", marginTop: 2 }}>
-                   {c.issuer} {c.issue_date && `| ${c.issue_date}`}
+                  {c.issuer} {c.issue_date && `| ${c.issue_date}`}
                 </div>
               </div>
             ))}
@@ -454,13 +460,13 @@ function TemplateQuietBlue({ resume, experiences, educations, skills, projects, 
 
   // Double-bordered centered section header (Tightened margins)
   const QuietSection = ({ title }) => (
-    <div style={{ 
-      textAlign: "center", 
-      borderTop: `2px solid ${borderBlue}`, 
-      borderBottom: `2px solid ${borderBlue}`, 
-      padding: "4px 0", 
+    <div style={{
+      textAlign: "center",
+      borderTop: `2px solid ${borderBlue}`,
+      borderBottom: `2px solid ${borderBlue}`,
+      padding: "4px 0",
       margin: "12px 0 10px 0",
-      pageBreakInside: "avoid", 
+      pageBreakInside: "avoid",
       breakInside: "avoid"
     }}>
       <span style={{ fontSize: "12.5px", fontWeight: "bold", color: "#000", letterSpacing: "0.05em", textTransform: "uppercase" }}>{title}</span>
@@ -470,7 +476,7 @@ function TemplateQuietBlue({ resume, experiences, educations, skills, projects, 
   return (
     // MAX COMPRESSION / GOLDILOCKS: 10.5 font, 1.4 line-height, balanced 20px 36px padding
     <div style={{ fontFamily: "Arial, Helvetica, sans-serif", fontSize: 10.5, color: "#222", lineHeight: 1.4, padding: "20px 36px", background: "#fff", minHeight: "100%", boxSizing: "border-box" }}>
-      
+
       {/* EXACT LEFT-ALIGNED HEADER */}
       <div style={{ marginBottom: 14 }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
@@ -483,13 +489,13 @@ function TemplateQuietBlue({ resume, experiences, educations, skills, projects, 
             </span>
           )}
         </div>
-        
+
         {/* Contact Info */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 16px", fontSize: 10.5, color: "#555", marginTop: 6 }}>
-          {email && <span style={{ display: "flex", alignItems: "center" }}><span style={{color: iconBlue, marginRight: 4, fontSize: 13}}>✉</span>{email}</span>}
-          {phone && <span style={{ display: "flex", alignItems: "center" }}><span style={{color: iconBlue, marginRight: 4, fontSize: 13}}>📞</span>{phone}</span>}
-          {location && <span style={{ display: "flex", alignItems: "center" }}><span style={{color: iconBlue, marginRight: 4, fontSize: 13}}>📍</span>{location}</span>}
-          {linkedin && <span style={{ display: "flex", alignItems: "center" }}><span style={{color: iconBlue, marginRight: 4, fontSize: 13}}>in</span>{linkedin}</span>}
+          {email && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>✉</span>{email}</span>}
+          {phone && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>📞</span>{phone}</span>}
+          {location && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>📍</span>{location}</span>}
+          {linkedin && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>in</span>{linkedin}</span>}
         </div>
       </div>
 
@@ -514,7 +520,7 @@ function TemplateQuietBlue({ resume, experiences, educations, skills, projects, 
                 </div>
               </div>
               <div style={{ fontSize: 11, color: "#333", fontStyle: "italic", marginBottom: 3 }}>{exp.company}</div>
-              
+
               {/* Preserves line breaks for Role: and bullet points */}
               {exp.description && (
                 <div style={{ color: "#222", lineHeight: 1.4, whiteSpace: "pre-wrap" }}>
@@ -603,11 +609,11 @@ function TemplateHunterGreen({ resume, experiences, educations, skills, projects
   // Goldilocks Section Header (Tightened margins)
   const HunterSection = ({ title, isDark }) => (
     <div style={{ marginBottom: 12, pageBreakInside: "avoid", breakInside: "avoid" }}>
-      <h2 style={{ 
-        fontSize: 13, 
-        fontWeight: 800, 
-        color: isDark ? "#fff" : "#111", 
-        margin: 0, 
+      <h2 style={{
+        fontSize: 13,
+        fontWeight: 800,
+        color: isDark ? "#fff" : "#111",
+        margin: 0,
         letterSpacing: "0.02em",
         borderBottom: `2px solid ${isDark ? "rgba(255,255,255,0.4)" : "#333"}`,
         paddingBottom: 3,
@@ -621,16 +627,16 @@ function TemplateHunterGreen({ resume, experiences, educations, skills, projects
   return (
     // MAX COMPRESSION / GOLDILOCKS: 10.5 font, 1.4 line-height, balanced padding
     <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 10.5, lineHeight: 1.4, background: "#fff", minHeight: "100%", display: "flex", boxSizing: "border-box" }}>
-      
+
       {/* LEFT COLUMN - HUNTER GREEN (Tightened padding to 24px 24px) */}
       <div style={{ width: "35%", background: hunter, padding: "24px 24px", color: "#fff", flexShrink: 0 }}>
-        
+
         <div style={{ marginBottom: 24 }}>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 6px", color: "#fff", lineHeight: 1.1 }}>
             {full_name || "Brian T. Wayne"}
           </h1>
           {professional_title && <div style={{ fontSize: 13.5, fontStyle: "italic", color: "#e2e8f0", marginBottom: 16 }}>{professional_title}</div>}
-          
+
           <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 10.5, color: "#cbd5e1" }}>
             {email && <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span>✉</span> {email}</div>}
             {phone && <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span>📞</span> {phone}</div>}
@@ -664,7 +670,7 @@ function TemplateHunterGreen({ resume, experiences, educations, skills, projects
 
       {/* RIGHT COLUMN - WHITE (Tightened padding to 24px 28px) */}
       <div style={{ flex: 1, padding: "24px 28px" }}>
-        
+
         {experiences.length > 0 && (
           <div style={{ marginBottom: 20 }}>
             <HunterSection title="Professional Experience" isDark={false} />
@@ -736,13 +742,13 @@ function TemplateSilver({ resume, experiences, educations, skills, projects, cer
 
   // Goldilocks Section Header (Tightened margins)
   const SilverSection = ({ title }) => (
-    <div style={{ 
-      background: grayBg, 
-      padding: "4px 0", 
-      marginBottom: 10, 
-      marginTop: 14, 
-      pageBreakInside: "avoid", 
-      breakInside: "avoid" 
+    <div style={{
+      background: grayBg,
+      padding: "4px 0",
+      marginBottom: 10,
+      marginTop: 14,
+      pageBreakInside: "avoid",
+      breakInside: "avoid"
     }}>
       <h2 style={{ fontSize: 12.5, fontWeight: 800, color: "#111", margin: 0, textAlign: "center", letterSpacing: "0.02em", textTransform: "uppercase" }}>
         {title}
@@ -753,14 +759,14 @@ function TemplateSilver({ resume, experiences, educations, skills, projects, cer
   return (
     // MAX COMPRESSION / GOLDILOCKS: 10.5 base font, 1.4 line-height, balanced 20px 36px padding
     <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 10.5, color: "#222", lineHeight: 1.4, padding: "20px 36px", background: "#fff", minHeight: "100%", boxSizing: "border-box" }}>
-      
+
       {/* HEADER SECTION */}
       <div style={{ marginBottom: 16 }}>
         <h1 style={{ fontSize: 28, fontWeight: 800, margin: "0 0 4px", color: "#111", letterSpacing: "0.02em" }}>
           {full_name || <span style={{ opacity: 0.5 }}>David Chen</span>}
         </h1>
         {professional_title && <div style={{ fontSize: 14, color: "#333", marginBottom: 10 }}>{professional_title}</div>}
-        
+
         {/* Contact Info - Split left and right */}
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, color: "#111", fontWeight: 600 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -892,13 +898,13 @@ function TemplateSlateDawn({ resume, experiences, educations, skills, projects, 
   // Goldilocks Section Header (Tightened margins)
   const SlateSection = ({ title }) => (
     <div style={{ marginBottom: 12 }}>
-      <h2 style={{ 
-        fontSize: 12.5, 
-        fontWeight: 800, 
-        color: navy, 
+      <h2 style={{
+        fontSize: 12.5,
+        fontWeight: 800,
+        color: navy,
         textTransform: "uppercase",
-        borderBottom: `2px solid ${navy}`, 
-        paddingBottom: 3, 
+        borderBottom: `2px solid ${navy}`,
+        paddingBottom: 3,
         marginBottom: 8,
         letterSpacing: "0.05em"
       }}>
@@ -910,14 +916,14 @@ function TemplateSlateDawn({ resume, experiences, educations, skills, projects, 
   return (
     // MAX COMPRESSION / GOLDILOCKS: 10.5 base font, 1.4 line-height
     <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 10.5, color: "#222", lineHeight: 1.4, background: "#fff", minHeight: "100%", boxSizing: "border-box" }}>
-      
+
       {/* HEADER SECTION (Light Slate Blue) - Tightened padding */}
       <div style={{ background: slateBg, padding: "24px 36px 18px" }}>
         <h1 style={{ fontSize: 28, fontWeight: 800, margin: "0 0 6px", color: navy, letterSpacing: "0.02em" }}>
-          {full_name || <span style={{ opacity: 0.6 }}>Alessandro Ricci</span>} 
+          {full_name || <span style={{ opacity: 0.6 }}>Alessandro Ricci</span>}
           {professional_title && <span style={{ fontSize: 16, fontWeight: 400, color: navy, marginLeft: 8 }}>{professional_title}</span>}
         </h1>
-        
+
         {/* Contact Info Row separated by | */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", fontSize: 10.5, color: "#444" }}>
           {[email, phone, location, linkedin].filter(Boolean).map((item, index, arr) => (
@@ -930,10 +936,10 @@ function TemplateSlateDawn({ resume, experiences, educations, skills, projects, 
 
       {/* TWO COLUMN BODY SECTION - Tightened padding */}
       <div style={{ padding: "20px 36px", display: "flex", gap: 32 }}>
-        
+
         {/* LEFT COLUMN */}
         <div style={{ flex: 1 }}>
-          
+
           {/* Summary / Profile */}
           {summary && (
             <div style={{ marginBottom: 20, pageBreakInside: "avoid", breakInside: "avoid", display: "inline-block", width: "100%" }}>
@@ -976,7 +982,7 @@ function TemplateSlateDawn({ resume, experiences, educations, skills, projects, 
 
         {/* RIGHT COLUMN */}
         <div style={{ flex: 1 }}>
-          
+
           {/* Professional Experience */}
           {experiences.length > 0 && (
             <div style={{ marginBottom: 20 }}>
@@ -1022,7 +1028,7 @@ function TemplateSlateDawn({ resume, experiences, educations, skills, projects, 
 
         </div>
       </div>
-      
+
       <EmptyState resume={resume} experiences={experiences} educations={educations} />
     </div>
   );
@@ -1069,11 +1075,11 @@ function TemplateHarvard({ resume, experiences, educations, skills, projects, ce
   // Custom Harvard-style section header (bold, standard case, full black underline)
   const HarvardSection = ({ title }) => (
     <div style={{ marginBottom: 10, marginTop: 16 }}>
-      <h2 style={{ 
-        fontSize: 14, 
-        fontWeight: "bold", 
-        color: "#000", 
-        margin: 0, 
+      <h2 style={{
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#000",
+        margin: 0,
         borderBottom: "1.5px solid #000",
         paddingBottom: 2
       }}>
@@ -1084,14 +1090,14 @@ function TemplateHarvard({ resume, experiences, educations, skills, projects, ce
 
   return (
     <div style={{ fontFamily: "'Times New Roman', Times, serif", fontSize: 11.5, color: "#000", lineHeight: 1.5, padding: "40px 48px", background: "#fff", minHeight: "100%", boxSizing: "border-box" }}>
-      
+
       {/* HEADER SECTION - Centered */}
       <div style={{ textAlign: "center", marginBottom: 20 }}>
         <h1 style={{ fontSize: 28, fontWeight: "bold", margin: "0 0 4px", color: "#000" }}>
           {full_name || <span style={{ opacity: 0.5 }}>Lee Wang</span>}
         </h1>
         {professional_title && <div style={{ fontSize: 14, color: "#333", marginBottom: 6 }}>{professional_title}</div>}
-        
+
         {/* Contact Info */}
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "16px", fontSize: 11 }}>
           {email && <span>✉ {email}</span>}
@@ -1215,13 +1221,13 @@ function TemplateCreative({ resume, experiences, educations, skills, projects, c
   // Custom section header with tightened margins
   const CreativeSection = ({ title, children }) => (
     <div style={{ marginBottom: 12 }}>
-      <h2 style={{ 
-        fontSize: 13, 
-        fontWeight: 800, 
-        color: purple, 
+      <h2 style={{
+        fontSize: 13,
+        fontWeight: 800,
+        color: purple,
         textTransform: "uppercase",
-        borderBottom: `2px solid ${purple}`, 
-        paddingBottom: 3, 
+        borderBottom: `2px solid ${purple}`,
+        paddingBottom: 3,
         marginBottom: 8,
         letterSpacing: "0.05em"
       }}>
@@ -1234,14 +1240,14 @@ function TemplateCreative({ resume, experiences, educations, skills, projects, c
   return (
     // THE GOLDILOCKS: 10.5 font, 1.4 line-height, balanced 20px 36px outer padding.
     <div style={{ fontFamily: "Arial, sans-serif", fontSize: 10.5, color: "#222", lineHeight: 1.4, background: "#fff", minHeight: "100%", boxSizing: "border-box" }}>
-      
+
       {/* HEADER SECTION - Tightened padding */}
       <div style={{ background: purple, padding: "24px 36px", color: "#fff" }}>
         <h1 style={{ fontSize: 28, fontWeight: 800, margin: "0 0 4px", letterSpacing: "0.02em" }}>
           {full_name || <span style={{ opacity: 0.6 }}>Mateo Vargas</span>}
         </h1>
         {professional_title && <div style={{ fontSize: 15, opacity: 0.9, marginBottom: 10 }}>{professional_title}</div>}
-        
+
         <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 16px", fontSize: 10.5, color: "#f1f5f9" }}>
           {email && <span>✉ {email}</span>}
           {phone && <span>📞 {phone}</span>}
@@ -1252,7 +1258,7 @@ function TemplateCreative({ resume, experiences, educations, skills, projects, c
 
       {/* BODY SECTION - Tightened padding */}
       <div style={{ padding: "18px 36px" }}>
-        
+
         {/* Summary */}
         {summary && (
           <div style={{ pageBreakInside: "avoid", breakInside: "avoid", display: "inline-block", width: "100%" }}>
@@ -1321,15 +1327,15 @@ function TemplateCreative({ resume, experiences, educations, skills, projects, c
             <CreativeSection title="Skills">
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {skills.map((s, i) => (
-                  <div key={i} style={{ 
-                    background: "#f3f4f6", 
-                    color: "#333", 
-                    border: "1px solid #e5e7eb", 
-                    padding: "0 10px", 
+                  <div key={i} style={{
+                    background: "#f3f4f6",
+                    color: "#333",
+                    border: "1px solid #e5e7eb",
+                    padding: "0 10px",
                     height: "22px",           /* Strict height */
                     lineHeight: "22px",       /* Centering trick */
-                    borderRadius: 4, 
-                    fontSize: 10, 
+                    borderRadius: 4,
+                    fontSize: 10,
                     fontWeight: 600,
                     display: "inline-block"   /* Prevents flex bugs */
                   }}>
@@ -1346,12 +1352,12 @@ function TemplateCreative({ resume, experiences, educations, skills, projects, c
           <div>
             <CreativeSection title="Certifications">
               {certs.map((c, i) => (
-                 <div key={i} style={{ marginBottom: 6, pageBreakInside: "avoid", breakInside: "avoid", display: "inline-block", width: "100%" }}>
-                   <span style={{ fontWeight: 800, fontSize: 11, color: "#111" }}>{c.name}</span>
-                   <span style={{ color: "#555", fontSize: 10.5 }}>
-                     {c.issuer && ` · ${c.issuer}`} {c.issue_date && ` · ${c.issue_date}`}
-                   </span>
-                 </div>
+                <div key={i} style={{ marginBottom: 6, pageBreakInside: "avoid", breakInside: "avoid", display: "inline-block", width: "100%" }}>
+                  <span style={{ fontWeight: 800, fontSize: 11, color: "#111" }}>{c.name}</span>
+                  <span style={{ color: "#555", fontSize: 10.5 }}>
+                    {c.issuer && ` · ${c.issuer}`} {c.issue_date && ` · ${c.issue_date}`}
+                  </span>
+                </div>
               ))}
             </CreativeSection>
           </div>
@@ -1365,20 +1371,20 @@ function TemplateCreative({ resume, experiences, educations, skills, projects, c
 
 function TemplateBlackPattern({ resume, experiences, educations, skills, projects, certs }) {
   const { full_name, professional_title, email, phone, location, linkedin, summary } = resume;
-  
+
   // PDF-SAFE STRIPES
   const darkPattern = `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%231e293b' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E")`;
 
   // Goldilocks section header
   const PatternSection = ({ title, children }) => (
     <div style={{ marginBottom: 10 }}>
-      <h2 style={{ 
-        display: "inline-block", 
-        fontSize: 13, 
-        fontWeight: 900, 
-        color: "#111", 
-        borderBottom: "2px solid #111", 
-        paddingBottom: 2, 
+      <h2 style={{
+        display: "inline-block",
+        fontSize: 13,
+        fontWeight: 900,
+        color: "#111",
+        borderBottom: "2px solid #111",
+        paddingBottom: 2,
         marginBottom: 6,
         letterSpacing: "0.02em"
       }}>
@@ -1391,22 +1397,22 @@ function TemplateBlackPattern({ resume, experiences, educations, skills, project
   return (
     // THE TRUE GOLDILOCKS: 10.5 font, 1.4 line-height, balanced outer padding.
     <div style={{ fontFamily: "Arial, sans-serif", fontSize: 10.5, color: "#222", lineHeight: 1.4, background: "#fff", minHeight: "100%", boxSizing: "border-box", overflow: "hidden" }}>
-      
+
       {/* Header */}
-      <div style={{ 
-        backgroundColor: "#0f172a",       
-        backgroundImage: darkPattern,     
-        padding: "20px 36px", 
-        boxSizing: "border-box", 
+      <div style={{
+        backgroundColor: "#0f172a",
+        backgroundImage: darkPattern,
+        padding: "20px 36px",
+        boxSizing: "border-box",
         color: "#fff",
-        WebkitPrintColorAdjust: "exact",  
+        WebkitPrintColorAdjust: "exact",
         printColorAdjust: "exact"
       }}>
         <h1 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 4px", position: "relative", letterSpacing: "0.02em" }}>
           {full_name || <span style={{ opacity: 0.5 }}>Catherine Bale</span>}
         </h1>
         {professional_title && <div style={{ fontSize: 13.5, fontStyle: "italic", color: "#cbd5e1", marginBottom: 10 }}>{professional_title}</div>}
-        
+
         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px", fontSize: 10.5, color: "#94a3b8", fontWeight: 600 }}>
           {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 {location}</span>}
           {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 {phone}</span>}
@@ -1417,7 +1423,7 @@ function TemplateBlackPattern({ resume, experiences, educations, skills, project
 
       {/* Body Content */}
       <div style={{ padding: "16px 36px" }}>
-        
+
         {/* Summary */}
         {summary && (
           <PatternSection title="Profile">
@@ -1438,7 +1444,7 @@ function TemplateBlackPattern({ resume, experiences, educations, skills, project
                     {exp.role && <span style={{ fontStyle: "italic" }}>, {exp.role}</span>}
                   </div>
                   <div style={{ fontSize: 10.5, color: "#555" }}>
-                    {exp.start_date} – {exp.end_date || "Present"} 
+                    {exp.start_date} – {exp.end_date || "Present"}
                   </div>
                 </div>
                 {exp.description && <div style={{ marginTop: 2, color: "#333", lineHeight: 1.4 }}>{exp.description}</div>}
@@ -1490,14 +1496,14 @@ function TemplateBlackPattern({ resume, experiences, educations, skills, project
           <PatternSection title="Certificates">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, pageBreakInside: "avoid", breakInside: "avoid", width: "100%" }}>
               {certs.map((c, i) => (
-                <div key={i} style={{ 
-                  background: "#111", 
-                  color: "#fff", 
+                <div key={i} style={{
+                  background: "#111",
+                  color: "#fff",
                   padding: "0 10px",          /* Removed vertical padding completely */
                   height: "22px",             /* Explicit height */
                   lineHeight: "22px",         /* Line-height matching height perfectly centers text */
-                  borderRadius: 4, 
-                  fontSize: 10, 
+                  borderRadius: 4,
+                  fontSize: 10,
                   fontWeight: 700,
                   display: "inline-block"
                 }}>
@@ -1554,21 +1560,21 @@ function TemplateAtlantic({ resume, experiences, educations, skills, projects, c
   return (
     // MAX COMPRESSION / GOLDILOCKS: 10.5 font, 1.4 line-height
     <div style={{ fontFamily: "Arial, sans-serif", fontSize: 10.5, lineHeight: 1.4, background: "#fff", minHeight: "100%", display: "flex", boxSizing: "border-box" }}>
-      
+
       {/* LEFT COLUMN - NAVY (Tightened padding to 20px 24px) */}
       <div style={{ width: "35%", background: navy, padding: "20px 24px", color: "#fff", flexShrink: 0 }}>
-        
+
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 4px", color: "#fff", lineHeight: 1.1 }}>
             {full_name || "Brian T. Wayne"}
           </h1>
           {professional_title && <div style={{ fontSize: 13.5, color: "#ccc", marginBottom: 14 }}>{professional_title}</div>}
-          
+
           <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 10.5, color: "#ddd" }}>
-            {email && <div style={{ display: "flex", alignItems: "center" }}><span style={{color: coral, marginRight: 6}}>✉</span>{email}</div>}
-            {phone && <div style={{ display: "flex", alignItems: "center" }}><span style={{color: coral, marginRight: 6}}>📞</span>{phone}</div>}
-            {location && <div style={{ display: "flex", alignItems: "center" }}><span style={{color: coral, marginRight: 6}}>📍</span>{location}</div>}
-            {linkedin && <div style={{ display: "flex", alignItems: "center" }}><span style={{color: coral, marginRight: 6}}>🔗</span>{linkedin}</div>}
+            {email && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>✉</span>{email}</div>}
+            {phone && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>📞</span>{phone}</div>}
+            {location && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>📍</span>{location}</div>}
+            {linkedin && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>🔗</span>{linkedin}</div>}
           </div>
         </div>
 
@@ -1607,7 +1613,7 @@ function TemplateAtlantic({ resume, experiences, educations, skills, projects, c
 
       {/* RIGHT COLUMN - WHITE (Tightened padding to 20px 28px) */}
       <div style={{ flex: 1, padding: "20px 28px" }}>
-        
+
         {experiences.length > 0 && (
           <div style={{ marginBottom: 20 }}>
             <AtlanticSection title="Professional Experience" icon="💼" isDark={false} />
@@ -1649,15 +1655,15 @@ function TemplateAtlantic({ resume, experiences, educations, skills, projects, c
             {/* WRAPPING ROW: Changed from column to wrap, added bulletproof PDF alignment */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, pageBreakInside: "avoid", breakInside: "avoid", width: "100%" }}>
               {skills.map((s, i) => (
-                <div key={i} style={{ 
-                  background: coral, 
-                  color: "#fff", 
-                  padding: "0 10px", 
+                <div key={i} style={{
+                  background: coral,
+                  color: "#fff",
+                  padding: "0 10px",
                   height: "22px",           /* Strict height */
                   lineHeight: "22px",       /* Matches height to perfectly center text */
-                  borderRadius: 4, 
-                  fontSize: 10.5, 
-                  fontWeight: 700, 
+                  borderRadius: 4,
+                  fontSize: 10.5,
+                  fontWeight: 700,
                   display: "inline-block"   /* Prevents html2canvas flex bugs */
                 }}>
                   {s.name} {s.level ? `— ${s.level}` : ""}
@@ -1672,7 +1678,7 @@ function TemplateAtlantic({ resume, experiences, educations, skills, projects, c
 
     </div>
   );
-} 
+}
 
 function TemplateBlueAccent({ resume, experiences, educations, skills, projects, certs }) {
   const { full_name, professional_title, email, phone, location, linkedin, summary } = resume;
@@ -1694,14 +1700,14 @@ function TemplateBlueAccent({ resume, experiences, educations, skills, projects,
   return (
     // THE GOLDILOCKS: 10.5 font, 1.4 line-height, balanced 20px 40px outer padding
     <div style={{ fontFamily: "Arial, sans-serif", fontSize: 10.5, color: "#222", lineHeight: 1.4, padding: "20px 40px", background: "#fff", minHeight: "100%", boxSizing: "border-box" }}>
-      
+
       {/* Header - Tightened margins */}
       <div style={{ textAlign: "center", marginBottom: 20 }}>
         <h1 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 4px", color: accent, letterSpacing: "0.02em" }}>
           {full_name || <span style={{ opacity: 0.5 }}>Your Name</span>}
         </h1>
         {professional_title && <div style={{ fontSize: 13.5, color: "#555", fontStyle: "italic", marginBottom: 8 }}>{professional_title}</div>}
-        
+
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px 16px", fontSize: 10.5, color: "#444", fontWeight: 600 }}>
           {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 {location}</span>}
           {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ {email}</span>}
@@ -1780,16 +1786,16 @@ function TemplateBlueAccent({ resume, experiences, educations, skills, projects,
           <AccentSection title="Skills" icon="⚡">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {skills.map((s, i) => (
-                <div key={i} style={{ 
-                  border: "1.5px solid #444", 
-                  borderRadius: 4, 
+                <div key={i} style={{
+                  border: "1.5px solid #444",
+                  borderRadius: 4,
                   padding: "0 10px",          /* Removed vertical padding */
                   height: "22px",             /* Strict height */
                   lineHeight: "22px",         /* Centering trick */
-                  fontSize: 10, 
-                  color: "#222", 
+                  fontSize: 10,
+                  color: "#222",
                   fontWeight: 600,
-                  display: "inline-block" 
+                  display: "inline-block"
                 }}>
                   {s.name} {s.level ? `(${s.level})` : ""}
                 </div>
@@ -1861,20 +1867,20 @@ function TemplateGreenAccent({ resume, experiences, educations, skills, projects
   return (
     // THE GOLDILOCKS: 10.5 font, 1.4 line-height, balanced 20px 36px outer padding.
     <div style={{ fontFamily: "Arial, sans-serif", fontSize: 10.5, color: "#222", lineHeight: 1.4, padding: "20px 36px", background: "#fff", minHeight: "100%", boxSizing: "border-box" }}>
-      
+
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: 18 }}>
-        <h1 style={{ 
-          fontSize: 32, 
-          fontWeight: 600, 
-          margin: "0 0 4px", 
-          color: teal, 
-          fontFamily: "'Brush Script MT', 'Lucida Handwriting', cursive, Georgia, serif" 
+        <h1 style={{
+          fontSize: 32,
+          fontWeight: 600,
+          margin: "0 0 4px",
+          color: teal,
+          fontFamily: "'Brush Script MT', 'Lucida Handwriting', cursive, Georgia, serif"
         }}>
           {full_name || <span style={{ opacity: 0.5 }}>Your Name</span>}
         </h1>
         {professional_title && <div style={{ fontSize: 13.5, color: "#555", marginBottom: 8 }}>{professional_title}</div>}
-        
+
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px 16px", fontSize: 10.5, color: "#333", fontWeight: 600 }}>
           {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 {location}</span>}
           {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ {email}</span>}
@@ -1896,7 +1902,7 @@ function TemplateGreenAccent({ resume, experiences, educations, skills, projects
       {experiences.length > 0 && (
         <GreenSection title="Work Experience">
           {experiences.map((exp, i) => (
-            <SplitItem 
+            <SplitItem
               key={i}
               dates={`${exp.start_date} – ${exp.end_date || "Present"}`}
               title={exp.role}
@@ -1911,7 +1917,7 @@ function TemplateGreenAccent({ resume, experiences, educations, skills, projects
       {educations.length > 0 && (
         <GreenSection title="Education">
           {educations.map((edu, i) => (
-            <SplitItem 
+            <SplitItem
               key={i}
               dates={`${edu.start_year} – ${edu.end_year}`}
               title={edu.degree}
@@ -1926,7 +1932,7 @@ function TemplateGreenAccent({ resume, experiences, educations, skills, projects
       {projects.length > 0 && (
         <GreenSection title="Projects">
           {projects.map((p, i) => (
-            <SplitItem 
+            <SplitItem
               key={i}
               dates={p.tech_stack || "Project"}
               title={p.title}
@@ -1943,16 +1949,16 @@ function TemplateGreenAccent({ resume, experiences, educations, skills, projects
           <GreenSection title="Skills">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {skills.map((s, i) => (
-                <div key={i} style={{ 
-                  border: "1.5px solid #444", 
-                  borderRadius: 4, 
+                <div key={i} style={{
+                  border: "1.5px solid #444",
+                  borderRadius: 4,
                   padding: "0 10px",          /* Removed vertical padding */
                   height: "22px",             /* Strict height */
                   lineHeight: "22px",         /* Line-height matching height perfectly centers text */
-                  fontSize: 10, 
-                  color: "#222", 
+                  fontSize: 10,
+                  color: "#222",
                   fontWeight: 600,
-                  display: "inline-block" 
+                  display: "inline-block"
                 }}>
                   {s.name} {s.level ? `(${s.level})` : ""}
                 </div>
@@ -1966,12 +1972,12 @@ function TemplateGreenAccent({ resume, experiences, educations, skills, projects
       {certs.length > 0 && (
         <GreenSection title="Certifications">
           {certs.map((c, i) => (
-             <SplitItem 
-               key={i}
-               dates={c.issue_date || "Certified"}
-               title={c.name}
-               subtitle={c.issuer}
-             />
+            <SplitItem
+              key={i}
+              dates={c.issue_date || "Certified"}
+              title={c.name}
+              subtitle={c.issuer}
+            />
           ))}
         </GreenSection>
       )}
@@ -1997,7 +2003,7 @@ function TemplateSimplyBlue({ resume, experiences, educations, skills, projects,
   return (
     // MAX COMPRESSION / GOLDILOCKS: 10.5 base font, 1.4 line-height, balanced 20px 36px padding
     <div style={{ fontFamily: "Arial, Helvetica, sans-serif", fontSize: 10.5, color: "#222", lineHeight: 1.4, padding: "20px 36px", background: "#fff", minHeight: "100%", boxSizing: "border-box" }}>
-      
+
       {/* HEADER SECTION */}
       <div style={{ marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "baseline", marginBottom: 6, flexWrap: "wrap" }}>
@@ -2010,13 +2016,13 @@ function TemplateSimplyBlue({ resume, experiences, educations, skills, projects,
             </span>
           )}
         </div>
-        
+
         {/* Contact Info Row */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 20px", fontSize: 10.5, color: "#111", fontWeight: 600 }}>
-          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{color: blue, fontSize: 12}}>📍</span> {location}</span>}
-          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{color: blue, fontSize: 12}}>✉</span> {email}</span>}
-          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{color: blue, fontSize: 12}}>📞</span> {phone}</span>}
-          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{color: blue, fontSize: 12}}>🔗</span> {linkedin}</span>}
+          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ color: blue, fontSize: 12 }}>📍</span> {location}</span>}
+          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ color: blue, fontSize: 12 }}>✉</span> {email}</span>}
+          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ color: blue, fontSize: 12 }}>📞</span> {phone}</span>}
+          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ color: blue, fontSize: 12 }}>🔗</span> {linkedin}</span>}
         </div>
       </div>
 
@@ -2124,11 +2130,11 @@ function TemplateSimplyBlue({ resume, experiences, educations, skills, projects,
 
 function TemplateAnnaField({ resume, experiences, educations, skills, projects, certs }) {
   const { full_name, professional_title, email, phone, location, linkedin, summary } = resume;
-  
+
   return (
     // GOLDILOCKS SQUEEZE: Tightened padding to 20px 36px, lowered line-height to 1.45, base font 10.5
     <div style={{ fontFamily: "Georgia, serif", fontSize: 10.5, color: "#1a1a1a", lineHeight: 1.45, padding: "20px 36px", background: "#fff", minHeight: "100%", boxSizing: "border-box" }}>
-      
+
       <div style={{ borderBottom: "1px solid #e5e7eb", paddingBottom: 12, marginBottom: 12 }}>
         <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 4px" }}>{full_name || <span style={{ color: "#ccc" }}>Your Name</span>}</h1>
         {professional_title && <div style={{ fontSize: 13.5, color: "#555", marginBottom: 8, fontStyle: "italic" }}>{professional_title}</div>}
@@ -2396,18 +2402,18 @@ function ResumePreview({ resume, experiences, educations, skills, projects, cert
   // c8 ignore start
   const activeKey = templateStyle || resume.template_name || "corporate";
   // c8 ignore stop
-  
+
   // 2. Pick the correct component from the updated map!
   const TemplateComponent = TEMPLATE_MAP[activeKey] || TemplateCorporate;
-  
+
   return (
-    <TemplateComponent 
-      resume={resume} 
-      experiences={experiences} 
-      educations={educations} 
-      skills={skills} 
-      projects={projects} 
-      certs={certs} 
+    <TemplateComponent
+      resume={resume}
+      experiences={experiences}
+      educations={educations}
+      skills={skills}
+      projects={projects}
+      certs={certs}
     />
   );
 }
@@ -2486,13 +2492,13 @@ export default function ResumeBuilder() {
   const [toast, setToast] = useState("");
   const [showExtra, setShowExtra] = useState(false);
   const [editingItem, setEditingItem] = useState(null); // { type, index, data }
-   
+
   const [resume, setResume] = useState({
     title: "", summary: "", full_name: "", professional_title: "",
     email: "", phone: "", location: "", linkedin: "", website: "",
     nationality: "", date_of_birth: "", template_name: "simple",
   });
-  
+
   const [templateStyle, setTemplateStyle] = useState("classic");
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const [experiences, setExperiences] = useState([]);
@@ -2517,19 +2523,19 @@ export default function ResumeBuilder() {
     setTimeout(() => setToast(""), 3000);
   };
 
- const fetchAll = async () => {
+  const fetchAll = async () => {
     try {
       // 1. Fetch Resume Basic Info using the Axios 'api' instance
       const resResume = await api.get(`/resume/${id}`);
       const data = resResume.data; // Axios automatically parses JSON into .data
-      
+
       // Note: your backend returns { resume: {...}, message: "..." } 
       // based on the route code you shared earlier.
-      const resumeData = data.resume || data; 
+      const resumeData = data.resume || data;
 
       if (resumeData) {
         setResume(resumeData);
-        
+
         // ✅ STEP 5 LOGIC: Handle the Template Style
         if (resumeData.template_style) {
           setTemplateStyle(resumeData.template_style);
@@ -2572,7 +2578,7 @@ export default function ResumeBuilder() {
   const saveResume = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/resume/${id}`, { method: "PUT", ...fetchOpts, body: JSON.stringify(resume) });
+      const res = await fetch(`${API_URL}/api/resume/${id}`, { method: "PUT", ...fetchOpts, body: JSON.stringify(resume) });
       if (res.ok) showToast("✅ Resume saved successfully!");
       else showToast("❌ Failed to save");
     } catch { showToast("❌ Failed to save"); }
@@ -2599,7 +2605,7 @@ export default function ResumeBuilder() {
       if (type === "experience") setExperiences(prev => prev.filter((_, i) => i !== index));
       if (type === "education") setEducations(prev => prev.filter((_, i) => i !== index));
       if (type === "skills") setSkills(prev => prev.filter((_, i) => i !== index));
-      if (type === "projects") setProjects(prev => prev.filter((_, i) => i !== index)); 
+      if (type === "projects") setProjects(prev => prev.filter((_, i) => i !== index));
       if (type === "certs") setCerts(prev => prev.filter((_, i) => i !== index));
     } catch { alert("Failed to delete"); }
   };
@@ -2650,7 +2656,7 @@ export default function ResumeBuilder() {
             background: "none", border: "1.5px solid #e2e8f0", borderRadius: 8, padding: "6px 12px",
             cursor: "pointer", color: "#64748b", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s ease", fontFamily: "inherit"
           }}>
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Dashboard
           </button>
           <div style={{ width: 1, height: 24, background: "#e2e8f0" }} />
@@ -2664,9 +2670,9 @@ export default function ResumeBuilder() {
               background: "linear-gradient(135deg, #eef2ff, #f5f3ff)", border: "1.5px solid #c7d2fe", borderRadius: 10, padding: "7px 14px",
               cursor: "pointer", color: "#4f46e5", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s ease", fontFamily: "inherit"
             }}>
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>
               {TEMPLATE_OPTIONS.flatMap(g => g.items).find(t => t.style === templateStyle)?.name || "Template"}
-              <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" d="M19 9l-7 7-7-7"/></svg>
+              <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" d="M19 9l-7 7-7-7" /></svg>
             </button>
             {showTemplateDropdown && (
               <>
@@ -2701,11 +2707,11 @@ export default function ResumeBuilder() {
           </div>
           <button onClick={async () => { showToast("📄 Preparing PDF..."); await handlePrint(); }}
             style={{ background: "#059669", color: "#fff", border: "none", borderRadius: 10, padding: "8px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 2px 8px rgba(5,150,105,0.25)", transition: "all 0.2s ease", fontFamily: "inherit" }}>
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
             Download PDF
           </button>
           <button onClick={saveResume} disabled={saving} style={{ ...btn, padding: "8px 18px", display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M5 13l4 4L19 7"/></svg>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M5 13l4 4L19 7" /></svg>
             {saving ? "Saving..." : "Save"}
           </button>
         </div>
@@ -2782,7 +2788,13 @@ export default function ResumeBuilder() {
             <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "flex-end" }}>
               <button onClick={() => setEditingItem(null)} style={{ background: "#f1f5f9", border: "1.5px solid #e2e8f0", borderRadius: 10, padding: "9px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#64748b", fontFamily: "inherit" }}>Cancel</button>
               <button onClick={() => {
-                const urlMap = { experience: `${API_URL}/experience/${editingItem.data.id}`, education: `${API_URL}/education/${editingItem.data.id}`, skills: `${API_URL}/skills/${editingItem.data.id}`, projects: `${API_URL}/projects/${editingItem.data.id}`, certs: `${API_URL}/certifications/${editingItem.data.id}` };
+                const urlMap = {
+                  experience: `${API_URL}/api/experience/${editingItem.data.id}`,
+                  education: `${API_URL}/api/education/${editingItem.data.id}`,
+                  skills: `${API_URL}/api/skills/${editingItem.data.id}`,
+                  projects: `${API_URL}/api/projects/${editingItem.data.id}`,
+                  certs: `${API_URL}/api/certifications/${editingItem.data.id}`
+                };
                 updateItem(urlMap[editingItem.type], editingItem.data, editingItem.type, editingItem.index);
               }} style={{ ...btn, fontFamily: "inherit" }}>Save Changes</button>
             </div>
@@ -2831,34 +2843,34 @@ export default function ResumeBuilder() {
                   )}
                 </div>
                 <div style={fld}>
-  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-    <label style={lbl}>Professional Summary</label>
-    <button
-      onClick={async () => {
-        if (!resume.full_name && !resume.professional_title) {
-          showToast("❌ Please fill in Full Name and Professional Title first!");
-          return;
-        }
-        await fetch(`${API_URL}/resume/${id}`, { method: "PUT", ...fetchOpts, body: JSON.stringify(resume) });
-        showToast("✨ Generating summary...");
-        try {
-          const res = await fetch(`${API_URL}/ai/generate-summary/${id}`, fetchOpts);
-          const data = await res.json();
-          if (data.ai_generated_summary) {
-            setResume(prev => ({ ...prev, summary: data.ai_generated_summary }));
-            showToast("✅ Summary generated!");
-          } else {
-            showToast("❌ Failed to generate");
-          }
-        } catch {
-          showToast("❌ Failed to generate");
-        }
-                 }}
-                 style={aiBtn}>
-                ✨ Generate with AI
-                </button>
-                </div>
-                <textarea className="rb-inp" style={{ ...inp, resize: "none" }} rows={4} placeholder="Write a brief professional summary or click ✨ Generate with AI..." value={resume.summary} onChange={e => setResume({ ...resume, summary: e.target.value })} />
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <label style={lbl}>Professional Summary</label>
+                    <button
+                      onClick={async () => {
+                        if (!resume.full_name && !resume.professional_title) {
+                          showToast("❌ Please fill in Full Name and Professional Title first!");
+                          return;
+                        }
+                        await fetch(`${API_URL}/api/resume/${id}`, { method: "PUT", ...fetchOpts, body: JSON.stringify(resume) });  // ✅ Added /api
+                        showToast("✨ Generating summary...");
+                        try {
+                          const res = await fetch(`${API_URL}/api/ai/generate-summary/${id}`, fetchOpts);  // ✅ Added /api
+                          const data = await res.json();
+                          if (data.ai_generated_summary) {
+                            setResume(prev => ({ ...prev, summary: data.ai_generated_summary }));
+                            showToast("✅ Summary generated!");
+                          } else {
+                            showToast("❌ Failed to generate");
+                          }
+                        } catch {
+                          showToast("❌ Failed to generate");
+                        }
+                      }}
+                      style={aiBtn}>
+                      ✨ Generate with AI
+                    </button>
+                  </div>
+                  <textarea className="rb-inp" style={{ ...inp, resize: "none" }} rows={4} placeholder="Write a brief professional summary or click ✨ Generate with AI..." value={resume.summary} onChange={e => setResume({ ...resume, summary: e.target.value })} />
                 </div>
                 <button onClick={saveResume} disabled={saving} style={{ ...btn, width: "100%", padding: "12px", fontSize: 14, borderRadius: 12, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", marginTop: 8, fontFamily: "inherit" }}>{saving ? "Saving..." : "✓ Save Personal Info"}</button>
               </div>
@@ -2876,7 +2888,7 @@ export default function ResumeBuilder() {
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
                       <button style={editBtn} onClick={() => setEditingItem({ type: "experience", index: i, data: { ...exp } })}>✏️ Edit</button>
-                      <button style={delBtn} onClick={() => deleteItem(`${API_URL}/experience/${exp.id}`, "experience", i)}>🗑️</button>
+                      <button style={delBtn} onClick={() => deleteItem(`${API_URL}/api/experience/${exp.id}`, "experience", i)}>🗑️</button>
                     </div>
                   </div>
                 ))}
@@ -2887,47 +2899,47 @@ export default function ResumeBuilder() {
                   ))}
                 </div>
                 <div style={fld}>
-  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-    <label style={lbl}>Description</label>
-    <button
-      onClick={async () => {
-        if (!expForm.role || !expForm.company) {
-          showToast("❌ Please fill in Company and Role first!");
-          return;
-        }
-        showToast("✨ Generating description...");
-        try {
-          const res = await fetch(`${API_URL}/ai/generate-experience`, {
-            method: "POST",
-            ...fetchOpts,
-            body: JSON.stringify({
-              role: expForm.role,
-              company: expForm.company,
-              start_date: expForm.start_date,
-              end_date: expForm.end_date
-            })
-          });
-          const data = await res.json();
-          if (data.description) {
-            setExpForm(prev => ({ ...prev, description: data.description }));
-            showToast("✅ Description generated!");
-          } else {
-            showToast("❌ Failed to generate");
-          }
-        } catch {
-          showToast("❌ Failed to generate");
-        }
-      }}
-      style={aiBtn}>
-      ✨ Generate with AI
-    </button>
-  </div>
-  <textarea className="rb-inp" style={{ ...inp, resize: "none" }} rows={3}
-    placeholder="Describe responsibilities or click ✨ Generate with AI..."
-    value={expForm.description}
-    onChange={e => setExpForm({ ...expForm, description: e.target.value })} />
-</div>
-                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`${API_URL}/experience/`, { ...expForm, resume_id: parseInt(id) }, () => setExpForm({ company: "", role: "", start_date: "", end_date: "", description: "" }), "experience")}>+ Add Experience</button>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <label style={lbl}>Description</label>
+                    <button
+                      onClick={async () => {
+                        if (!expForm.role || !expForm.company) {
+                          showToast("❌ Please fill in Company and Role first!");
+                          return;
+                        }
+                        showToast("✨ Generating description...");
+                        try {
+                          const res = await fetch(`${API_URL}/api/ai/generate-experience`, {
+                            method: "POST",
+                            ...fetchOpts,
+                            body: JSON.stringify({
+                              role: expForm.role,
+                              company: expForm.company,
+                              start_date: expForm.start_date,
+                              end_date: expForm.end_date
+                            })
+                          });
+                          const data = await res.json();
+                          if (data.description) {
+                            setExpForm(prev => ({ ...prev, description: data.description }));
+                            showToast("✅ Description generated!");
+                          } else {
+                            showToast("❌ Failed to generate");
+                          }
+                        } catch {
+                          showToast("❌ Failed to generate");
+                        }
+                      }}
+                      style={aiBtn}>
+                      ✨ Generate with AI
+                    </button>
+                  </div>
+                  <textarea className="rb-inp" style={{ ...inp, resize: "none" }} rows={3}
+                    placeholder="Describe responsibilities or click ✨ Generate with AI..."
+                    value={expForm.description}
+                    onChange={e => setExpForm({ ...expForm, description: e.target.value })} />
+                </div>
+                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`${API_URL}/api/experience/`, { ...expForm, resume_id: parseInt(id) }, () => setExpForm({ company: "", role: "", start_date: "", end_date: "", description: "" }), "experience")}>+ Add Experience</button>
               </div>
             )}
 
@@ -2943,7 +2955,7 @@ export default function ResumeBuilder() {
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
                       <button style={editBtn} onClick={() => setEditingItem({ type: "education", index: i, data: { ...edu } })}>✏️ Edit</button>
-                      <button style={delBtn} onClick={() => deleteItem(`${API_URL}/education/${edu.id}`, "education", i)}>🗑️</button>
+                      <button style={delBtn} onClick={() => deleteItem(`${API_URL}/api/education/${edu.id}`, "education", i)}>🗑️</button>
                     </div>
                   </div>
                 ))}
@@ -2953,7 +2965,7 @@ export default function ResumeBuilder() {
                     <div key={key}><label style={lbl}>{label}</label><input className="rb-inp" style={inp} placeholder={ph} value={eduForm[key]} onChange={e => setEduForm({ ...eduForm, [key]: e.target.value })} /></div>
                   ))}
                 </div>
-                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`${API_URL}/education/`, { ...eduForm, resume_id: parseInt(id) }, () => setEduForm({ degree: "", institution: "", start_year: "", end_year: "", gpa: "" }), "education")}>+ Add Education</button>
+                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`${API_URL}/api/education/`, { ...eduForm, resume_id: parseInt(id) }, () => setEduForm({ degree: "", institution: "", start_year: "", end_year: "", gpa: "" }), "education")}>+ Add Education</button>
               </div>
             )}
 
@@ -2966,7 +2978,7 @@ export default function ResumeBuilder() {
                     <span key={i} style={{ background: "linear-gradient(135deg, #eef2ff, #f5f3ff)", color: "#4f46e5", border: "1.5px solid #c7d2fe", borderRadius: 20, padding: "5px 12px", fontSize: 12.5, display: "flex", alignItems: "center", gap: 6, fontWeight: 500 }}>
                       {s.name} <span style={{ fontSize: 10, color: "#818cf8", fontWeight: 600 }}>· {s.level}</span>
                       <button onClick={() => setEditingItem({ type: "skills", index: i, data: { ...s } })} style={{ ...editBtn, fontSize: 10, padding: 0 }}>✏️</button>
-                      <button onClick={() => deleteItem(`${API_URL}/skills/${s.id}`, "skills", i)} style={{ ...delBtn, fontSize: 10, padding: 0 }}>✕</button>
+                      <button onClick={() => deleteItem(`${API_URL}/api/skills/${s.id}`, "skills", i)} style={{ ...delBtn, fontSize: 10, padding: 0 }}>✕</button>
                     </span>
                   ))}
                 </div>
@@ -2978,7 +2990,7 @@ export default function ResumeBuilder() {
                       {["Beginner", "Intermediate", "Advanced", "Expert"].map(l => <option key={l}>{l}</option>)}
                     </select>
                   </div>
-                  <button style={{ ...btn, fontFamily: "inherit" }} onClick={() => addItem(`${API_URL}/skills/`, { ...skillForm, resume_id: parseInt(id) }, () => setSkillForm({ name: "", level: "Intermediate" }), "skills")}>+ Add</button>
+                  <button style={{ ...btn, fontFamily: "inherit" }} onClick={() => addItem(`${API_URL}/api/skills/`, { ...skillForm, resume_id: parseInt(id) }, () => setSkillForm({ name: "", level: "Intermediate" }), "skills")}>+ Add</button>
                 </div>
               </div>
             )}
@@ -2995,7 +3007,7 @@ export default function ResumeBuilder() {
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
                       <button style={editBtn} onClick={() => setEditingItem({ type: "projects", index: i, data: { ...p } })}>✏️ Edit</button>
-                      <button style={delBtn} onClick={() => deleteItem(`${API_URL}/projects/${p.id}`, "projects", i)}>🗑️</button>
+                      <button style={delBtn} onClick={() => deleteItem(`${API_URL}/api/projects/${p.id}`, "projects", i)}>🗑️</button>
                     </div>
                   </div>
                 ))}
@@ -3006,45 +3018,45 @@ export default function ResumeBuilder() {
                   ))}
                 </div>
                 <div style={fld}>
-  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-    <label style={lbl}>Description</label>
-    <button
-      onClick={async () => {
-        if (!projForm.title) {
-          showToast("❌ Please fill in Project Title first!");
-          return;
-        }
-        showToast("✨ Generating description...");
-        try {
-          const res = await fetch(`${API_URL}/ai/generate-project`, {
-            method: "POST",
-            ...fetchOpts,
-            body: JSON.stringify({
-              title: projForm.title,
-              tech_stack: projForm.tech_stack
-            })
-          });
-          const data = await res.json();
-          if (data.description) {
-            setProjForm(prev => ({ ...prev, description: data.description }));
-            showToast("✅ Description generated!");
-          } else {
-            showToast("❌ Failed to generate");
-          }
-        } catch {
-          showToast("❌ Failed to generate");
-        }
-      }}
-      style={aiBtn}>
-      ✨ Generate with AI
-    </button>
-  </div>
-  <textarea className="rb-inp" style={{ ...inp, resize: "none" }} rows={3}
-    placeholder="Describe the project or click ✨ Generate with AI..."
-    value={projForm.description}
-    onChange={e => setProjForm({ ...projForm, description: e.target.value })} />
-</div>
-                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`${API_URL}/projects/`, { ...projForm, resume_id: parseInt(id) }, () => setProjForm({ title: "", description: "", tech_stack: "", link: "" }), "projects")}>+ Add Project</button>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <label style={lbl}>Description</label>
+                    <button
+                      onClick={async () => {
+                        if (!projForm.title) {
+                          showToast("❌ Please fill in Project Title first!");
+                          return;
+                        }
+                        showToast("✨ Generating description...");
+                        try {
+                          const res = await fetch(`${API_URL}/api/ai/generate-project`, {
+                            method: "POST",
+                            ...fetchOpts,
+                            body: JSON.stringify({
+                              title: projForm.title,
+                              tech_stack: projForm.tech_stack
+                            })
+                          });
+                          const data = await res.json();
+                          if (data.description) {
+                            setProjForm(prev => ({ ...prev, description: data.description }));
+                            showToast("✅ Description generated!");
+                          } else {
+                            showToast("❌ Failed to generate");
+                          }
+                        } catch {
+                          showToast("❌ Failed to generate");
+                        }
+                      }}
+                      style={aiBtn}>
+                      ✨ Generate with AI
+                    </button>
+                  </div>
+                  <textarea className="rb-inp" style={{ ...inp, resize: "none" }} rows={3}
+                    placeholder="Describe the project or click ✨ Generate with AI..."
+                    value={projForm.description}
+                    onChange={e => setProjForm({ ...projForm, description: e.target.value })} />
+                </div>
+                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`${API_URL}/api/projects/`, { ...projForm, resume_id: parseInt(id) }, () => setProjForm({ title: "", description: "", tech_stack: "", link: "" }), "projects")}>+ Add Project</button>
               </div>
             )}
 
@@ -3060,7 +3072,7 @@ export default function ResumeBuilder() {
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
                       <button style={editBtn} onClick={() => setEditingItem({ type: "certs", index: i, data: { ...c } })}>✏️ Edit</button>
-                      <button style={delBtn} onClick={() => deleteItem(`${API_URL}/certifications/${c.id}`, "certs", i)}>🗑️</button>
+                      <button style={delBtn} onClick={() => deleteItem(`${API_URL}/api/certifications/${c.id}`, "certs", i)}>🗑️</button>
                     </div>
                   </div>
                 ))}
@@ -3070,7 +3082,7 @@ export default function ResumeBuilder() {
                     <div key={key}><label style={lbl}>{label}</label><input className="rb-inp" style={inp} placeholder={ph} value={certForm[key]} onChange={e => setCertForm({ ...certForm, [key]: e.target.value })} /></div>
                   ))}
                 </div>
-                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`${API_URL}/certifications/`, { ...certForm, resume_id: parseInt(id) }, () => setCertForm({ name: "", issuer: "", issue_date: "", expiry_date: "" }), "certs")}>+ Add Certification</button>
+                <button style={{ ...btn, fontFamily: "inherit", marginTop: 8 }} onClick={() => addItem(`${API_URL}/api/certifications/`, { ...certForm, resume_id: parseInt(id) }, () => setCertForm({ name: "", issuer: "", issue_date: "", expiry_date: "" }), "certs")}>+ Add Certification</button>
               </div>
             )}
           </div>
@@ -3078,35 +3090,35 @@ export default function ResumeBuilder() {
 
         {/* RIGHT — Live Preview */}
         <div style={{ overflowY: "auto", background: "linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)", padding: "24px 0", display: "flex", justifyContent: "center" }}>
-          
+
           {/* ✅ The A4 Canvas Wrapper */}
-          <div 
-            ref={componentRef} 
-            style={{ 
-              background: "#fff", 
+          <div
+            ref={componentRef}
+            style={{
+              background: "#fff",
               width: "210mm",
               height: "297mm",
               overflow: "hidden",
               boxSizing: "border-box",
               position: "relative",
-              boxShadow: "0 4px 24px rgba(0,0,0,0.1)", 
+              boxShadow: "0 4px 24px rgba(0,0,0,0.1)",
               WebkitPrintColorAdjust: "exact",
-              printColorAdjust: "exact" 
+              printColorAdjust: "exact"
             }}
           >
             <div ref={innerRef} style={{ display: "flex", flexDirection: "column" }}>
-              <ResumePreview 
-                resume={resume} 
-                experiences={experiences} 
-                educations={educations} 
-                skills={skills} 
-                projects={projects} 
-                certs={certs} 
-                templateStyle={templateStyle} 
+              <ResumePreview
+                resume={resume}
+                experiences={experiences}
+                educations={educations}
+                skills={skills}
+                projects={projects}
+                certs={certs}
+                templateStyle={templateStyle}
               />
             </div>
           </div>
-          
+
         </div>
       </div>
     </div>

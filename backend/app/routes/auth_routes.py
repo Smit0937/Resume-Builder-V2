@@ -190,15 +190,29 @@ def check_auth():
         }), 401
 
 ################Get Current User Info#####################
-@auth.route("/me", methods=["GET"])
+@auth.route("/me", methods=["GET", "OPTIONS"])
 @jwt_required()
 def get_current_user():
+    # Handle OPTIONS
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+        response.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Cookie'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        return response, 200
+    
     try:
         user_id = get_jwt_identity()
-        user = db.session.get(User, int(user_id))
+        print(f"✅ /me route - user_id: {user_id}")
+        
+        user = User.query.get(int(user_id))
         
         if not user:
+            print(f"❌ User {user_id} not found")
             return jsonify({"error": "User not found"}), 404
+        
+        print(f"✅ Returning user: {user.email}")
         
         return jsonify({
             "id": user.id,
@@ -206,11 +220,11 @@ def get_current_user():
             "role": user.role
         }), 200
         
-    except Exception as e:  # pragma: no cover
+    except Exception as e:
         print(f"❌ /me error: {str(e)}")
         import traceback
         traceback.print_exc()
-        return jsonify({"error": "Not logged in"}), 401      
+        return jsonify({"error": "Not logged in"}), 401     
 
 
 

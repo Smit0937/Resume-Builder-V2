@@ -42,15 +42,17 @@ export default function Dashboard() {
   }, [authLoading, user, navigate]);
 
   const fetchResumes = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/resume/all`);
-      setResumes(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false); 
-    }
-  };
+  try {
+    console.log('🔍 Fetching resumes...');
+    const data = await resumeService.getAll();
+    console.log('✅ Resumes received:', data);
+    setResumes(Array.isArray(data) ? data : []);  // ✅ Fixed: use 'data' not 'res.data'
+  } catch (err) {
+    console.error('❌ Failed to fetch resumes:', err);
+  } finally {
+    setLoading(false); 
+  }
+};
 
   useEffect(() => {
     if (user) {
@@ -75,7 +77,7 @@ export default function Dashboard() {
         phone: resume.phone,
         linkedin: resume.linkedin,
       });
-      fetchResumes();
+      await fetchResumes();
     } catch (err) {
       alert("Failed to duplicate");
       setLoading(false);

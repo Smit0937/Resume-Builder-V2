@@ -2,6 +2,7 @@ from app import create_app
 from flask import jsonify
 from app.extensions import db
 from sqlalchemy import text
+import os
 
 
 app = create_app()   # FIRST create app
@@ -20,5 +21,7 @@ def test_db():
 
 print(app.url_map)
 
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)

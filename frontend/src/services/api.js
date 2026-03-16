@@ -1,88 +1,58 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-console.log('🔍 API initialized with URL:', API_URL);
-
 const api = {
   get: async (endpoint) => {
-    const url = `${API_URL}/api${endpoint}`;
-    console.log('🔍 GET:', url);
-    
-    const res = await fetch(url, {
+    const res = await fetch(`${API_URL}/api${endpoint}`, {
       method: 'GET',
       credentials: 'include',
     });
-
     if (!res.ok) {
       const error = await res.json();
-      console.error('❌ GET failed:', error);
       throw new Error(error.error || 'Request failed');
     }
-
-    const data = await res.json();
-    return { data };
+    return { data: await res.json() };
   },
-
+  
   post: async (endpoint, body) => {
-    const url = `${API_URL}/api${endpoint}`;
-    console.log('🔍 POST:', url, body);
-    
-    const res = await fetch(url, {
+    const res = await fetch(`${API_URL}/api${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(body),
     });
-
     if (!res.ok) {
       const error = await res.json();
-      console.error('❌ POST failed:', error);
       throw new Error(error.error || 'Request failed');
     }
-
-    const data = await res.json();
-    return { data };
+    return { data: await res.json() };
   },
-
+  
   put: async (endpoint, body) => {
-    const url = `${API_URL}/api${endpoint}`;
-    console.log('🔍 PUT:', url, body);
-    
-    const res = await fetch(url, {
+    const res = await fetch(`${API_URL}/api${endpoint}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(body),
     });
-
     if (!res.ok) {
       const error = await res.json();
-      console.error('❌ PUT failed:', error);
       throw new Error(error.error || 'Request failed');
     }
-
-    const data = await res.json();
-    return { data };
+    return { data: await res.json() };
   },
-
+  
   delete: async (endpoint) => {
-    const url = `${API_URL}/api${endpoint}`;
-    console.log('🔍 DELETE:', url);
-    
-    const res = await fetch(url, {
+    const res = await fetch(`${API_URL}/api${endpoint}`, {
       method: 'DELETE',
       credentials: 'include',
     });
-
     if (!res.ok) {
       const error = await res.json();
-      console.error('❌ DELETE failed:', error);
       throw new Error(error.error || 'Request failed');
     }
-
-    const data = await res.json();
-    return { data };
+    return { data: await res.json() };
   },
 };
 
 export default api;
-export { API_URL };  // ✅ EXPORT API_URL
+export { API_URL };

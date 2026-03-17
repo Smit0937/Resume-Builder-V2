@@ -117,13 +117,23 @@ export default function Dashboard() {
         .dash-card:hover .dash-icon svg path { stroke: white !important; }
         .dash-btn-new { transition: all 0.3s ease; }
         .dash-btn-new:hover { transform: translateY(-1px); box-shadow: 0 8px 24px -6px rgba(99,102,241,0.4); }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+          .dash-header { padding: 0 16px !important; height: auto !important; flex-direction: column !important; gap: 12px !important; }
+          .dash-header-left { width: 100%; }
+          .dash-header-right { width: 100%; flex-wrap: wrap; justify-content: flex-start; }
+          .dash-title-row { flex-direction: column !important; gap: 12px !important; align-items: flex-start !important; }
+          .dash-btn-new-mobile { width: 100%; }
+          .dash-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
       {/* Header */}
       <header style={{ background: "rgba(255,255,255,0.8)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid rgba(226,232,240,0.6)", position: "sticky", top: 0, zIndex: 50 }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="dash-header" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           {/* Logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="dash-header-left" style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px -2px rgba(99,102,241,0.4)" }}>
               <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M7 8h10M7 12h6M7 16h8M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="white" strokeWidth="2.5" strokeLinecap="round"/></svg>
             </div>
@@ -131,7 +141,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right side */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div className="dash-header-right" style={{ display: "flex", alignItems: "center", gap: 12 }}>
             {/* User pill */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 14px", background: "#f1f5f9", borderRadius: 20, border: "1px solid #e2e8f0" }}>
               <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700 }}>
@@ -159,12 +169,12 @@ export default function Dashboard() {
       <main style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px" }}>
 
         {/* Title row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32, animation: "dash-fade-in 0.5s ease" }}>
+        <div className="dash-title-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32, animation: "dash-fade-in 0.5s ease" }}>
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>My Resumes</h1>
             <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>Create and manage your AI-powered resumes</p>
           </div>
-          <button className="dash-btn-new" onClick={createResume} style={{ display: "flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+          <button className="dash-btn-new dash-btn-new-mobile" onClick={createResume} style={{ display: "flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="white" strokeWidth="2.5" strokeLinecap="round"/></svg>
             New Resume
           </button>
@@ -187,7 +197,7 @@ export default function Dashboard() {
             </button>
           </div>
         ) : (
-          <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))" }}>
+          <div className="dash-grid" style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))" }}>
             {resumes.map((resume, i) => (
               <div key={resume.id} className="dash-card" onClick={() => navigate(`/resume/${resume.id}/edit`)}
                 style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 20, cursor: "pointer", animation: `dash-fade-in 0.4s ease ${i * 0.05}s both` }}>

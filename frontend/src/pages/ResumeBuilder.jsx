@@ -2643,6 +2643,20 @@ export default function ResumeBuilder() {
         .rb-card:hover { border-color: #c7d2fe; box-shadow: 0 4px 12px rgba(99,102,241,0.08); }
         .rb-inp:focus { border-color: #818cf8; box-shadow: 0 0 0 3px rgba(129,140,248,0.12); background: #fff; }
         .rb-edit-modal { animation: slideIn 0.25s ease; }
+        
+        /* Mobile responsive */
+        @media (max-width: 1024px) {
+          .rb-main-container { grid-template-columns: 1fr !important; }
+          .rb-left-panel { border-right: none !important; border-bottom: 1px solid #e2e8f0 !important; }
+          .rb-right-panel { display: none; }
+          .rb-header-right { display: none !important; }
+          .rb-save-pdf { display: none !important; }
+        }
+        
+        @media (max-width: 768px) {
+          .rb-tab { font-size: 10px; padding: 6px 1px; }
+          .rb-left-panel { padding: 16px 14px !important; }
+        }
       `}</style>
 
       <header style={{
@@ -2663,7 +2677,7 @@ export default function ResumeBuilder() {
           <input value={resume.title} onChange={e => setResume({ ...resume, title: e.target.value })} placeholder="Resume Title"
             style={{ border: "none", outline: "none", fontSize: 15, fontWeight: 700, color: "#0f172a", background: "transparent", width: 220, fontFamily: "inherit" }} />
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div className="rb-header-right" style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {/* Template Selector */}
           <div style={{ position: "relative" }}>
             <button onClick={() => setShowTemplateDropdown(!showTemplateDropdown)} style={{
@@ -2705,7 +2719,7 @@ export default function ResumeBuilder() {
               </>
             )}
           </div>
-          <button onClick={async () => { showToast("📄 Preparing PDF..."); await handlePrint(); }}
+          <button className="rb-save-pdf" onClick={async () => { showToast("📄 Preparing PDF..."); await handlePrint(); }}
             style={{ background: "#059669", color: "#fff", border: "none", borderRadius: 10, padding: "8px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 2px 8px rgba(5,150,105,0.25)", transition: "all 0.2s ease", fontFamily: "inherit" }}>
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
             Download PDF
@@ -2802,9 +2816,9 @@ export default function ResumeBuilder() {
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "480px 1fr", height: "calc(100vh - 56px)" }}>
+      <div className="rb-main-container" style={{ display: "grid", gridTemplateColumns: "480px 1fr", height: "calc(100vh - 56px)" }}>
         {/* LEFT */}
-        <div style={{ overflowY: "auto", padding: "24px 22px", borderRight: "1px solid #e2e8f0", background: "#fff" }}>
+        <div className="rb-left-panel" style={{ overflowY: "auto", padding: "24px 22px", borderRight: "1px solid #e2e8f0", background: "#fff" }}>
           <div style={{ display: "flex", gap: 3, backgroundColor: "#f1f5f9", borderRadius: 10, padding: 3, marginBottom: 24 }}>
             {TABS.map((tab, i) => (
               <button key={tab} onClick={() => setActiveTab(i)} className="rb-tab"
@@ -3089,7 +3103,7 @@ export default function ResumeBuilder() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div style={{ overflowY: "auto", background: "linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)", padding: "24px 0", display: "flex", justifyContent: "center" }}>
+        <div className="rb-right-panel" style={{ overflowY: "auto", background: "linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)", padding: "24px 0", display: "flex", justifyContent: "center" }}>
 
           {/* ✅ The A4 Canvas Wrapper */}
           <div

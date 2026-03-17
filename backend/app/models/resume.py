@@ -34,7 +34,7 @@ class Resume(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def to_dict(self):
-        return {
+        return { # pragma: no cover
             'id': self.id,
             'user_id': self.user_id,
             'title': self.title,

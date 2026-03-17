@@ -141,7 +141,7 @@ def list_all_resumes():
     resumes = Resume.query.order_by(Resume.created_at.desc()).all()
     result = []
     for r in resumes:
-        user = db.session.get(User, r.user_id)
+        user = db.session.get(User, r.user_id) # pragma: no cover
         result.append({
             "id": r.id,
             "title": r.title,

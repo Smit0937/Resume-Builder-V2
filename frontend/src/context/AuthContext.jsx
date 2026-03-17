@@ -5,24 +5,35 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  // ✅ CHECK AUTH ON PAGE LOAD
+  // ✅ NON-BLOCKING AUTH CHECK - Only on first page load
   useEffect(() => {
+    // Don't block render - check auth in background
+    const cachedUser = localStorage.getItem('cachedUser');
+    if (cachedUser) {
+      try {
+        setUser(JSON.parse(cachedUser));
+      } catch (e) {
+        localStorage.removeItem('cachedUser');
+      }
+    }
+    
+    // Check auth asynchronously without blocking UI
     checkAuth();
   }, []);
 
   const checkAuth = async () => {
     try {
       console.log('🔍 Checking authentication...');
-      
       const data = await getCurrentUser();
       console.log('✅ User authenticated:', data);
       setUser(data);
-      
+      localStorage.setItem('cachedUser', JSON.stringify(data));
     } catch (err) {
       console.log('❌ Not authenticated:', err.message);
       setUser(null);
+      localStorage.removeItem('cachedUser');
     } finally {
       setLoading(false);
     }
@@ -31,6 +42,7 @@ export const AuthProvider = ({ children }) => {
   const login = (userData) => {
     console.log('✅ Login - setting user:', userData);
     setUser(userData);
+    localStorage.setItem('cachedUser', JSON.stringify(userData));
   };
 
   const logout = async () => {
@@ -43,6 +55,7 @@ export const AuthProvider = ({ children }) => {
     }
     
     setUser(null);
+    localStorage.removeItem('cachedUser');
   };
 
   return (

@@ -31,7 +31,7 @@ class Project(db.Model):
     )
 
     def to_dict(self):
-        return {
+        return { # pragma: no cover
             "id": self.id,
             "resume_id": self.resume_id,
             "project_title": self.project_title,

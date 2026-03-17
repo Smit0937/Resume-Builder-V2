@@ -1,12 +1,20 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-const REQUEST_TIMEOUT = 10000; // 10 seconds
+const REQUEST_TIMEOUT = 30000; // 30 seconds
 
 // Helper function to add timeout to fetch requests
 const fetchWithTimeout = (url, options = {}) => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, REQUEST_TIMEOUT);
 
   return fetch(url, { ...options, signal: controller.signal })
+    .catch((error) => {
+      if (error.name === 'AbortError') {
+        throw new Error(`Request timeout after ${REQUEST_TIMEOUT / 1000}s`);
+      }
+      throw error;
+    })
     .finally(() => clearTimeout(timeoutId));
 };
 

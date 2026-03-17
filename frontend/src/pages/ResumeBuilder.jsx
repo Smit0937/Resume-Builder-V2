@@ -2459,9 +2459,16 @@ export default function ResumeBuilder() {
     await new Promise(r => setTimeout(r, 150));
     try {
       // c8 ignore start
-      // Capture the full content at natural size
+      // Capture the full content at high resolution for better quality
       const canvas = await html2canvas(inner, {
-        scale: 2, useCORS: true, scrollY: 0, backgroundColor: '#ffffff'
+        scale: 4,
+        useCORS: true,
+        scrollY: 0,
+        backgroundColor: '#ffffff',
+        windowHeight: inner.scrollHeight,
+        windowWidth: inner.scrollWidth,
+        logging: false,
+        allowTaint: true
       });
       // Create single-page A4 PDF by fitting the image
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -2470,13 +2477,14 @@ export default function ResumeBuilder() {
       let w = A4W, h = A4W * ratio;
       if (h > A4H) { h = A4H; w = A4H / ratio; }
       const x = (A4W - w) / 2;
-      pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', x, 0, w, h);
+      // Use PNG for lossless quality
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, 0, w, h);
       pdf.save(`${resume.full_name || 'My'}_Resume.pdf`);
-      showToast("\u2705 PDF downloaded!");
+      showToast("✅ PDF downloaded!");
       // c8 ignore stop
     } catch (err) {
       console.error('PDF error:', err);
-      showToast("\u274C PDF generation failed");
+      showToast("❌ PDF generation failed");
     }
     // Restore preview scaling
     inner.style.transform = savedTransform;

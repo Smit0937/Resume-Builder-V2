@@ -14,8 +14,12 @@ import ResetPassword from "./pages/ResetPassword";
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
 
-  if (loading) return null;
+  // ✅ While auth is being checked, show nothing (prevents redirect race condition)
+  if (loading) {
+    return null;  // Return null, not a spinner - auth check is usually <100ms
+  }
 
+  // ✅ After loading completes, redirect if not authenticated
   return user ? children : <Navigate to="/login" replace />;
 }
 

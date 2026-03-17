@@ -50,6 +50,8 @@ _is_prod = any([
     os.getenv("RAILWAY_PUBLIC_DOMAIN"),
     os.getenv("RAILWAY_PROJECT_ID"),
 ])
+# ✅ IMPORTANT: For cross-port localhost (5173 <-> 5000), SameSite=None requires Secure=True
+# But on localhost with http, we use Lax instead
 COOKIE_SECURE = _is_prod
 COOKIE_SAMESITE = "None" if _is_prod else "Lax"
 
@@ -179,14 +181,21 @@ def login():
         return response
     
 #########################Logout Route#########################
-@auth.route("/logout", methods=["POST"])
+@auth.route("/logout", methods=["POST", "OPTIONS"])
 def logout():
+    # Handle OPTIONS
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Cookie'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        return response, 200
+    
     try:
-        response = make_response(jsonify({
-            "message": "Logged out successfully"
-        }), 200)
+        response = make_response(jsonify({"message": "Logged out successfully"}), 200)
         
-        # Clear the cookie
+        # ✅ METHOD 1: Delete via set_cookie with all same parameters as login
         response.set_cookie(
             key="access_token_cookie",
             value="",
@@ -194,19 +203,36 @@ def logout():
             secure=COOKIE_SECURE,
             samesite=COOKIE_SAMESITE,
             max_age=0,
-            path="/"
+            path="/",
+            domain=None
         )
         
-        # Add cache control headers
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        # ✅ METHOD 2: Also try Flask-JWT's unset method
+        unset_jwt_cookies(response)
         
-        print("✅ User logged out, cookie cleared")
+        # ✅ Add raw Set-Cookie header as fallback (delete with expires in the past)
+        response.headers['Set-Cookie'] = 'access_token_cookie=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly'
+        
+        # ✅ Must include CORS headers for browser to process response
+        response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        
+        print("✅ LOGOUT: Cookie session cleared")
+        print(f"   - Set empty access_token_cookie with max_age=0")
+        print(f"   - Called unset_jwt_cookies()")
+        print(f"   - Set-Cookie header with Expires in past")
+        
         return response
 
-    except Exception as e:  # pragma: no cover
+    except Exception as e:
         print(f"❌ Logout error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         response = make_response(jsonify({"error": "Logout failed"}), 500)
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
         return response    
 
 
@@ -253,6 +279,8 @@ def get_current_user():
         if not user:
             print(f"❌ User {user_id} not found")
             response = make_response(jsonify({"error": "User not found"}), 404)
+            response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
             response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
             return response
         
@@ -263,6 +291,8 @@ def get_current_user():
             "email": user.email,
             "role": user.role
         }), 200)
+        response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         return response
         
@@ -271,6 +301,8 @@ def get_current_user():
         import traceback
         traceback.print_exc()
         response = make_response(jsonify({"error": "Not logged in"}), 401)
+        response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         return response     
 

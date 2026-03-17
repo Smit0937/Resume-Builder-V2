@@ -107,31 +107,31 @@ export default function AdminPanel() {
   // ─── STYLES ───
   const s = {
     page: { minHeight: "100vh", background: "linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f5f3ff 100%)", fontFamily: "'Inter', system-ui, sans-serif" },
-    header: { background: "linear-gradient(135deg, #0f172a, #1e293b)", color: "#fff", padding: "0 32px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 50 },
+    header: { background: "linear-gradient(135deg, #0f172a, #1e293b)", color: "#fff", padding: "0 16px", height: "auto", minHeight: 56, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 50, flexWrap: "wrap", gap: 8 },
     headerTitle: { fontSize: 18, fontWeight: 800, display: "flex", alignItems: "center", gap: 8 },
-    headerRight: { display: "flex", alignItems: "center", gap: 16, fontSize: 13 },
-    body: { maxWidth: 1200, margin: "0 auto", padding: "24px 20px" },
-    tabs: { display: "flex", gap: 4, background: "#e2e8f0", borderRadius: 10, padding: 4, marginBottom: 24, width: "fit-content" },
-    tab: (active) => ({ padding: "8px 20px", borderRadius: 8, border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", background: active ? "#fff" : "transparent", color: active ? "#4f46e5" : "#64748b", boxShadow: active ? "0 1px 4px rgba(99,102,241,0.12)" : "none", transition: "all 0.2s ease" }),
-    statGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginBottom: 32 },
-    statCard: (color) => ({ background: "#fff", borderRadius: 14, padding: "24px 28px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", borderLeft: `4px solid ${color}` }),
-    statNum: { fontSize: 32, fontWeight: 800, color: "#0f172a", margin: 0 },
-    statLabel: { fontSize: 13, color: "#64748b", marginTop: 4 },
+    headerRight: { display: "flex", alignItems: "center", gap: 8, fontSize: 13, flexWrap: "wrap", justifyContent: "flex-end" },
+    body: { maxWidth: 1200, margin: "0 auto", padding: "16px 12px" },
+    tabs: { display: "flex", gap: 4, background: "#e2e8f0", borderRadius: 10, padding: 4, marginBottom: 24, width: "fit-content", overflowX: "auto" },
+    tab: (active) => ({ padding: "8px 16px", borderRadius: 8, border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", background: active ? "#fff" : "transparent", color: active ? "#4f46e5" : "#64748b", boxShadow: active ? "0 1px 4px rgba(99,102,241,0.12)" : "none", transition: "all 0.2s ease", whiteSpace: "nowrap" }),
+    statGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 24 },
+    statCard: (color) => ({ background: "#fff", borderRadius: 14, padding: "20px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", borderLeft: `4px solid ${color}` }),
+    statNum: { fontSize: 28, fontWeight: 800, color: "#0f172a", margin: 0 },
+    statLabel: { fontSize: 12, color: "#64748b", marginTop: 4 },
     card: { background: "#fff", borderRadius: 14, boxShadow: "0 1px 4px rgba(0,0,0,0.04)", overflow: "hidden", border: "1px solid #e2e8f0" },
-    cardHeader: { padding: "16px 20px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center" },
+    cardHeader: { padding: "14px 12px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 },
     cardTitle: { fontSize: 15, fontWeight: 700, color: "#0f172a" },
-    searchInput: { border: "2px solid #e2e8f0", borderRadius: 10, padding: "8px 14px", fontSize: 13, outline: "none", width: 260, background: "#f8fafc", transition: "all 0.2s ease" },
-    table: { width: "100%", borderCollapse: "collapse" },
-    th: { padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #f1f5f9", background: "#fafbfc" },
-    td: { padding: "12px 16px", fontSize: 13, color: "#334155", borderBottom: "1px solid #f8fafc" },
+    searchInput: { border: "2px solid #e2e8f0", borderRadius: 10, padding: "8px 12px", fontSize: 13, outline: "none", width: "100%", maxWidth: 300, background: "#f8fafc", transition: "all 0.2s ease", boxSizing: "border-box" },
+    table: { width: "100%", borderCollapse: "collapse", overflowX: "auto" },
+    th: { padding: "12px 8px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #f1f5f9", background: "#fafbfc" },
+    td: { padding: "12px 8px", fontSize: 13, color: "#334155", borderBottom: "1px solid #f8fafc" },
     badge: (role) => ({ display: "inline-block", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: role === "admin" ? "#eef2ff" : "#ecfdf5", color: role === "admin" ? "#6366f1" : "#059669" }),
-    btnDanger: { background: "#fee2e2", color: "#dc2626", border: "none", borderRadius: 8, padding: "5px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease" },
-    btnRole: { background: "#eef2ff", color: "#6366f1", border: "none", borderRadius: 8, padding: "5px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease" },
+    btnDanger: { background: "#fee2e2", color: "#dc2626", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease", whiteSpace: "nowrap" },
+    btnRole: { background: "#eef2ff", color: "#6366f1", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease", whiteSpace: "nowrap" },
     btnBack: { background: "none", border: "none", color: "#6366f1", cursor: "pointer", fontSize: 13, fontWeight: 600 },
     empty: { padding: 40, textAlign: "center", color: "#94a3b8", fontSize: 14 },
-    toast: (ok) => ({ position: "fixed", top: 70, right: 24, zIndex: 999, background: ok ? "linear-gradient(135deg, #059669, #10b981)" : "linear-gradient(135deg, #dc2626, #ef4444)", color: "#fff", padding: "12px 24px", borderRadius: 12, fontSize: 14, fontWeight: 600, boxShadow: "0 8px 24px rgba(0,0,0,0.15)", backdropFilter: "blur(8px)" }),
-    overlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 },
-    modal: { background: "#fff", borderRadius: 20, padding: 32, width: 420, boxShadow: "0 24px 60px rgba(0,0,0,0.2)" },
+    toast: (ok) => ({ position: "fixed", top: 70, right: 12, zIndex: 999, background: ok ? "linear-gradient(135deg, #059669, #10b981)" : "linear-gradient(135deg, #dc2626, #ef4444)", color: "#fff", padding: "12px 16px", borderRadius: 12, fontSize: 13, fontWeight: 600, boxShadow: "0 8px 24px rgba(0,0,0,0.15)", backdropFilter: "blur(8px)" }),
+    overlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 12 },
+    modal: { background: "#fff", borderRadius: 20, padding: 24, width: "100%", maxWidth: 420, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "90vh", overflowY: "auto" },
   };
 
   if (loading) {
@@ -148,15 +148,40 @@ export default function AdminPanel() {
 
   return (
     <div style={s.page}>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 768px) {
+          .admin-header-right { gap: 6px !important; }
+          .admin-header-right span { font-size: 11px; }
+          .admin-header-right button { padding: 4px 10px !important; font-size: 11px !important; }
+          .admin-tabs { flex-wrap: wrap; }
+          .admin-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .admin-table { min-width: 600px; }
+          .admin-table th, .admin-table td { padding: 10px 6px; font-size: 12px; }
+          .admin-actions { display: flex; gap: 4px; flex-direction: column; }
+          .admin-actions button { padding: 4px 8px; font-size: 11px; }
+          .admin-user-detail-grid { grid-template-columns: 1fr !important; }
+          .admin-user-detail-actions { flex-direction: column; gap: 8px; }
+          .admin-user-detail-actions button { width: 100%; }
+          .admin-recent-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 600px) {
+          .admin-header { padding: 8px 8px; }
+          .admin-header-title { font-size: 14px; }
+          .admin-body { padding: 8px 8px; }
+          .admin-stat-num { font-size: 24px; }
+          .admin-stat-label { font-size: 11px; }
+        }
+      `}</style>
       {/* ─── HEADER ─── */}
-      <header style={s.header}>
-        <div style={s.headerTitle}>🛡️ Admin Panel</div>
-        <div style={s.headerRight}>
+      <header style={s.header} className="admin-header">
+        <div style={s.headerTitle} className="admin-header-title">🛡️ Admin Panel</div>
+        <div style={s.headerRight} className="admin-header-right">
           <span style={{ opacity: 0.7 }}>{user?.email}</span>
-          <button onClick={() => navigate("/dashboard")} style={{ background: "#1e293b", color: "#94a3b8", border: "1px solid #334155", borderRadius: 6, padding: "5px 14px", fontSize: 12, cursor: "pointer" }}>
+          <button onClick={() => navigate("/dashboard")} style={{ background: "#1e293b", color: "#94a3b8", border: "1px solid #334155", borderRadius: 6, padding: "5px 12px", fontSize: 12, cursor: "pointer" }}>
             ← Dashboard
           </button>
-          <button onClick={() => { logout(); navigate("/login"); }} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 6, padding: "5px 14px", fontSize: 12, cursor: "pointer" }}>
+          <button onClick={() => { logout(); navigate("/login"); }} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 6, padding: "5px 12px", fontSize: 12, cursor: "pointer" }}>
             Logout
           </button>
         </div>
@@ -187,8 +212,8 @@ export default function AdminPanel() {
       )}
 
       {/* ─── BODY ─── */}
-      <div style={s.body}>
-        <div style={s.tabs}>
+      <div style={s.body} className="admin-body">
+        <div style={s.tabs} className="admin-tabs">
           {TABS.map((tab, i) => (
             <button key={tab} onClick={() => { setActiveTab(i); setSearch(""); setSelectedUser(null); }} style={s.tab(activeTab === i)}>{tab}</button>
           ))}
@@ -200,50 +225,54 @@ export default function AdminPanel() {
             {/* Stat Cards */}
             <div style={s.statGrid}>
               <div style={s.statCard("#6366f1")}>
-                <p style={s.statNum}>{stats.total_users}</p>
-                <p style={s.statLabel}>Total Users</p>
+                <p style={s.statNum} className="admin-stat-num">{stats.total_users}</p>
+                <p style={s.statLabel} className="admin-stat-label">Total Users</p>
               </div>
               <div style={s.statCard("#10b981")}>
-                <p style={s.statNum}>{stats.total_resumes}</p>
-                <p style={s.statLabel}>Total Resumes</p>
+                <p style={s.statNum} className="admin-stat-num">{stats.total_resumes}</p>
+                <p style={s.statLabel} className="admin-stat-label">Total Resumes</p>
               </div>
               <div style={s.statCard("#8b5cf6")}>
-                <p style={s.statNum}>{stats.total_admins}</p>
-                <p style={s.statLabel}>Admin Users</p>
+                <p style={s.statNum} className="admin-stat-num">{stats.total_admins}</p>
+                <p style={s.statLabel} className="admin-stat-label">Admin Users</p>
               </div>
             </div>
 
             {/* Recent Users & Resumes side by side */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="admin-recent-grid">
               <div style={s.card}>
                 <div style={s.cardHeader}><span style={s.cardTitle}>Recent Users</span></div>
-                <table style={s.table}>
-                  <thead><tr><th style={s.th}>Name</th><th style={s.th}>Email</th><th style={s.th}>Joined</th></tr></thead>
-                  <tbody>
-                    {stats.recent_users.map(u => (
-                      <tr key={u.id}>
-                        <td style={s.td}><span style={{ fontWeight: 600 }}>{u.name}</span></td>
-                        <td style={s.td}>{u.email}</td>
-                        <td style={s.td}>{formatDate(u.created_at)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="admin-table-wrapper">
+                  <table style={s.table} className="admin-table">
+                    <thead><tr><th style={s.th}>Name</th><th style={s.th}>Email</th><th style={s.th}>Joined</th></tr></thead>
+                    <tbody>
+                      {stats.recent_users.map(u => (
+                        <tr key={u.id}>
+                          <td style={s.td}><span style={{ fontWeight: 600 }}>{u.name}</span></td>
+                          <td style={s.td}>{u.email}</td>
+                          <td style={s.td}>{formatDate(u.created_at)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
               <div style={s.card}>
                 <div style={s.cardHeader}><span style={s.cardTitle}>Recent Resumes</span></div>
-                <table style={s.table}>
-                  <thead><tr><th style={s.th}>Title</th><th style={s.th}>Template</th><th style={s.th}>Created</th></tr></thead>
-                  <tbody>
-                    {stats.recent_resumes.map(r => (
-                      <tr key={r.id}>
-                        <td style={s.td}><span style={{ fontWeight: 600 }}>{r.title}</span></td>
-                        <td style={s.td}>{r.template_name}</td>
-                        <td style={s.td}>{formatDate(r.created_at)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="admin-table-wrapper">
+                  <table style={s.table} className="admin-table">
+                    <thead><tr><th style={s.th}>Title</th><th style={s.th}>Template</th><th style={s.th}>Created</th></tr></thead>
+                    <tbody>
+                      {stats.recent_resumes.map(r => (
+                        <tr key={r.id}>
+                          <td style={s.td}><span style={{ fontWeight: 600 }}>{r.title}</span></td>
+                          <td style={s.td}>{r.template_name}</td>
+                          <td style={s.td}>{formatDate(r.created_at)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -259,43 +288,45 @@ export default function AdminPanel() {
             {filteredUsers.length === 0 ? (
               <div style={s.empty}>No users found</div>
             ) : (
-              <table style={s.table}>
-                <thead>
-                  <tr>
-                    <th style={s.th}>ID</th>
-                    <th style={s.th}>Name</th>
-                    <th style={s.th}>Email</th>
-                    <th style={s.th}>Role</th>
-                    <th style={s.th}>Resumes</th>
-                    <th style={s.th}>Joined</th>
-                    <th style={s.th}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map(u => (
-                    <tr key={u.id} style={{ cursor: "pointer" }} onClick={() => setSelectedUser(u)}>
-                      <td style={s.td}>{u.id}</td>
-                      <td style={s.td}><span style={{ fontWeight: 600 }}>{u.name}</span></td>
-                      <td style={s.td}>{u.email}</td>
-                      <td style={s.td}><span style={s.badge(u.role)}>{u.role}</span></td>
-                      <td style={s.td}>{u.resume_count}</td>
-                      <td style={s.td}>{formatDate(u.created_at)}</td>
-                      <td style={s.td} onClick={e => e.stopPropagation()}>
-                        <div style={{ display: "flex", gap: 6 }}>
-                          <button style={s.btnRole}
-                            onClick={() => changeRole(u.id, getToggledRole(u.role))}>
-                            {u.role === "admin" ? "→ User" : "→ Admin"}
-                          </button>
-                          <button style={s.btnDanger}
-                            onClick={() => setConfirmDelete({ type: "user", id: u.id, name: u.name })}>
-                            Delete
-                          </button>
-                        </div>
-                      </td>
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="admin-table-wrapper">
+                <table style={s.table} className="admin-table">
+                  <thead>
+                    <tr>
+                      <th style={s.th}>ID</th>
+                      <th style={s.th}>Name</th>
+                      <th style={s.th}>Email</th>
+                      <th style={s.th}>Role</th>
+                      <th style={s.th}>Resumes</th>
+                      <th style={s.th}>Joined</th>
+                      <th style={s.th}>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map(u => (
+                      <tr key={u.id} style={{ cursor: "pointer" }} onClick={() => setSelectedUser(u)}>
+                        <td style={s.td}>{u.id}</td>
+                        <td style={s.td}><span style={{ fontWeight: 600 }}>{u.name}</span></td>
+                        <td style={s.td}>{u.email}</td>
+                        <td style={s.td}><span style={s.badge(u.role)}>{u.role}</span></td>
+                        <td style={s.td}>{u.resume_count}</td>
+                        <td style={s.td}>{formatDate(u.created_at)}</td>
+                        <td style={s.td} onClick={e => e.stopPropagation()}>
+                          <div style={{ display: "flex", gap: 4 }} className="admin-actions">
+                            <button style={s.btnRole}
+                              onClick={() => changeRole(u.id, getToggledRole(u.role))}>
+                              {u.role === "admin" ? "→ User" : "→ Admin"}
+                            </button>
+                            <button style={s.btnDanger}
+                              onClick={() => setConfirmDelete({ type: "user", id: u.id, name: u.name })}>
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         )}
@@ -311,7 +342,7 @@ export default function AdminPanel() {
                     <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{selectedUser.name}</h2>
                     <p style={{ margin: 0, color: "#64748b", fontSize: 14 }}>{selectedUser.email}</p>
                   </div>
-                  <div style={{ display: "flex", gap: 8 }}>
+                  <div style={{ display: "flex", gap: 8 }} className="admin-user-detail-actions">
                     <span style={s.badge(selectedUser.role)}>{selectedUser.role}</span>
                     <button style={s.btnRole}
                       onClick={() => { changeRole(selectedUser.id, getToggledRole(selectedUser.role)); setSelectedUser(prev => ({ ...prev, role: getToggledRole(prev.role) })); }}>
@@ -320,7 +351,7 @@ export default function AdminPanel() {
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }} className="admin-user-detail-grid">
                   <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
                     <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>User ID</p>
                     <p style={{ margin: "4px 0 0", fontWeight: 700, fontSize: 16 }}>{selectedUser.id}</p>
@@ -339,22 +370,26 @@ export default function AdminPanel() {
                 {resumes.filter(r => r.user_id === selectedUser.id).length === 0 ? (
                   <div style={s.empty}>No resumes</div>
                 ) : (
-                  <table style={s.table}>
-                    <thead><tr><th style={s.th}>ID</th><th style={s.th}>Title</th><th style={s.th}>Template</th><th style={s.th}>Created</th><th style={s.th}>Actions</th></tr></thead>
-                    <tbody>
-                      {resumes.filter(r => r.user_id === selectedUser.id).map(r => (
-                        <tr key={r.id}>
-                          <td style={s.td}>{r.id}</td>
-                          <td style={s.td}><span style={{ fontWeight: 600 }}>{r.title}</span></td>
-                          <td style={s.td}>{r.template_name}</td>
-                          <td style={s.td}>{formatDate(r.created_at)}</td>
-                          <td style={s.td}>
-                            <button style={s.btnDanger} onClick={() => setConfirmDelete({ type: "resume", id: r.id, name: r.title })}>Delete</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="admin-table-wrapper">
+                    <table style={s.table} className="admin-table">
+                      <thead><tr><th style={s.th}>ID</th><th style={s.th}>Title</th><th style={s.th}>Template</th><th style={s.th}>Created</th><th style={s.th}>Actions</th></tr></thead>
+                      <tbody>
+                        {resumes.filter(r => r.user_id === selectedUser.id).map(r => (
+                          <tr key={r.id}>
+                            <td style={s.td}>{r.id}</td>
+                            <td style={s.td}><span style={{ fontWeight: 600 }}>{r.title}</span></td>
+                            <td style={s.td}>{r.template_name}</td>
+                            <td style={s.td}>{formatDate(r.created_at)}</td>
+                            <td style={s.td} onClick={e => e.stopPropagation()}>
+                              <div style={{ display: "flex", gap: 4 }} className="admin-actions">
+                                <button style={s.btnDanger} onClick={() => setConfirmDelete({ type: "resume", id: r.id, name: r.title })}>Delete</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
               </div>
             </div>
@@ -371,37 +406,41 @@ export default function AdminPanel() {
             {filteredResumes.length === 0 ? (
               <div style={s.empty}>No resumes found</div>
             ) : (
-              <table style={s.table}>
-                <thead>
-                  <tr>
-                    <th style={s.th}>ID</th>
-                    <th style={s.th}>Title</th>
-                    <th style={s.th}>Owner</th>
-                    <th style={s.th}>Template</th>
-                    <th style={s.th}>Style</th>
-                    <th style={s.th}>Created</th>
-                    <th style={s.th}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredResumes.map(r => (
-                    <tr key={r.id}>
-                      <td style={s.td}>{r.id}</td>
-                      <td style={s.td}><span style={{ fontWeight: 600 }}>{r.title}</span></td>
-                      <td style={s.td}>
-                        <div>{r.user_name}</div>
-                        <div style={{ fontSize: 11, color: "#94a3b8" }}>{r.user_email}</div>
-                      </td>
-                      <td style={s.td}>{r.template_name}</td>
-                      <td style={s.td}>{r.template_style || "—"}</td>
-                      <td style={s.td}>{formatDate(r.created_at)}</td>
-                      <td style={s.td}>
-                        <button style={s.btnDanger} onClick={() => setConfirmDelete({ type: "resume", id: r.id, name: r.title })}>Delete</button>
-                      </td>
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="admin-table-wrapper">
+                <table style={s.table} className="admin-table">
+                  <thead>
+                    <tr>
+                      <th style={s.th}>ID</th>
+                      <th style={s.th}>Title</th>
+                      <th style={s.th}>Owner</th>
+                      <th style={s.th}>Template</th>
+                      <th style={s.th}>Style</th>
+                      <th style={s.th}>Created</th>
+                      <th style={s.th}>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredResumes.map(r => (
+                      <tr key={r.id}>
+                        <td style={s.td}>{r.id}</td>
+                        <td style={s.td}><span style={{ fontWeight: 600 }}>{r.title}</span></td>
+                        <td style={s.td}>
+                          <div>{r.user_name}</div>
+                          <div style={{ fontSize: 11, color: "#94a3b8" }}>{r.user_email}</div>
+                        </td>
+                        <td style={s.td}>{r.template_name}</td>
+                        <td style={s.td}>{r.template_style || "—"}</td>
+                        <td style={s.td}>{formatDate(r.created_at)}</td>
+                        <td style={s.td} onClick={e => e.stopPropagation()}>
+                          <div style={{ display: "flex", gap: 4 }} className="admin-actions">
+                            <button style={s.btnDanger} onClick={() => setConfirmDelete({ type: "resume", id: r.id, name: r.title })}>Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         )}

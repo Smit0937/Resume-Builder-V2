@@ -2649,13 +2649,15 @@ export default function ResumeBuilder() {
           .rb-main-container { grid-template-columns: 1fr !important; }
           .rb-left-panel { border-right: none !important; border-bottom: 1px solid #e2e8f0 !important; }
           .rb-right-panel { display: none; }
-          .rb-header-right { display: none !important; }
-          .rb-save-pdf { display: none !important; }
         }
         
         @media (max-width: 768px) {
           .rb-tab { font-size: 10px; padding: 6px 1px; }
           .rb-left-panel { padding: 16px 14px !important; }
+          .rb-header-right { gap: 4px !important; }
+          .rb-header-right button { padding: 6px 10px !important; font-size: 12px !important; }
+          .rb-save-pdf { padding: 6px 10px !important; font-size: 12px !important; }
+          .rb-save-pdf svg { width: 12px !important; height: 12px !important; }
         }
       `}</style>
 

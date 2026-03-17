@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // registerUser — API call function that sends name/email/password to backend
 import { registerUser } from "../services/authService";
+import LoadingScreen from "../components/LoadingScreen";
+import toast from "react-hot-toast";
 
 // ============ REGISTER COMPONENT ============
 function Register() {
@@ -15,6 +17,8 @@ function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   // showPassword — toggles password field between hidden (dots) and visible (text)
   const [showPassword, setShowPassword] = useState(false);
+  // loading — shows/hides the loading screen during registration
+  const [loading, setLoading] = useState(false);
 
   // handleChange — updates form state whenever user types in an input
   // e.target.name = "name", "email", or "password", e.target.value = what they typed
@@ -26,23 +30,27 @@ function Register() {
   const handleSubmit = async (e) => {
     // prevent page refresh (default form behavior)
     e.preventDefault();
+    setLoading(true);
     try {
       // send name/email/password to backend API
       await registerUser(form);
-      // show success alert
-      alert("Registration successful!");
+      // show success toast
+      toast.success("Registration successful!");
       // redirect to login page after successful registration
       navigate("/login");
     } catch (error) {
-      // log error and show failure alert
+      // log error and show failure toast
       console.error(error);
-      alert("Registration failed");
+      toast.error(error.response?.data?.error || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   // ============ JSX (what gets rendered on screen) ============
   return (
     <div className="reg-page">
+      <LoadingScreen visible={loading} message="Creating account..." />
 
       {/* ============ CSS STYLES ============ */}
       <style>{`
@@ -201,9 +209,14 @@ function Register() {
           background: linear-gradient(135deg, #6366f1, #8b5cf6);
           color: #fff;
         }
-        .reg-btn:hover {
+        .reg-btn:hover:not(:disabled) {
           transform: translateY(-1px);
           box-shadow: 0 8px 24px -6px rgba(99,102,241,0.4);
+        }
+        .reg-btn:disabled {
+          opacity: 0.6;
+          transform: none;
+          cursor: not-allowed;
         }
 
         /* bottom text — "Already have an account?" */
@@ -325,7 +338,7 @@ function Register() {
 
           {/* ---- SUBMIT BUTTON ---- */}
           {/* clicking submits the form and triggers handleSubmit */}
-          <button type="submit" className="reg-btn" data-testid="submit-button">Create Account</button>
+          <button type="submit" disabled={loading} className="reg-btn" data-testid="submit-button">Create Account</button>
         </form>
 
         {/* ============ FOOTER ============ */}

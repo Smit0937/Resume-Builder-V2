@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../services/api";
+import LoadingScreen from "../components/LoadingScreen";
 
 export default function ResetPassword() {
   const { token } = useParams();
@@ -26,6 +27,7 @@ export default function ResetPassword() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #eef2ff 0%, #f5f3ff 50%, #faf5ff 100%)", padding: 16, fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <LoadingScreen visible={loading} message="Resetting password..." />
       <style>{`
         @keyframes rp-fade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .rp-input { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: all 0.2s ease; background: #f8fafc; box-sizing: border-box; }
@@ -39,7 +41,7 @@ export default function ResetPassword() {
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <input type="password" placeholder="Enter new password" className="rp-input" value={password} onChange={(e) => setPassword(e.target.value)} required data-testid="password-input" />
-          <button type="submit" disabled={loading} className="rp-btn" data-testid="submit-button">{loading ? "Updating..." : "Reset Password"}</button>
+          <button type="submit" disabled={loading} className="rp-btn" data-testid="submit-button">Reset Password</button>
         </form>
       </div>
     </div>

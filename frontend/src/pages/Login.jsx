@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import LoadingScreen from "../components/LoadingScreen";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -35,6 +36,8 @@ export default function Login() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #eef2ff 0%, #f5f3ff 50%, #faf5ff 100%)", padding: "16px", fontFamily: "'Inter', system-ui, sans-serif" }}>
+
+      <LoadingScreen visible={loading} message="Signing in..." />
 
       <style>{`
         @keyframes login-fade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -91,7 +94,7 @@ export default function Login() {
           </div>
 
           <button type="submit" disabled={loading} className="login-btn">
-            {loading ? "Signing in..." : "Sign In"}
+            Sign In
           </button>
         </form>
 

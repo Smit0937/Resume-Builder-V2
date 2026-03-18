@@ -9,6 +9,8 @@ import TemplateSelect from "./pages/TemplateSelect";
 import AdminPanel from "./pages/AdminPanel";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import ShareButton from "./components/ShareButton";
+
 
 
 function PrivateRoute({ children }) {
@@ -36,6 +38,7 @@ export default function AppRoutes() {
         <Route path="/admin" element={<PrivateRoute><AdminPanel /></PrivateRoute>} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} /> 
+        <Route path="/share/:resumeId" element={<PrivateRoute><ShareButton /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   );

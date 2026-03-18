@@ -5,6 +5,11 @@ from flask_mail import Message
 from app.extensions import db, mail
 from app.models.resume import Resume
 from app.models.user import User
+from app.models.experience import Experience
+from app.models.education import Education
+from app.models.skills import Skill
+from app.models.project import Project
+from app.models.certification import Certification
 from datetime import timedelta
 from urllib.parse import quote  # ✅ proper URL encoding
 
@@ -108,10 +113,11 @@ def share_via_email():
             return jsonify({"error": "Resume not found"}), 404
 
         # Get sender info
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)  # SQLAlchemy 2.x compatible
         if not user:
             return jsonify({"error": "User not found"}), 404
 
+        # user.name is the correct field per User model
         sender_name = user.name or user.email.split("@")[0]
         resume_title = resume.title or "Resume"
 
@@ -205,8 +211,18 @@ def get_whatsapp_link(resume_id):
 
         _, share_url = _generate_share_url(user_id, resume_id)
 
-        # ✅ Use urllib.parse.quote for proper URL encoding
-        wa_text = f"🎉 Check out my resume:\n{share_url}\n\nView my professional profile – AI Resume Builder"
+        # Get user name for a personalized message
+        user = db.session.get(User, user_id)
+        sender_name = user.name if user else "Someone"
+        resume_title = resume.title or "Resume"
+
+        # ✅ Professional short WhatsApp message — URL on its own line for preview
+        wa_text = (
+            f"Hi! {sender_name} has shared their professional resume with you.\n\n"
+            f"📄 *{resume_title}*\n"
+            f"{share_url}\n\n"
+            f"_Shared via ResumeAI_"
+        )
         whatsapp_link = f"https://wa.me/?text={quote(wa_text)}"
 
         return jsonify({
@@ -283,15 +299,29 @@ def view_shared_resume(resume_id):
         if token_resume_id != str(resume_id):
             return jsonify({"error": "Token does not match this resume"}), 401
 
-        # ── Fetch resume ──
+        # ── Fetch resume + all nested data ──
         resume = Resume.query.filter_by(id=resume_id).first()
         if not resume:
             return jsonify({"error": "Resume not found"}), 404
 
+        resume_dict = resume.to_dict()
+
+        # ── Fetch nested data (same format as ResumeView) ──
+        experiences  = Experience.query.filter_by(resume_id=resume_id).all()
+        educations   = Education.query.filter_by(resume_id=resume_id).all()
+        skills       = Skill.query.filter_by(resume_id=resume_id).all()
+        projects     = Project.query.filter_by(resume_id=resume_id).all()
+        certs        = Certification.query.filter_by(resume_id=resume_id).all()
+
         return jsonify({
-            "success": True,
-            "resume": resume.to_dict(),
-            "is_shared": True,
+            "success":      True,
+            "is_shared":    True,
+            "resume":       resume_dict,
+            "experiences":  [e.to_dict() for e in experiences],
+            "educations":   [e.to_dict() for e in educations],
+            "skills":       [s.to_dict() for s in skills],
+            "projects":     [p.to_dict() for p in projects],
+            "certs":        [c.to_dict() for c in certs],
         }), 200
 
     except Exception as e:

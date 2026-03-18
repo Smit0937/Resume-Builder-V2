@@ -3,14 +3,29 @@ import { getCurrentUser, logoutUser } from '../services/authService';
 
 const AuthContext = createContext();
 
+// ── Public routes that should never trigger an auth check ──
+const PUBLIC_PATHS = [
+  '/forgot-password',
+  '/reset-password',
+  '/login',
+  '/register',
+  '/resume', // shared preview pages
+];
+
+const isPublicPath = (pathname) =>
+  PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  // ✅ CRITICAL: Start with loading=true to prevent PrivateRoute redirecting before auth check
   const [loading, setLoading] = useState(true);
 
-  // ✅ NON-BLOCKING AUTH CHECK - Only on first page load
   useEffect(() => {
-    // Don't block render - check auth in background
+    // ✅ Skip auth check entirely on public pages — prevents 30s timeout
+    if (isPublicPath(window.location.pathname)) {
+      setLoading(false);
+      return;
+    }
+
     const cachedUser = localStorage.getItem('cachedUser');
     if (cachedUser) {
       try {
@@ -19,8 +34,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('cachedUser');
       }
     }
-    
-    // Always verify with backend on page load
+
     checkAuth();
   }, []);
 
@@ -33,7 +47,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('cachedUser', JSON.stringify(data));
     } catch (err) {
       console.log('❌ AUTH: User not authenticated:', err.message);
-      // ✅ On any auth error (401, network, etc), clear cached user
       setUser(null);
       localStorage.removeItem('cachedUser');
       sessionStorage.clear();
@@ -55,29 +68,21 @@ export const AuthProvider = ({ children }) => {
       console.log('✅ LOGOUT: API call successful', result);
     } catch (err) {
       console.error('⚠️ LOGOUT: API call failed:', err.message);
-      // Continue even if API fails - we'll clear locally
     }
-    
-    // ✅ ALWAYS clear local state regardless of API response
+
     console.log('🧹 LOGOUT: Clearing all local data...');
     setUser(null);
     localStorage.removeItem('cachedUser');
     sessionStorage.clear();
-    
-    // ✅ Alternative: Try to clear cookies via JavaScript (for cases where API didn't clear them)
-    // Note: Can't directly delete httpOnly cookies from JS, but we can clear everything we can
     clearAllCookies();
-    
     console.log('✅ LOGOUT: Complete - user data cleared locally');
   };
-  
-  // ✅ Helper to clear all accessible cookies
+
   const clearAllCookies = () => {
     try {
-      // Clear all non-httpOnly cookies
-      document.cookie.split(";").forEach((c) => {
+      document.cookie.split(';').forEach((c) => {
         document.cookie = c
-          .replace(/^ +/, "")
+          .replace(/^ +/, '')
           .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
       });
       console.log('🧹 Cleared all accessible cookies via JS');

@@ -1,164 +1,184 @@
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../services/api";
+import ResumePreviewPublic from "../components/ResumePreviewPublic";
 
 export default function SharedResumeView() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const token = searchParams.get("token");
 
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copyDone, setCopyDone] = useState(false);
+
+  const publicUrl = window.location.href;
 
   useEffect(() => {
     if (!token) { setError("Missing share token."); setLoading(false); return; }
     axios.get(`${API_URL}/api/share/${id}/public?token=${token}`)
-      .then(res => { setData(res.data.resume); setLoading(false); })
+      .then(res => { setData(res.data); setLoading(false); })
       .catch(err => {
         setError(err.response?.data?.error || "Invalid or expired link.");
         setLoading(false);
       });
   }, [id, token]);
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(publicUrl);
+    setCopyDone(true);
+    setTimeout(() => setCopyDone(false), 2000);
+  };
+
+  const handleShare = (platform) => {
+    const name = data?.resume?.full_name || "My Resume";
+    const text = `${name} has shared their professional resume with you`;
+    const encodedUrl = encodeURIComponent(publicUrl);
+    const encodedText = encodeURIComponent(text);
+    const urls = {
+      whatsapp: `https://wa.me/?text=${encodedText}%0A%0A${encodedUrl}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+    };
+    window.open(urls[platform], "_blank");
+    setShowShareMenu(false);
+  };
+
+  const handleDownloadPDF = () => {
+    setShowShareMenu(false);
+    window.print();
+  };
+
   if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f1f5f9", fontFamily: "Inter, sans-serif" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>
       <div style={{ textAlign: "center" }}>
-        <div style={{ width: 40, height: 40, border: "3px solid #e0e7ff", borderTopColor: "#6366f1", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 16px" }} />
-        <p style={{ color: "#64748b", fontSize: 14 }}>Loading resume...</p>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <div style={{ width: 44, height: 44, border: "4px solid #e0e7ff", borderTopColor: "#6366f1", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 16px" }} />
+        <p style={{ color: "#64748b", fontSize: 14, fontFamily: "Inter, sans-serif" }}>Loading resume...</p>
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 
   if (error) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f1f5f9", fontFamily: "Inter, sans-serif" }}>
-      <div style={{ background: "#fff", borderRadius: 16, padding: "40px 48px", textAlign: "center", boxShadow: "0 8px 32px rgba(0,0,0,0.08)", maxWidth: 400 }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>Link Unavailable</h2>
-        <p style={{ color: "#64748b", fontSize: 14 }}>{error}</p>
-      </div>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#f8fafc", fontFamily: "Inter, sans-serif" }}>
+      <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+      <h2 style={{ fontSize: 24, fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>Link Unavailable</h2>
+      <p style={{ color: "#64748b", marginBottom: 24 }}>{error}</p>
+      <button onClick={() => navigate("/")} style={{ padding: "10px 24px", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Go Home</button>
     </div>
   );
 
   if (!data) return null;
 
+  const { resume, experiences, educations, skills, projects, certs } = data;
+  const activeTemplate = resume.template_style || resume.template_name || "simplyblue_modern";
+
   return (
-    <div style={{ minHeight: "100vh", background: "#f1f5f9", fontFamily: "Inter, sans-serif", padding: "32px 16px" }}>
-      <div style={{ maxWidth: 860, margin: "0 auto" }}>
-        {/* Header bar */}
-        <div style={{ background: "#fff", borderRadius: 12, padding: "14px 20px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M7 8h10M7 12h6M7 16h8M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
-            </div>
-            <span style={{ fontWeight: 700, fontSize: 15, color: "#0f172a" }}>
-              {data.full_name ? `${data.full_name}'s Resume` : "Shared Resume"}
-            </span>
+    <div style={{ minHeight: "100vh", background: "#f1f5f9", fontFamily: "Inter, sans-serif" }}>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .share-opt:hover { background: #f1f5f9 !important; }
+        @media (max-width: 600px) { .btn-label { display: none; } }
+        @media print {
+          .no-print { display: none !important; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+          body { margin: 0 !important; padding: 0 !important; background: white !important; }
+          html, body { height: auto !important; }
+          @page { margin: 0; size: A4; }
+        }
+      `}</style>
+
+      {/* ── Top Bar ── */}
+      <div className="no-print" style={{ background: "rgba(255,255,255,0.95)", backdropFilter: "blur(12px)", borderBottom: "1px solid #e2e8f0", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M7 8h10M7 12h6M7 16h8M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="white" strokeWidth="2.5" strokeLinecap="round"/></svg>
           </div>
-          <span style={{ fontSize: 12, color: "#94a3b8", background: "#f1f5f9", padding: "4px 10px", borderRadius: 20 }}>
-            Shared via ResumeAI
-          </span>
+          <span style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Resume<span style={{ color: "#6366f1" }}>AI</span></span>
         </div>
 
-        {/* Resume content */}
-        <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 4px 24px rgba(0,0,0,0.08)", overflow: "hidden", padding: "32px 40px", fontFamily: "Georgia, serif", fontSize: 13, color: "#111", lineHeight: 1.6 }}>
-          <div style={{ textAlign: "center", borderBottom: "2px solid #111", paddingBottom: 14, marginBottom: 20 }}>
-            <h1 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 4px" }}>{data.full_name}</h1>
-            {data.professional_title && <div style={{ fontSize: 14, color: "#555", fontStyle: "italic", marginBottom: 8 }}>{data.professional_title}</div>}
-            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16, fontSize: 12, color: "#555" }}>
-              {data.email && <span>✉ {data.email}</span>}
-              {data.phone && <span>📱 {data.phone}</span>}
-              {data.location && <span>📍 {data.location}</span>}
-              {data.linkedin && <span>🔗 {data.linkedin}</span>}
-            </div>
-          </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {/* Share dropdown */}
+          <div style={{ position: "relative" }}>
+            <button onClick={() => setShowShareMenu(v => !v)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <span className="btn-label">Share</span>
+            </button>
 
-          {data.summary && (
-            <div style={{ marginBottom: 20 }}>
-              <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1.5px solid #111", paddingBottom: 4, marginBottom: 10 }}>Summary</h2>
-              <p style={{ margin: 0, color: "#444", lineHeight: 1.7 }}>{data.summary}</p>
-            </div>
-          )}
+            {showShareMenu && (
+              <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.12)", minWidth: 220, zIndex: 200, overflow: "hidden", animation: "fadeIn 0.15s ease" }}>
+                <div style={{ padding: "10px 14px 6px", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em" }}>Share Resume</div>
 
-          {data.experiences?.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1.5px solid #111", paddingBottom: 4, marginBottom: 10 }}>Experience</h2>
-              {data.experiences.map((exp, i) => (
-                <div key={i} style={{ marginBottom: 12 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <strong>{exp.role}</strong>
-                    <span style={{ fontSize: 11, color: "#777" }}>{exp.start_date} – {exp.end_date || "Present"}</span>
+                <div className="share-opt" onClick={handleCopy} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", cursor: "pointer" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: copyDone ? "#dcfce7" : "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {copyDone ? <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    : <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" stroke="#475569" strokeWidth="2" strokeLinecap="round"/></svg>}
                   </div>
-                  <div style={{ fontSize: 12, color: "#555", fontStyle: "italic" }}>{exp.company}</div>
-                  {exp.description && <div style={{ fontSize: 12, color: "#444", marginTop: 4 }}>• {exp.description}</div>}
+                  <div><div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>{copyDone ? "Copied!" : "Copy Link"}</div><div style={{ fontSize: 11, color: "#94a3b8" }}>Share the public URL</div></div>
                 </div>
-              ))}
-            </div>
-          )}
 
-          {data.educations?.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1.5px solid #111", paddingBottom: 4, marginBottom: 10 }}>Education</h2>
-              {data.educations.map((edu, i) => (
-                <div key={i} style={{ marginBottom: 10 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <strong>{edu.degree}</strong>
-                    <span style={{ fontSize: 11, color: "#777" }}>{edu.start_year} – {edu.end_year}</span>
+                <div style={{ height: 1, background: "#f1f5f9", margin: "0 14px" }} />
+
+                <div className="share-opt" onClick={() => handleShare("whatsapp")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", cursor: "pointer" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#16a34a"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 2C6.495 2 2.05 6.445 2.05 12c0 1.822.49 3.524 1.338 4.99L2 22l5.15-1.348A9.902 9.902 0 0012.05 22c5.555 0 10-4.445 10-10S17.605 2 12.05 2z"/></svg>
                   </div>
-                  <div style={{ fontSize: 12, color: "#555" }}>{edu.institution}{edu.score ? ` · ${edu.score}` : ""}</div>
+                  <div><div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>WhatsApp</div><div style={{ fontSize: 11, color: "#94a3b8" }}>Send via WhatsApp</div></div>
                 </div>
-              ))}
-            </div>
-          )}
 
-          {data.skills?.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1.5px solid #111", paddingBottom: 4, marginBottom: 10 }}>Skills</h2>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {data.skills.map((s, i) => (
-                  <span key={i} style={{ background: "#f3f4f6", border: "1px solid #ddd", borderRadius: 4, padding: "3px 10px", fontSize: 11 }}>
-                    {s.name}{s.level ? ` · ${s.level}` : ""}
-                  </span>
-                ))}
+                <div className="share-opt" onClick={() => handleShare("linkedin")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", cursor: "pointer" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#1d4ed8"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+                  </div>
+                  <div><div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>LinkedIn</div><div style={{ fontSize: 11, color: "#94a3b8" }}>Post on LinkedIn</div></div>
+                </div>
+
+                <div style={{ height: 1, background: "#f1f5f9", margin: "0 14px" }} />
+
+                <div className="share-opt" onClick={handleDownloadPDF} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px 12px", cursor: "pointer" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <div><div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>Save as PDF</div><div style={{ fontSize: 11, color: "#94a3b8" }}>Print resume to PDF</div></div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {data.projects?.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1.5px solid #111", paddingBottom: 4, marginBottom: 10 }}>Projects</h2>
-              {data.projects.map((p, i) => (
-                <div key={i} style={{ marginBottom: 10 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <strong>{p.title}</strong>
-                    {p.link && <a href={p.link} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: "#2563eb" }}>View Link</a>}
-                  </div>
-                  {p.tech_stack && <div style={{ fontSize: 11, color: "#555", fontStyle: "italic" }}>{p.tech_stack}</div>}
-                  {p.description && <div style={{ fontSize: 12, color: "#444", marginTop: 3 }}>• {p.description}</div>}
-                </div>
-              ))}
-            </div>
-          )}
+          <button onClick={handleDownloadPDF} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", background: "#059669", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span className="btn-label">Save PDF</span>
+          </button>
 
-          {data.certifications?.length > 0 && (
-            <div style={{ marginBottom: 8 }}>
-              <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1.5px solid #111", paddingBottom: 4, marginBottom: 10 }}>Certifications</h2>
-              {data.certifications.map((c, i) => (
-                <div key={i} style={{ marginBottom: 6 }}>
-                  <strong style={{ fontSize: 12 }}>{c.name}</strong>
-                  {c.issuer && <span style={{ fontSize: 11, color: "#666" }}> · {c.issuer}</span>}
-                  {c.issue_date && <span style={{ fontSize: 11, color: "#888" }}> · {c.issue_date}</span>}
-                </div>
-              ))}
-            </div>
-          )}
+          <button onClick={() => navigate("/")} style={{ padding: "8px 16px", background: "transparent", border: "1px solid #e2e8f0", color: "#64748b", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+            <span className="btn-label">Create Your Own →</span>
+          </button>
         </div>
+      </div>
 
-        <p style={{ textAlign: "center", fontSize: 12, color: "#94a3b8", marginTop: 20 }}>
-          Created with ResumeAI · This link was shared with you
-        </p>
+      {showShareMenu && <div onClick={() => setShowShareMenu(false)} style={{ position: "fixed", inset: 0, zIndex: 99 }} />}
+
+      {/* ── Resume rendered with actual template ── */}
+      <div style={{ maxWidth: 960, margin: "32px auto", padding: "0 16px 64px" }}>
+        <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 4px 24px rgba(0,0,0,0.08)", overflow: "hidden" }}>
+          <ResumePreviewPublic
+            resume={resume}
+            experiences={experiences}
+            educations={educations}
+            skills={skills}
+            projects={projects}
+            certs={certs}
+            templateStyle={activeTemplate}
+          />
+        </div>
+        <div className="no-print" style={{ textAlign: "center", marginTop: 24, color: "#94a3b8", fontSize: 13 }}>
+          Made with <span style={{ color: "#6366f1", fontWeight: 600 }}>ResumeAI</span> ·{" "}
+          <span onClick={() => navigate("/")} style={{ color: "#6366f1", cursor: "pointer", fontWeight: 600 }}>Create your own →</span>
+        </div>
       </div>
     </div>
   );

@@ -10,6 +10,8 @@ import AdminPanel from "./pages/AdminPanel";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import ShareButton from "./components/ShareButton";
+import SharedResumeView from "./pages/SharedResumeView";
+
 
 
 
@@ -38,7 +40,7 @@ export default function AppRoutes() {
         <Route path="/admin" element={<PrivateRoute><AdminPanel /></PrivateRoute>} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} /> 
-        <Route path="/share/:resumeId" element={<PrivateRoute><ShareButton /></PrivateRoute>} />
+        <Route path="/resume/:id/preview" element={<SharedResumeView />} />
       </Routes>
     </BrowserRouter>
   );

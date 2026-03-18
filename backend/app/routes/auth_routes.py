@@ -50,8 +50,6 @@ _is_prod = any([
     os.getenv("RAILWAY_PUBLIC_DOMAIN"),
     os.getenv("RAILWAY_PROJECT_ID"),
 ])
-# ✅ IMPORTANT: For cross-port localhost (5173 <-> 5000), SameSite=None requires Secure=True
-# But on localhost with http, we use Lax instead
 COOKIE_SECURE = _is_prod
 COOKIE_SAMESITE = "None" if _is_prod else "Lax"
 
@@ -77,7 +75,6 @@ def register():
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         return response
 
-    # Optimized query - use exists() for faster lookup
     if db.session.query(User.id).filter_by(email=email).first():
         response = make_response(jsonify({"error": "Email already exists"}), 400)
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
@@ -117,7 +114,6 @@ def login():
             response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
             return response
 
-        # Optimized query - only fetch needed columns
         user = db.session.query(User).filter_by(email=email).first()
 
         if not user:
@@ -132,7 +128,6 @@ def login():
             response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
             return response
 
-        # Create JWT token
         access_token = create_access_token(
             identity=str(user.id),
             additional_claims={
@@ -142,7 +137,6 @@ def login():
             expires_delta=timedelta(days=7)
         )
 
-        # Create response
         response = make_response(jsonify({
             "message": "Login successful",
             "email": user.email,
@@ -150,26 +144,20 @@ def login():
             "user_id": user.id
         }), 200)
 
-        # ✅ Cookie settings for production cross-origin
-        # ✅ Cookie settings dynamically switch for Localhost vs Production
         response.set_cookie(
             'access_token_cookie',
             value=access_token,
             max_age=7*24*60*60,
             httponly=True,
-            secure=COOKIE_SECURE,       # <-- FIXED THIS
-            samesite=COOKIE_SAMESITE,   # <-- FIXED THIS
+            secure=COOKIE_SECURE,
+            samesite=COOKIE_SAMESITE,
             domain=None,
             path='/'
         )
         
-        # Add cache control headers
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
 
         print(f"✅ Login successful for: {email}")
-        print(f"✅ Cookie set with: Secure=True, SameSite=None")
-        print(f"✅ Token: {access_token[:50]}...")
-        
         return response
 
     except Exception as e:
@@ -183,7 +171,6 @@ def login():
 #########################Logout Route#########################
 @auth.route("/logout", methods=["POST", "OPTIONS"])
 def logout():
-    # Handle OPTIONS
     if request.method == "OPTIONS":
         response = make_response()
         response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
@@ -195,7 +182,6 @@ def logout():
     try:
         response = make_response(jsonify({"message": "Logged out successfully"}), 200)
         
-        # ✅ METHOD 1: Delete via set_cookie with all same parameters as login
         response.set_cookie(
             key="access_token_cookie",
             value="",
@@ -207,23 +193,15 @@ def logout():
             domain=None
         )
         
-        # ✅ METHOD 2: Also try Flask-JWT's unset method
         unset_jwt_cookies(response)
         
-        # ✅ Add raw Set-Cookie header as fallback (delete with expires in the past)
         response.headers['Set-Cookie'] = 'access_token_cookie=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly'
-        
-        # ✅ Must include CORS headers for browser to process response
         response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
         response.headers['Access-Control-Allow-Credentials'] = 'true'
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         
         print("✅ LOGOUT: Cookie session cleared")
-        print(f"   - Set empty access_token_cookie with max_age=0")
-        print(f"   - Called unset_jwt_cookies()")
-        print(f"   - Set-Cookie header with Expires in past")
-        
         return response
 
     except Exception as e:
@@ -260,7 +238,6 @@ def check_auth():
 @auth.route("/me", methods=["GET", "OPTIONS"])
 @jwt_required()
 def get_current_user():
-    # Handle OPTIONS
     if request.method == "OPTIONS":
         response = make_response() # pragma: no cover
         response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*') # pragma: no cover
@@ -307,7 +284,6 @@ def get_current_user():
         return response     
 
 
-
 @auth.route("/profile", methods=["GET"])
 @jwt_required()
 def profile():
@@ -342,52 +318,104 @@ def admin_test():
 
 
 # -------------------------------
-# Forgot Password
+# Forgot Password — FIXED
 # -------------------------------
 @auth.route("/forgot-password", methods=["POST"])
 def forgot_password():
+    try:
+        data = request.get_json(silent=True)
+        if not data:
+            return jsonify({"error": "Invalid request body"}), 400
 
-    data = request.get_json()
-    email = data.get("email")
+        email = data.get("email", "").strip().lower()
 
-    if not email:
-        return jsonify({"error": "Email is required"}), 400
+        if not email:
+            return jsonify({"error": "Email is required"}), 400
 
-    user = User.query.filter_by(email=email).first()
+        # Always respond the same way whether email exists or not (security)
+        user = User.query.filter_by(email=email).first()
 
-    if not user:
-        return jsonify({"message": "If email exists, reset link sent"}), 200
+        if not user:
+            # Don't reveal whether email exists
+            return jsonify({"message": "If that email exists, a reset link has been sent"}), 200
 
-    token = secrets.token_urlsafe(32)
-    expiry = datetime.utcnow() + timedelta(minutes=15)
+        # Generate secure token
+        token = secrets.token_urlsafe(32)
+        expiry = datetime.utcnow() + timedelta(minutes=15)
 
-    user.reset_token = token
-    user.reset_token_expiry = expiry
-    db.session.commit()
+        user.reset_token = token
+        user.reset_token_expiry = expiry
+        db.session.commit()
 
-    reset_link = _build_reset_link(token)
+        reset_link = _build_reset_link(token)
 
-    msg = Message(
-        subject="Reset Your ResumeAI Password",
-        recipients=[email],
-        body=f"""
-Click the link below to reset your password:
+        # ── Check if mail is configured ──
+        mail_username = os.getenv("MAIL_USERNAME", "").strip()
+        mail_password = os.getenv("MAIL_PASSWORD", "").strip()
+        mail_server  = os.getenv("MAIL_SERVER", "").strip()
 
-{reset_link}
+        if not mail_username or not mail_password or not mail_server:
+            print("⚠️  MAIL not configured — reset link printed to console instead:")
+            print(f"   Reset link for {email}: {reset_link}")
+            # Still return success so frontend works during dev/misconfiguration
+            return jsonify({
+                "message": "If that email exists, a reset link has been sent",
+                "dev_note": "Mail not configured — check server logs for reset link"
+            }), 200
 
-This link will expire in 15 minutes.
-"""
-    )
+        # ── Build and send email ──
+        html_body = f"""
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 520px; margin: 0 auto; padding: 32px 24px;">
+              <h2 style="color: #6366f1; margin-top: 0;">Reset Your Password</h2>
+              <p>We received a request to reset your <strong>ResumeAI</strong> password.</p>
+              <p>Click the button below to set a new password. This link expires in <strong>15 minutes</strong>.</p>
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="{reset_link}"
+                   style="display: inline-block; padding: 13px 32px;
+                          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                          color: white; text-decoration: none; border-radius: 8px;
+                          font-weight: bold; font-size: 15px;">
+                  🔑 Reset Password
+                </a>
+              </div>
+              <p style="color: #64748b; font-size: 13px;">
+                If you didn't request this, you can safely ignore this email.
+              </p>
+              <p style="color: #94a3b8; font-size: 12px; margin-top: 32px;
+                        border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                ResumeAI · This link expires in 15 minutes
+              </p>
+            </div>
+          </body>
+        </html>
+        """
 
-    try:  # pragma: no cover
+        msg = Message(
+            subject="Reset Your ResumeAI Password",
+            recipients=[email],
+            html=html_body,
+        )
+
         mail.send(msg)
-        print("EMAIL SENT SUCCESSFULLY")
+        print(f"✅ Password reset email sent to {email}")
 
-    except Exception as e:  # pragma: no cover
-        print("EMAIL ERROR:", str(e))
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"message": "If that email exists, a reset link has been sent"}), 200
 
-    return jsonify({"message": "Reset email sent"}), 200
+    except Exception as e:
+        error_str = str(e)
+        print(f"❌ Forgot password error: {error_str}")
+        import traceback
+        traceback.print_exc()
+
+        # Give a user-friendly message instead of raw exception
+        if "smtp" in error_str.lower() or "authentication" in error_str.lower() or "credentials" in error_str.lower():
+            return jsonify({"error": "Mail service is currently unavailable. Please try again later."}), 503
+        if "connection" in error_str.lower() or "timeout" in error_str.lower():
+            return jsonify({"error": "Could not connect to mail server. Please try again later."}), 503
+
+        return jsonify({"error": "Something went wrong. Please try again."}), 500
 
 
 # -------------------------------

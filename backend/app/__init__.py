@@ -15,6 +15,7 @@ from .routes.project_routes import project_bp
 from .routes.certification_routes import certification_bp
 from .routes.ai_routes import ai_bp
 from .routes.admin_routes import admin_bp
+from .routes.share_routes import share_bp
 
 
 def _is_production_env():
@@ -115,6 +116,7 @@ def create_app(test_config=None):
     app.register_blueprint(certification_bp, url_prefix="/api/certifications")
     app.register_blueprint(ai_bp, url_prefix="/api/ai")
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
+    app.register_blueprint(share_bp, url_prefix="/api/share")
 
     return app
 

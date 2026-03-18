@@ -4,6 +4,7 @@ import { API_URL } from "../services/api";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import api from "../services/api";
+import ShareButton from "../components/ShareButton";
 
 const TABS = ["Personal", "Experience", "Education", "Skills", "Projects", "Certifications"];
 
@@ -3145,6 +3146,9 @@ export default function ResumeBuilder() {
 
         </div>
       </div>
+
+      {/* Share Button - Floating Action Button */}
+      <ShareButton resumeId={id} resumeData={resume} />
     </div>
   );
 }

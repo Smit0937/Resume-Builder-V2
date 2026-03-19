@@ -404,6 +404,7 @@ def forgot_password():
         app = current_app._get_current_object()
 
         def send_async(app, msg):
+            print(f"🔵 Background thread started for email")
             with app.app_context():
     
                try:
@@ -414,7 +415,9 @@ def forgot_password():
                    print(f"❌ Background email error: {str(e)}")
                    print(f"❌ Full traceback: {traceback.format_exc()}")
 
+        print(f"🔵 Starting background email thread to {email}")
         threading.Thread(target=send_async, args=(app, msg), daemon=True).start()
+        print(f"🔵 Background thread launched")
 
         return jsonify({"message": "If that email exists, a reset link has been sent"}), 200
 

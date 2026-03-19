@@ -3,6 +3,7 @@ from app.extensions import db, bcrypt, mail
 from app.models.user import User
 from flask_mail import Message
 import secrets
+import threading
 import os
 from datetime import datetime, timedelta
 from functools import wraps
@@ -398,8 +399,19 @@ def forgot_password():
             html=html_body,
         )
 
-        mail.send(msg)
-        print(f"✅ Password reset email sent to {email}")
+        # ✅ Send email in background thread — responds instantly
+        from flask import current_app
+        app = current_app._get_current_object()
+
+        def send_async(app, msg):
+            with app.app_context():
+                try:
+                    mail.send(msg)
+                    print(f"✅ Password reset email sent to {email}")
+                except Exception as e:
+                    print(f"❌ Background email error: {str(e)}")
+
+        threading.Thread(target=send_async, args=(app, msg), daemon=True).start()
 
         return jsonify({"message": "If that email exists, a reset link has been sent"}), 200
 

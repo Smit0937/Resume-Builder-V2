@@ -18,14 +18,10 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      // Step 1 — Generate reset token from backend
       const res = await api.post("/auth/forgot-password", { email });
-
-      // Step 2 — Get the token from backend response
       const token = res.data.token;
-      const resetLink = `https://resumebuilder-kappa-nine.vercel.app/reset-password/${token}`;
+      const resetLink = `https://resume-builder-v2-topaz.vercel.app/reset-password/${token}`;
 
-      // Step 3 — Send email via EmailJS from frontend
       await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
@@ -72,7 +68,6 @@ export default function ForgotPassword() {
       <div style={{ background: "#fff", borderRadius: 20, boxShadow: "0 20px 60px -12px rgba(99,102,241,0.12), 0 0 0 1px rgba(226,232,240,0.6)", width: "100%", maxWidth: 420, padding: 36, animation: "fp-fade 0.6s ease" }}>
 
         {sent ? (
-          /* Success State */
           <div style={{ textAlign: "center" }}>
             <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #dcfce7, #bbf7d0)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
               <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="#16a34a" strokeWidth="2" strokeLinecap="round"/></svg>
@@ -87,7 +82,6 @@ export default function ForgotPassword() {
             </button>
           </div>
         ) : (
-          /* Form State */
           <>
             <h2 style={{ fontSize: 24, fontWeight: 800, textAlign: "center", color: "#0f172a", margin: "0 0 8px", letterSpacing: "-0.02em" }}>Forgot Password</h2>
             <p style={{ fontSize: 14, textAlign: "center", color: "#64748b", margin: "0 0 24px" }}>Enter your email to receive a reset link</p>
@@ -104,18 +98,11 @@ export default function ForgotPassword() {
                   required
                 />
               </div>
-
               <button type="submit" disabled={loading} className="fp-btn">
                 {loading ? (
-                  <>
-                    <div className="auth-spinner"></div>
-                    Sending reset link...
-                  </>
+                  <><div className="auth-spinner"></div>Sending reset link...</>
                 ) : (
-                  <>
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
-                    Send Reset Link
-                  </>
+                  <><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>Send Reset Link</>
                 )}
               </button>
             </form>

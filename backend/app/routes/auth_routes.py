@@ -405,11 +405,14 @@ def forgot_password():
 
         def send_async(app, msg):
             with app.app_context():
-                try:
-                    mail.send(msg)
-                    print(f"✅ Password reset email sent to {email}")
-                except Exception as e:
-                    print(f"❌ Background email error: {str(e)}")
+    
+               try:
+                   mail.send(msg)
+                   print(f"✅ Password reset email sent to {email}")
+               except Exception as e:
+                   import traceback
+                   print(f"❌ Background email error: {str(e)}")
+                   print(f"❌ Full traceback: {traceback.format_exc()}")
 
         threading.Thread(target=send_async, args=(app, msg), daemon=True).start()
 

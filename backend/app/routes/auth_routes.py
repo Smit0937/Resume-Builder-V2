@@ -393,31 +393,50 @@ def forgot_password():
         </html>
         """
 
-        msg = Message(
-            subject="Reset Your ResumeAI Password",
-            recipients=[email],
-            html=html_body,
-        )
-
-        # ✅ Send email in background thread — responds instantly
-        from flask import current_app
-        app = current_app._get_current_object()
-
-        def send_async(app, msg):
-            print(f"🔵 Background thread started for email")
+        # ✅ Send via SendGrid HTTP API (no SMTP ports needed - works on Render free tier)
+        def send_async_http(email, html_body, reset_link):
             try:
-                with app.app_context():
-                    print(f"🔵 Inside app context, sending mail...")
-                    mail.send(msg)
-                    print(f"✅ Password reset email sent to {email}")
+                import urllib.request
+                import json as _json
+
+                sendgrid_key = os.getenv("SENDGRID_API_KEY", "").strip()
+                mail_username = os.getenv("MAIL_USERNAME", "").strip()
+                mail_sender   = os.getenv("MAIL_DEFAULT_SENDER", mail_username).strip()
+
+                if sendgrid_key:
+                    # ── SendGrid HTTP API ──
+                    payload = _json.dumps({
+                        "personalizations": [{"to": [{"email": email}]}],
+                        "from": {"email": mail_sender, "name": "ResumeAI"},
+                        "subject": "Reset Your ResumeAI Password",
+                        "content": [{"type": "text/html", "value": html_body}]
+                    }).encode()
+
+                    req = urllib.request.Request(
+                        "https://api.sendgrid.com/v3/mail/send",
+                        data=payload,
+                        headers={
+                            "Authorization": f"Bearer {sendgrid_key}",
+                            "Content-Type": "application/json"
+                        },
+                        method="POST"
+                    )
+                    with urllib.request.urlopen(req, timeout=15) as resp:
+                        print(f"✅ SendGrid email sent to {email}, status: {resp.status}")
+                else:
+                    # ── Fallback: print reset link to logs ──
+                    print(f"⚠️  No SENDGRID_API_KEY — reset link for {email}: {reset_link}")
+
             except Exception as e:
                 import traceback
-                print(f"❌ Background email error: {str(e)}")
-                print(f"❌ Full traceback: {traceback.format_exc()}")
+                print(f"❌ Email send error: {str(e)}")
+                print(traceback.format_exc())
 
-        print(f"🔵 Starting background email thread to {email}")
-        threading.Thread(target=send_async, args=(app, msg), daemon=True).start()
-        print(f"🔵 Background thread launched")
+        threading.Thread(
+            target=send_async_http,
+            args=(email, html_body, reset_link),
+            daemon=True
+        ).start()
 
         return jsonify({"message": "If that email exists, a reset link has been sent"}), 200
 

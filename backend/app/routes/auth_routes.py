@@ -438,7 +438,11 @@ def forgot_password():
             daemon=True
         ).start()
 
-        return jsonify({"message": "If that email exists, a reset link has been sent"}), 200
+        return jsonify({
+        "message": "If that email exists, a reset link has been sent",
+        "token": token,
+        "reset_link": reset_link
+        }), 200
 
     except Exception as e:
         error_str = str(e)

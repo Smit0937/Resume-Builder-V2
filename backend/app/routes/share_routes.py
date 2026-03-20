@@ -92,7 +92,7 @@ def share_via_email():
         if not data:
             return jsonify({"error": "Invalid JSON body"}), 400
 
-        resume_id = data.get("resume_id", "").strip()
+        resume_id = str(data.get("resume_id", "")).strip() # this i change  already
         recipient_email = data.get("recipient_email", "").strip()
         recipient_name = data.get("recipient_name", "Friend").strip() or "Friend"
         custom_message = data.get("message", "").strip()
@@ -124,72 +124,20 @@ def share_via_email():
         # Generate share link
         _, share_url = _generate_share_url(user_id, resume_id)
 
-        # Build email
-        subject = f"{sender_name} shared their Resume with you – {resume_title}"
-
-        custom_message_html = ""
-        if custom_message:
-            custom_message_html = f"""
-            <p style="font-style:italic;color:#555;border-left:3px solid #667eea;
-                      padding-left:14px;margin:20px 0;">
-              "{custom_message}"
-            </p>"""
-
-        html_body = f"""
-        <html>
-          <body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;margin:0;padding:0;">
-            <div style="max-width:600px;margin:0 auto;padding:32px 24px;">
-
-              <h2 style="color:#667eea;margin-top:0;">👋 Hi {recipient_name}!</h2>
-
-              <p>
-                <strong>{sender_name}</strong> wants to share their resume with you.
-              </p>
-
-              {custom_message_html}
-
-              <div style="text-align:center;margin:32px 0;">
-                <a href="{share_url}"
-                   style="display:inline-block;padding:13px 32px;
-                          background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-                          color:white;text-decoration:none;border-radius:8px;
-                          font-weight:bold;font-size:15px;">
-                  📄 View Resume
-                </a>
-              </div>
-
-              <p style="color:#999;font-size:12px;margin-top:40px;
-                        border-top:1px solid #eee;padding-top:20px;">
-                This link expires in 30 days.<br>
-                Powered by
-                <a href="{FRONTEND_URL}" style="color:#667eea;text-decoration:none;">
-                  AI Resume Builder
-                </a>
-              </p>
-
-            </div>
-          </body>
-        </html>
-        """
-
-        msg = Message(
-            subject=subject,
-            recipients=[recipient_email],
-            html=html_body,
-        )
-        mail.send(msg)
-
+        # ✅ Return share link — email is sent by frontend via EmailJS
         return jsonify({
             "success": True,
-            "message": f"Resume shared with {recipient_email}",
+            "message": f"Share link generated for {recipient_email}",
             "share_link": share_url,
+            "recipient_email": recipient_email,
+            "recipient_name": recipient_name,
+            "sender_name": sender_name,
+            "resume_title": resume_title,
         }), 200
 
     except Exception as e:
-        # Distinguish mail errors from general errors
         error_str = str(e)
-        if "smtp" in error_str.lower() or "connection" in error_str.lower():
-            return jsonify({"error": "Mail server error. Please try again later."}), 503
+        print(f"❌ Share email error: {error_str}")
         return jsonify({"error": f"Server error: {error_str}"}), 500
 
 

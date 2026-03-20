@@ -42,7 +42,7 @@ const TEMPLATE_OPTIONS = [
 
 // ── 12 UNIQUE ATS-FRIENDLY TEMPLATE RENDERERS ──
 
-function TemplateCorporate({ resume, experiences, educations, skills, projects, certs }) {
+export function TemplateCorporate({ resume, experiences, educations, skills, projects, certs }) {
   const { full_name, professional_title, email, phone, location, linkedin, summary } = resume;
   return (
     <div style={{ fontFamily: "Georgia, serif", fontSize: 11, color: "#111", lineHeight: 1.6, padding: "32px 36px", background: "#fff", minHeight: "100%" }}>
@@ -2370,7 +2370,7 @@ function EmptyState({ resume, experiences, educations }) {
 }
 
 // ── TEMPLATE MAP ──
-const TEMPLATE_MAP = {
+export const TEMPLATE_MAP = {
   corporate: TemplateCorporate,
   modern: TemplateModern,
   classic: TemplateClassic,

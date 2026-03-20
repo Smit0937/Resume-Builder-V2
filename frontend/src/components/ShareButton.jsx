@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { Share2, Mail, MessageCircle, Linkedin, Link2, X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import emailjs from "@emailjs/browser";
 import api from "../services/api";
 import "../styles/ShareButton.css";
 
+const EMAILJS_SERVICE_ID  = "service_v6fih3c";
+const EMAILJS_TEMPLATE_ID = "template_uio18xg";
+const EMAILJS_PUBLIC_KEY  = "BubKxvVvR_jCZyxPm";
+
 const ShareButton = ({ resumeId, resumeData }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [loadingId, setLoadingId] = useState(null); // tracks which button is loading
+  const [loadingId, setLoadingId] = useState(null);
   const [emailModal, setEmailModal] = useState(false);
   const [emailForm, setEmailForm] = useState({
     recipientEmail: "",
@@ -14,17 +19,16 @@ const ShareButton = ({ resumeId, resumeData }) => {
     customMessage: "",
   });
 
-  /* ── loader helpers ── */
   const isLoading = (id) => loadingId === id;
   const startLoad = (id) => setLoadingId(id);
   const stopLoad = () => setLoadingId(null);
 
-  /* ── Email ── */
   const openEmailModal = () => {
     setIsOpen(false);
     setEmailModal(true);
   };
 
+  /* ── Email via EmailJS ── */
   const handleEmailShare = async (e) => {
     e.preventDefault();
     const { recipientEmail, recipientName, customMessage } = emailForm;
@@ -35,17 +39,44 @@ const ShareButton = ({ resumeId, resumeData }) => {
 
     startLoad("email");
     try {
-      await api.post("/share/email", {
+      // Step 1: Get share link from backend
+      const response = await api.post("/share/email", {
         resume_id: resumeId,
         recipient_email: recipientEmail.trim(),
         recipient_name: recipientName.trim() || "Friend",
         message: customMessage.trim(),
       });
+
+      const shareLink = response.data?.share_link;
+      const senderName = response.data?.sender_name || resumeData?.full_name || "Someone";
+      const resumeTitle = response.data?.resume_title || "Resume";
+
+      if (!shareLink) {
+        toast.error("Could not generate share link.");
+        return;
+      }
+
+      // Step 2: Send email via EmailJS (no SMTP needed)
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          to_email: recipientEmail.trim(),
+          to_name: recipientName.trim() || "Friend",
+          from_name: senderName,
+          resume_title: resumeTitle,
+          share_link: shareLink,       
+          custom_message: customMessage.trim() || "",
+          app_name: "ResumeAI",
+        },
+        EMAILJS_PUBLIC_KEY
+      );
+
       toast.success(`✉️ Resume shared with ${recipientEmail}!`);
       setEmailModal(false);
       setEmailForm({ recipientEmail: "", recipientName: "", customMessage: "" });
     } catch (error) {
-      const msg = error?.response?.data?.error || "Failed to send email. Please try again.";
+      const msg = error?.response?.data?.error || error?.text || "Failed to send email. Please try again.";
       toast.error(msg);
       console.error("Email share error:", error);
     } finally {
@@ -66,9 +97,7 @@ const ShareButton = ({ resumeId, resumeData }) => {
         toast.error("Could not generate WhatsApp link.");
       }
     } catch (error) {
-      const msg = error?.response?.data?.error || "Failed to generate WhatsApp link.";
-      toast.error(msg);
-      console.error("WhatsApp share error:", error);
+      toast.error(error?.response?.data?.error || "Failed to generate WhatsApp link.");
     } finally {
       stopLoad();
     }
@@ -87,9 +116,7 @@ const ShareButton = ({ resumeId, resumeData }) => {
         toast.error("Could not generate LinkedIn link.");
       }
     } catch (error) {
-      const msg = error?.response?.data?.error || "Failed to generate LinkedIn link.";
-      toast.error(msg);
-      console.error("LinkedIn share error:", error);
+      toast.error(error?.response?.data?.error || "Failed to generate LinkedIn link.");
     } finally {
       stopLoad();
     }
@@ -108,54 +135,24 @@ const ShareButton = ({ resumeId, resumeData }) => {
         toast.error("Could not generate share link.");
       }
     } catch (error) {
-      const msg = error?.response?.data?.error || "Failed to generate share link.";
-      toast.error(msg);
-      console.error("Copy link error:", error);
+      toast.error(error?.response?.data?.error || "Failed to generate share link.");
     } finally {
       stopLoad();
     }
   };
 
   const shareOptions = [
-    {
-      id: "email",
-      name: "Email",
-      icon: Mail,
-      color: "#ef4444",
-      onClick: openEmailModal,
-    },
-    {
-      id: "whatsapp",
-      name: "WhatsApp",
-      icon: MessageCircle,
-      color: "#22c55e",
-      onClick: handleWhatsAppShare,
-    },
-    {
-      id: "linkedin",
-      name: "LinkedIn",
-      icon: Linkedin,
-      color: "#0a66c2",
-      onClick: handleLinkedInShare,
-    },
-    {
-      id: "copy",
-      name: "Copy Link",
-      icon: Link2,
-      color: "#f59e0b",
-      onClick: handleCopyLink,
-    },
+    { id: "email",    name: "Email",     icon: Mail,          color: "#ef4444", onClick: openEmailModal },
+    { id: "whatsapp", name: "WhatsApp",  icon: MessageCircle, color: "#22c55e", onClick: handleWhatsAppShare },
+    { id: "linkedin", name: "LinkedIn",  icon: Linkedin,      color: "#0a66c2", onClick: handleLinkedInShare },
+    { id: "copy",     name: "Copy Link", icon: Link2,         color: "#f59e0b", onClick: handleCopyLink },
   ];
 
   return (
     <>
       <div className="share-button-wrapper">
-        {/* Overlay to close dropdown */}
-        {isOpen && (
-          <div className="share-overlay" onClick={() => setIsOpen(false)} />
-        )}
+        {isOpen && <div className="share-overlay" onClick={() => setIsOpen(false)} />}
 
-        {/* Dropdown Menu */}
         {isOpen && (
           <div className="share-menu-dropdown">
             {shareOptions.map((option) => {
@@ -167,7 +164,7 @@ const ShareButton = ({ resumeId, resumeData }) => {
                   className="share-menu-item"
                   style={{ "--color": option.color }}
                   onClick={option.onClick}
-                  disabled={loadingId !== null} // disable all while any is loading
+                  disabled={loadingId !== null}
                   title={option.name}
                 >
                   {loading ? (
@@ -182,7 +179,6 @@ const ShareButton = ({ resumeId, resumeData }) => {
           </div>
         )}
 
-        {/* Main Share Button */}
         <button
           className="share-button-main"
           onClick={() => setIsOpen((prev) => !prev)}
@@ -196,17 +192,15 @@ const ShareButton = ({ resumeId, resumeData }) => {
       {/* ── Email Modal ── */}
       {emailModal && (
         <div className="email-modal-overlay" onClick={() => setEmailModal(false)}>
-          <div
-            className="email-modal"
-            onClick={(e) => e.stopPropagation()} // prevent closing on inner click
-          >
+          <div className="email-modal" onClick={(e) => e.stopPropagation()}>
             <div className="email-modal-header">
-              <h3>Share via Email</h3>
-              <button
-                className="email-modal-close"
-                onClick={() => setEmailModal(false)}
-                disabled={isLoading("email")}
-              >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: "#fef2f2", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Mail size={18} color="#ef4444" />
+                </div>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#6366f1" }}>Share via Email</h3>
+              </div>
+              <button className="email-modal-close" onClick={() => setEmailModal(false)} disabled={isLoading("email")}>
                 <X size={20} />
               </button>
             </div>
@@ -221,36 +215,34 @@ const ShareButton = ({ resumeId, resumeData }) => {
                   type="email"
                   placeholder="example@email.com"
                   value={emailForm.recipientEmail}
-                  onChange={(e) =>
-                    setEmailForm((f) => ({ ...f, recipientEmail: e.target.value }))
-                  }
+                  onChange={(e) => setEmailForm((f) => ({ ...f, recipientEmail: e.target.value }))}
                   required
                   autoFocus
                 />
               </div>
 
               <div className="email-field">
-                <label htmlFor="recipientName">Recipient Name</label>
+                <label htmlFor="recipientName">
+                  Recipient Name <span style={{ color: "#94a3b8", fontWeight: 400 }}>(optional)</span>
+                </label>
                 <input
                   id="recipientName"
                   type="text"
-                  placeholder="Friend (optional)"
+                  placeholder="Friend"
                   value={emailForm.recipientName}
-                  onChange={(e) =>
-                    setEmailForm((f) => ({ ...f, recipientName: e.target.value }))
-                  }
+                  onChange={(e) => setEmailForm((f) => ({ ...f, recipientName: e.target.value }))}
                 />
               </div>
 
               <div className="email-field">
-                <label htmlFor="customMessage">Personal Message</label>
+                <label htmlFor="customMessage">
+                  Personal Message <span style={{ color: "#94a3b8", fontWeight: 400 }}>(optional)</span>
+                </label>
                 <textarea
                   id="customMessage"
                   placeholder="Add a personal note... (optional)"
                   value={emailForm.customMessage}
-                  onChange={(e) =>
-                    setEmailForm((f) => ({ ...f, customMessage: e.target.value }))
-                  }
+                  onChange={(e) => setEmailForm((f) => ({ ...f, customMessage: e.target.value }))}
                   rows={3}
                 />
               </div>
@@ -270,15 +262,9 @@ const ShareButton = ({ resumeId, resumeData }) => {
                   disabled={isLoading("email") || !emailForm.recipientEmail.trim()}
                 >
                   {isLoading("email") ? (
-                    <>
-                      <Loader2 size={16} className="share-spinner" />
-                      Sending...
-                    </>
+                    <><Loader2 size={16} className="share-spinner" /> Sending...</>
                   ) : (
-                    <>
-                      <Mail size={16} />
-                      Send Email
-                    </>
+                    <><Mail size={16} /> Send Email</>
                   )}
                 </button>
               </div>

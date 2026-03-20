@@ -1095,15 +1095,22 @@ export default function TemplateSelect() {
   const [search, setSearch] = useState("");
   const [loaded, setLoaded] = useState(false);
 
-  // ✅ AUTH CHECK: Redirect if not logged in
+  // ✅ AUTH CHECK: Wait for auth to load, then check if user exists
   useEffect(() => {
-    if (!authLoading && !user) navigate('/login');
+    if (authLoading === false && !user) {
+      navigate('/login');
+    }
   }, [authLoading, user, navigate]);
 
   useEffect(() => {
     const t = setTimeout(() => setLoaded(true), 50);
     return () => clearTimeout(t);
   }, []);
+
+  // ✅ SHOW NOTHING WHILE LOADING - Prevents premature redirects
+  if (authLoading) {
+    return null;
+  }
 
   const filteredTemplates = TEMPLATES.filter(t => {
     const matchFilter = activeFilter === "All Templates" || t.tag === activeFilter;

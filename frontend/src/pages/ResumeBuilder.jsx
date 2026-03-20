@@ -2428,15 +2428,25 @@ export default function ResumeBuilder() {
   const componentRef = useRef(null);
   const innerRef = useRef(null);
 
-  // ✅ AUTH CHECK: Redirect if not logged in
+  // ✅ AUTH CHECK: Wait for auth to load, then check if user exists
   useEffect(() => {
-    if (!authLoading && !user) navigate('/login');
+    // Only redirect if auth loading is DONE and NO user
+    if (authLoading === false && !user) {
+      navigate('/login');
+    }
   }, [authLoading, user, navigate]);
 
-  // ✅ REFRESH FIX: Add user as dependency so data reloads on refresh/auth changes
+  // ✅ REFRESH FIX: Fetch data only when user is confirmed authenticated
   useEffect(() => {
-    if (user) fetchAll();
-  }, [id, user]);
+    if (authLoading === false && user) {
+      fetchAll();
+    }
+  }, [id, user, authLoading]);
+
+  // ✅ SHOW NOTHING WHILE LOADING - Prevents premature redirects
+  if (authLoading) {
+    return null;
+  }
 
   // Auto-scale resume content to fit exactly one A4 page
   // c8 ignore start

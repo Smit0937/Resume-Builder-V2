@@ -6,9 +6,8 @@ import api from "../services/api";
 const TABS = ["Dashboard", "Users", "Resumes"];
 
 export default function AdminPanel() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-
 
   const [activeTab, setActiveTab] = useState(0);
   const [stats, setStats] = useState(null);
@@ -22,36 +21,25 @@ export default function AdminPanel() {
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
-  // ─── FETCH ───
-  const fetchStats = async () => {
-    try {
-      const res = await api.get("/admin/stats");
-      setStats(res.data);
-    } catch (err) {
-      if (err.response?.status === 403) { navigate("/dashboard"); return; }
-      console.error("Stats fetch error:", err); showToast("❌ Failed to load stats");
-    }
-  };
-
-  const fetchUsers = async () => {
-    try {
-      const res = await api.get("/admin/users");
-      setUsers(Array.isArray(res.data) ? res.data : []);
-    } catch (err) { console.error("Users fetch error:", err); showToast("❌ Failed to load users"); }
-  };
-
-  const fetchResumes = async () => {
-    try {
-      const res = await api.get("/admin/resumes");
-      setResumes(Array.isArray(res.data) ? res.data : []);
-    } catch (err) { console.error("Resumes fetch error:", err); showToast("❌ Failed to load resumes"); }
-  };
-
+  // ─── AUTH CHECK: Wait for auth to load, then verify admin role ───
   useEffect(() => {
-    if (!user || user.role !== "admin") { navigate("/dashboard"); return; }
-    setLoading(true);
-    Promise.all([fetchStats(), fetchUsers(), fetchResumes()]).finally(() => setLoading(false));
-  }, [user, navigate]);
+    if (authLoading === false && (!user || user.role !== "admin")) {
+      navigate("/dashboard");
+    }
+  }, [authLoading, user, navigate]);
+
+  // ─── FETCH DATA: Only fetch if auth is complete and user is admin ───
+  useEffect(() => {
+    if (authLoading === false && user?.role === "admin") {
+      setLoading(true);
+      Promise.all([fetchStats(), fetchUsers(), fetchResumes()]).finally(() => setLoading(false));
+    }
+  }, [authLoading, user]);
+
+  // ✅ SHOW NOTHING WHILE LOADING - Prevents premature redirects
+  if (authLoading) {
+    return null;
+  }
 
   // ─── ACTIONS ───
   const deleteUser = async (userId) => {

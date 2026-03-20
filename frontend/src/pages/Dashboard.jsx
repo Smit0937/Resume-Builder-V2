@@ -54,8 +54,11 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    if (user) { setLoading(true); fetchResumes(); }
-  }, [user]);
+    if (authLoading === false && user) {
+      setLoading(true);
+      fetchResumes();
+    }
+  }, [authLoading, user]);
 
   useEffect(() => {
     return () => {
@@ -195,6 +198,9 @@ export default function Dashboard() {
   };
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
+  
+  // ✅ SHOW NOTHING WHILE LOADING - Prevents premature rendering
+  if (authLoading) return null;
   if (!user) return null;
 
   // ── Share options config ──

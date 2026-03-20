@@ -2479,6 +2479,13 @@ export default function ResumeBuilder() {
   });
   // c8 ignore stop
 
+  // ✅ Fetch resume data when component mounts or id changes
+  useEffect(() => {
+    if (!authLoading && user && id) {
+      fetchAll();
+    }
+  }, [id, user, authLoading]);
+
   // ✅ Helper functions come AFTER all Hooks
   const showToast = (msg) => {
     setToast(msg);
@@ -2517,8 +2524,10 @@ export default function ResumeBuilder() {
       setSkills(resSkills.data || []);
       setProjects(resProj.data || []);
       setCerts(resCerts.data || []);
+      console.log("✅ Resume data loaded successfully");
     } catch (err) {
       console.error("❌ Error in fetchAll:", err);
+      showToast("❌ Failed to load resume data");
     }
   };
 

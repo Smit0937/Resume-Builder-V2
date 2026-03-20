@@ -13,13 +13,13 @@ class Experience(db.Model):
     end_date = db.Column(db.String(50), nullable=True)     # ✅ changed to String
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-def to_dict(self):
-    return {
-        "id": self.id,
-        "resume_id": self.resume_id,
-        "company": self.company,
-        "role": self.role,
-        "description": self.description,
-        "start_date": self.start_date,
-        "end_date": self.end_date,
-    }    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "resume_id": self.resume_id,
+            "company": self.company,
+            "role": self.role,
+            "description": self.description,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+        }    

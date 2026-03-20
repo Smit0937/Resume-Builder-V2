@@ -51,7 +51,7 @@ export default function AdminPanel() {
     if (!user || user.role !== "admin") { navigate("/dashboard"); return; }
     setLoading(true);
     Promise.all([fetchStats(), fetchUsers(), fetchResumes()]).finally(() => setLoading(false));
-  }, []);
+  }, [user, navigate]);
 
   // ─── ACTIONS ───
   const deleteUser = async (userId) => {

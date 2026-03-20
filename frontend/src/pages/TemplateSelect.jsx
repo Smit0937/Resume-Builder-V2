@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { API_URL } from "../services/api";
 
 /* ================================
@@ -1089,9 +1090,15 @@ const CATEGORY_INFO = {
 
 export default function TemplateSelect() {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [activeFilter, setActiveFilter] = useState("All Templates");
   const [search, setSearch] = useState("");
   const [loaded, setLoaded] = useState(false);
+
+  // ✅ AUTH CHECK: Redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) navigate('/login');
+  }, [authLoading, user, navigate]);
 
   useEffect(() => {
     const t = setTimeout(() => setLoaded(true), 50);

@@ -7,3 +7,11 @@ class Skill(db.Model):
     resume_id = db.Column(db.Integer, db.ForeignKey("resumes.id"), nullable=False)
     skill_name = db.Column(db.String(100), nullable=False)
     level = db.Column(db.String(50), default="Intermediate")  # ✅ add this
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "resume_id": self.resume_id,
+            "skill_name": self.skill_name,
+            "level": self.level,
+        }

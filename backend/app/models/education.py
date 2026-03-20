@@ -23,3 +23,14 @@ class Education(db.Model):
         db.DateTime,
         default=datetime.utcnow
     )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "resume_id": self.resume_id,
+            "degree": self.degree,
+            "institution": self.institution,
+            "start_year": self.start_year,
+            "end_year": self.end_year,
+            "score": self.score,
+        }

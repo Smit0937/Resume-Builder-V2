@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { API_URL } from "../services/api";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -2423,8 +2424,19 @@ function ResumePreview({ resume, experiences, educations, skills, projects, cert
 export default function ResumeBuilder() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const componentRef = useRef(null);
   const innerRef = useRef(null);
+
+  // ✅ AUTH CHECK: Redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) navigate('/login');
+  }, [authLoading, user, navigate]);
+
+  // ✅ REFRESH FIX: Add user as dependency so data reloads on refresh/auth changes
+  useEffect(() => {
+    if (user) fetchAll();
+  }, [id, user]);
 
   // Auto-scale resume content to fit exactly one A4 page
   // c8 ignore start
@@ -2524,8 +2536,6 @@ export default function ResumeBuilder() {
 
   const [certs, setCerts] = useState([]);
   const [certForm, setCertForm] = useState({ name: "", issuer: "", issue_date: "", expiry_date: "" });
-
-  useEffect(() => { fetchAll(); }, [id]);
 
   const showToast = (msg) => {
     setToast(msg);

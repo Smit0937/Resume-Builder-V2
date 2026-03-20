@@ -13,7 +13,7 @@ const PUBLIC_PATHS = [
 ];
 
 const isPublicPath = (pathname) =>
-  PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
   pathname.includes('/preview');
 
 export const AuthProvider = ({ children }) => {

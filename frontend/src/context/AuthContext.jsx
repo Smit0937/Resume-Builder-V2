@@ -9,11 +9,12 @@ const PUBLIC_PATHS = [
   '/reset-password',
   '/login',
   '/register',
-  '/resume', // shared preview pages
+   
 ];
 
 const isPublicPath = (pathname) =>
   PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  pathname.includes('/preview');
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

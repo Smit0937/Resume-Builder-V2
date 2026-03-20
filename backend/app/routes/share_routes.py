@@ -319,9 +319,36 @@ def view_shared_resume(resume_id):
             "resume":       resume_dict,
             "experiences":  [e.to_dict() for e in experiences],
             "educations":   [e.to_dict() for e in educations],
-            "skills":       [s.to_dict() for s in skills],
-            "projects":     [p.to_dict() for p in projects],
-            "certs":        [c.to_dict() for c in certs],
+            # ── Map skill_name → name for frontend ──
+            "skills": [
+                {
+                    "id": s.id,
+                    "resume_id": s.resume_id,
+                    "name": s.skill_name,
+                    "level": s.level,
+                } for s in skills
+            ],
+            # ── Map project_title → title for frontend ──
+            "projects": [
+                {
+                    "id": p.id,
+                    "resume_id": p.resume_id,
+                    "title": p.project_title,
+                    "description": p.description,
+                    "tech_stack": p.tech_stack,
+                    "link": p.link,
+                } for p in projects
+            ],
+            # ── Map certification fields for frontend ──
+            "certs": [
+                {
+                    "id": c.id,
+                    "resume_id": c.resume_id,
+                    "name": c.title,
+                    "issuer": c.organization,
+                    "issue_date": c.issue_year,
+                } for c in certs
+            ],
         }), 200
 
     except Exception as e:

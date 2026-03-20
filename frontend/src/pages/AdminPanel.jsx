@@ -21,6 +21,28 @@ export default function AdminPanel() {
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
+  // ─── ADD THESE 3 FUNCTIONS ───
+const fetchStats = async () => {
+  try {
+    const res = await api.get("/admin/stats");
+    setStats(res.data);
+  } catch (err) { showToast("❌ Failed to load stats"); }
+};
+
+const fetchUsers = async () => {
+  try {
+    const res = await api.get("/admin/users");
+    setUsers(res.data);
+  } catch (err) { showToast("❌ Failed to load users"); }
+};
+
+const fetchResumes = async () => {
+  try {
+    const res = await api.get("/admin/resumes");
+    setResumes(res.data);
+  } catch (err) { showToast("❌ Failed to load resumes"); }
+};
+
   // ─── AUTH CHECK: Wait for auth to load, then verify admin role ───
   useEffect(() => {
     if (authLoading === false && (!user || user.role !== "admin")) {

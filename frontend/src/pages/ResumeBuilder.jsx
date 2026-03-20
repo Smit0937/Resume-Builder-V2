@@ -87,10 +87,10 @@ function TemplateModern({ resume, experiences, educations, skills, projects, cer
 
         <div style={{ pageBreakInside: "avoid", breakInside: "avoid", marginBottom: 16 }}>
           <SideSection title="Contact" color="#fff">
-            {email && <div style={{ fontSize: 8.5, opacity: 0.8, marginBottom: 3 }}>✉ {email}</div>}
-            {phone && <div style={{ fontSize: 8.5, opacity: 0.8, marginBottom: 3 }}>📱 {phone}</div>}
-            {location && <div style={{ fontSize: 8.5, opacity: 0.8, marginBottom: 3 }}>📍 {location}</div>}
-            {linkedin && <div style={{ fontSize: 8.5, opacity: 0.8, marginBottom: 3 }}>🔗 {linkedin}</div>}
+            {email && <div style={{ fontSize: 8.5, opacity: 0.8, marginBottom: 3 }}>✉ <EmailLink email={email} /></div>}
+            {phone && <div style={{ fontSize: 8.5, opacity: 0.8, marginBottom: 3 }}>📱 <PhoneLink phone={phone} /></div>}
+            {location && <div style={{ fontSize: 8.5, opacity: 0.8, marginBottom: 3 }}>📍 <LocationLink location={location} /></div>}
+            {linkedin && <div style={{ fontSize: 8.5, opacity: 0.8, marginBottom: 3 }}>🔗 <LinkedInLink linkedin={linkedin} /></div>}
           </SideSection>
         </div>
 
@@ -187,10 +187,10 @@ function TemplateClassic({ resume, experiences, educations, skills, projects, ce
 
         {/* Contact Info Row */}
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px 18px", fontSize: 11, color: "#111", fontWeight: 600 }}>
-          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 {location}</span>}
-          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ {email}</span>}
-          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 {phone}</span>}
-          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>in {linkedin}</span>}
+          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 <LocationLink location={location} /></span>}
+          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ <EmailLink email={email} /></span>}
+          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 <PhoneLink phone={phone} /></span>}
+          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>in <LinkedInLink linkedin={linkedin} /></span>}
         </div>
       </div>
 
@@ -338,11 +338,13 @@ function TemplateBanking({ resume, experiences, educations, skills, projects, ce
         {professional_title && <div style={{ fontSize: 13.5, color: "#333", marginBottom: 8 }}>{professional_title}</div>}
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", fontSize: 10.5, color: "#333", fontWeight: 600 }}>
-          {[email, phone, location, linkedin].filter(Boolean).map((item, idx, arr) => (
-            <span key={idx}>
-              {item} {idx < arr.length - 1 && <span style={{ margin: "0 6px" }}>•</span>}
-            </span>
-          ))}
+          {email && <span>✉ <EmailLink email={email} style={{ color: "#333" }} /></span>}
+          {email && phone && <span style={{ margin: "0 6px" }}>•</span>}
+          {phone && <span>📞 <PhoneLink phone={phone} style={{ color: "#333" }} /></span>}
+          {phone && location && <span style={{ margin: "0 6px" }}>•</span>}
+          {location && <span>📍 <LocationLink location={location} style={{ color: "#333" }} /></span>}
+          {location && linkedin && <span style={{ margin: "0 6px" }}>•</span>}
+          {linkedin && <span>🔗 <LinkedInLink linkedin={linkedin} style={{ color: "#333" }} /></span>}
         </div>
       </div>
 
@@ -494,10 +496,10 @@ function TemplateQuietBlue({ resume, experiences, educations, skills, projects, 
 
         {/* Contact Info */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 16px", fontSize: 10.5, color: "#555", marginTop: 6 }}>
-          {email && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>✉</span>{email}</span>}
-          {phone && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>📞</span>{phone}</span>}
-          {location && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>📍</span>{location}</span>}
-          {linkedin && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>in</span>{linkedin}</span>}
+          {email && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>✉</span><EmailLink email={email} /></span>}
+          {phone && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>📞</span><PhoneLink phone={phone} /></span>}
+          {location && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>📍</span><LocationLink location={location} /></span>}
+          {linkedin && <span style={{ display: "flex", alignItems: "center" }}><span style={{ color: iconBlue, marginRight: 4, fontSize: 13 }}>in</span><LinkedInLink linkedin={linkedin} /></span>}
         </div>
       </div>
 
@@ -640,10 +642,10 @@ function TemplateHunterGreen({ resume, experiences, educations, skills, projects
           {professional_title && <div style={{ fontSize: 13.5, fontStyle: "italic", color: "#e2e8f0", marginBottom: 16 }}>{professional_title}</div>}
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 10.5, color: "#cbd5e1" }}>
-            {email && <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span>✉</span> {email}</div>}
-            {phone && <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span>📞</span> {phone}</div>}
-            {location && <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}><span>📍</span> <span>{location}</span></div>}
-            {linkedin && <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span>🔗</span> {linkedin}</div>}
+            {email && <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span>✉</span> <EmailLink email={email} /></div>}
+            {phone && <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span>📞</span> <PhoneLink phone={phone} /></div>}
+            {location && <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}><span>📍</span> <LocationLink location={location} /></div>}
+            {linkedin && <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span>🔗</span> <LinkedInLink linkedin={linkedin} /></div>}
           </div>
         </div>
 
@@ -776,8 +778,8 @@ function TemplateSilver({ resume, experiences, educations, skills, projects, cer
             {phone && <span style={{ display: "flex", alignItems: "center", gap: 6 }}>📞 {phone}</span>}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 3, textAlign: "right", alignItems: "flex-end" }}>
-            {email && <span style={{ display: "flex", alignItems: "center", gap: 6 }}>✉ {email}</span>}
-            {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 6 }}>🔗 {linkedin}</span>}
+            {email && <span style={{ display: "flex", alignItems: "center", gap: 6 }}>✉ <EmailLink email={email} /></span>}
+            {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 6 }}>🔗 <LinkedInLink linkedin={linkedin} /></span>}
           </div>
         </div>
       </div>
@@ -928,11 +930,13 @@ function TemplateSlateDawn({ resume, experiences, educations, skills, projects, 
 
         {/* Contact Info Row separated by | */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", fontSize: 10.5, color: "#444" }}>
-          {[email, phone, location, linkedin].filter(Boolean).map((item, index, arr) => (
-            <span key={index}>
-              {item} {index < arr.length - 1 && <span style={{ margin: "0 4px", color: "#999" }}>|</span>}
-            </span>
-          ))}
+          {email && <span><EmailLink email={email} style={{ color: "#444" }} /></span>}
+          {email && phone && <span style={{ margin: "0 4px", color: "#999" }}>|</span>}
+          {phone && <span><PhoneLink phone={phone} style={{ color: "#444" }} /></span>}
+          {phone && location && <span style={{ margin: "0 4px", color: "#999" }}>|</span>}
+          {location && <span><LocationLink location={location} style={{ color: "#444" }} /></span>}
+          {location && linkedin && <span style={{ margin: "0 4px", color: "#999" }}>|</span>}
+          {linkedin && <span><LinkedInLink linkedin={linkedin} style={{ color: "#444" }} /></span>}
         </div>
       </div>
 
@@ -1056,7 +1060,10 @@ function TemplateRosewood({ resume, experiences, educations, skills, projects, c
         <h1 style={{ fontSize: 28, fontWeight: 800, margin: "0 0 6px", color: "#111", letterSpacing: "0.02em" }}>{full_name || <span style={{ color: "#ccc" }}>Your Name</span>}</h1>
         {professional_title && <div style={{ fontSize: 14, color: "#555", fontStyle: "italic", marginBottom: 10 }}>{professional_title}</div>}
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 14, fontSize: 11, color: "#666" }}>
-          {email && <span>{email}</span>}{phone && <span>{phone}</span>}{location && <span>{location}</span>}{linkedin && <span>{linkedin}</span>}
+          {email && <span><EmailLink email={email} style={{ color: "#666" }} /></span>}
+          {phone && <span><PhoneLink phone={phone} style={{ color: "#666" }} /></span>}
+          {location && <span><LocationLink location={location} style={{ color: "#666" }} /></span>}
+          {linkedin && <span><LinkedInLink linkedin={linkedin} style={{ color: "#666" }} /></span>}
         </div>
       </div>
 
@@ -1102,10 +1109,10 @@ function TemplateHarvard({ resume, experiences, educations, skills, projects, ce
 
         {/* Contact Info */}
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "16px", fontSize: 11 }}>
-          {email && <span>✉ {email}</span>}
-          {phone && <span>📞 {phone}</span>}
-          {location && <span>📍 {location}</span>}
-          {linkedin && <span>🔗 {linkedin}</span>}
+          {email && <span>✉ <EmailLink email={email} /></span>}
+          {phone && <span>📱 <a href={`tel:${phone}`} style={{textDecoration:"none",color:"inherit"}}>{phone}</a></span>}
+          {location && <span>📍 <a href={`https://maps.google.com/?q=${encodeURIComponent(location)}`} target="_blank" rel="noreferrer" style={{textDecoration:"none",color:"inherit"}}>{location}</a></span>}
+          {linkedin && <span>🔗 <LinkedInLink linkedin={linkedin} /></span>}
         </div>
       </div>
 
@@ -1251,10 +1258,10 @@ function TemplateCreative({ resume, experiences, educations, skills, projects, c
         {professional_title && <div style={{ fontSize: 15, opacity: 0.9, marginBottom: 10 }}>{professional_title}</div>}
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 16px", fontSize: 10.5, color: "#f1f5f9" }}>
-          {email && <span>✉ {email}</span>}
-          {phone && <span>📞 {phone}</span>}
-          {location && <span>📍 {location}</span>}
-          {linkedin && <span>🔗 {linkedin}</span>}
+          {email && <span>✉ <EmailLink email={email} /></span>}
+          {phone && <span>📱 <a href={`tel:${phone}`} style={{textDecoration:"none",color:"inherit"}}>{phone}</a></span>}
+          {location && <span>📍 <LocationLink location={location} /></span>}
+          {linkedin && <span>🔗 <LinkedInLink linkedin={linkedin} /></span>}
         </div>
       </div>
 
@@ -1416,10 +1423,10 @@ function TemplateBlackPattern({ resume, experiences, educations, skills, project
         {professional_title && <div style={{ fontSize: 13.5, fontStyle: "italic", color: "#cbd5e1", marginBottom: 10 }}>{professional_title}</div>}
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px", fontSize: 10.5, color: "#94a3b8", fontWeight: 600 }}>
-          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 {location}</span>}
-          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 {phone}</span>}
-          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ {email}</span>}
-          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>🔗 {linkedin}</span>}
+          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 <LocationLink location={location} style={{ color: "#94a3b8" }} /></span>}
+          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 <PhoneLink phone={phone} style={{ color: "#94a3b8" }} /></span>}
+          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ <EmailLink email={email} style={{ color: "#94a3b8" }} /></span>}
+          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>🔗 <LinkedInLink linkedin={linkedin} style={{ color: "#94a3b8" }} /></span>}
         </div>
       </div>
 
@@ -1573,10 +1580,10 @@ function TemplateAtlantic({ resume, experiences, educations, skills, projects, c
           {professional_title && <div style={{ fontSize: 13.5, color: "#ccc", marginBottom: 14 }}>{professional_title}</div>}
 
           <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 10.5, color: "#ddd" }}>
-            {email && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>✉</span>{email}</div>}
-            {phone && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>📞</span>{phone}</div>}
-            {location && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>📍</span>{location}</div>}
-            {linkedin && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>🔗</span>{linkedin}</div>}
+            {email && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>✉</span><EmailLink email={email} style={{ color: "#ddd" }} /></div>}
+            {phone && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>📞</span><PhoneLink phone={phone} style={{ color: "#ddd" }} /></div>}
+            {location && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>📍</span><LocationLink location={location} style={{ color: "#ddd" }} /></div>}
+            {linkedin && <div style={{ display: "flex", alignItems: "center" }}><span style={{ color: coral, marginRight: 6 }}>🔗</span><LinkedInLink linkedin={linkedin} style={{ color: "#ddd" }} /></div>}
           </div>
         </div>
 
@@ -1711,10 +1718,10 @@ function TemplateBlueAccent({ resume, experiences, educations, skills, projects,
         {professional_title && <div style={{ fontSize: 13.5, color: "#555", fontStyle: "italic", marginBottom: 8 }}>{professional_title}</div>}
 
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px 16px", fontSize: 10.5, color: "#444", fontWeight: 600 }}>
-          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 {location}</span>}
-          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ {email}</span>}
-          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 {phone}</span>}
-          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>🔗 {linkedin}</span>}
+         {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 <LocationLink location={location} /></span>}
+         {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ <EmailLink email={email} /></span>}
+         {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 <PhoneLink phone={phone} /></span>}
+         {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>🔗 <LinkedInLink linkedin={linkedin} /></span>}
         </div>
       </div>
 
@@ -1884,10 +1891,10 @@ function TemplateGreenAccent({ resume, experiences, educations, skills, projects
         {professional_title && <div style={{ fontSize: 13.5, color: "#555", marginBottom: 8 }}>{professional_title}</div>}
 
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px 16px", fontSize: 10.5, color: "#333", fontWeight: 600 }}>
-          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 {location}</span>}
-          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ {email}</span>}
-          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 {phone}</span>}
-          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>🔗 {linkedin}</span>}
+          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 <LocationLink location={location} /></span>}
+          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ <EmailLink email={email} /></span>}
+          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 <PhoneLink phone={phone} /></span>}
+          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>🔗 <LinkedInLink linkedin={linkedin} /></span>}
         </div>
       </div>
 
@@ -2021,10 +2028,10 @@ function TemplateSimplyBlue({ resume, experiences, educations, skills, projects,
 
         {/* Contact Info Row */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 20px", fontSize: 10.5, color: "#111", fontWeight: 600 }}>
-          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ color: blue, fontSize: 12 }}>📍</span> {location}</span>}
-          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ color: blue, fontSize: 12 }}>✉</span> {email}</span>}
-          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ color: blue, fontSize: 12 }}>📞</span> {phone}</span>}
-          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ color: blue, fontSize: 12 }}>🔗</span> {linkedin}</span>}
+          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 <LocationLink location={location} /></span>}
+          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ <EmailLink email={email} /></span>}
+          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 <PhoneLink phone={phone} /></span>}
+          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>🔗 <LinkedInLink linkedin={linkedin} /></span>}
         </div>
       </div>
 
@@ -2141,10 +2148,10 @@ function TemplateAnnaField({ resume, experiences, educations, skills, projects, 
         <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 4px" }}>{full_name || <span style={{ color: "#ccc" }}>Your Name</span>}</h1>
         {professional_title && <div style={{ fontSize: 13.5, color: "#555", marginBottom: 8, fontStyle: "italic" }}>{professional_title}</div>}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 14, fontSize: 10.5, color: "#777" }}>
-          {email && <span>✉ {email}</span>}
-          {phone && <span>📱 {phone}</span>}
-          {location && <span>📍 {location}</span>}
-          {linkedin && <span>🔗 {linkedin}</span>}
+          {email && <span>✉ <EmailLink email={email} /></span>}
+          {phone && <span>📱 <PhoneLink phone={phone} /></span>}
+          {location && <span>📍 <LocationLink location={location} /></span>}
+          {linkedin && <span>🔗 <LinkedInLink linkedin={linkedin} /></span>}
         </div>
       </div>
 
@@ -2264,7 +2271,7 @@ function TemplateMercury({ resume, experiences, educations, skills, projects, ce
           {professional_title && <div style={{ fontSize: 11, color: "#666" }}>{professional_title}</div>}
         </div>
         <div style={{ textAlign: "right", fontSize: 9.5, color: "#666", lineHeight: 1.8 }}>
-          {email && <div>{email}</div>}{phone && <div>{phone}</div>}{location && <div>{location}</div>}
+          {email && <div><EmailLink email={email} /></div>}{phone && <div><PhoneLink phone={phone} /></div>}{location && <div><LocationLink location={location} /></div>}
         </div>
       </div>
       {summary && <MercurySection title="Summary"><p style={{ margin: 0 }}>{summary}</p></MercurySection>}
@@ -2367,6 +2374,25 @@ function CertItem({ c }) {
 function EmptyState({ resume, experiences, educations }) {
   if (resume.full_name || resume.summary || experiences.length > 0 || educations.length > 0) return null;
   return <div style={{ textAlign: "center", color: "#ccc", marginTop: 60, fontSize: 13 }}>Start filling in your details to see the preview here →</div>;
+}
+
+// ── CLICKABLE CONTACT HELPERS ──
+function PhoneLink({ phone, style }) {
+  if (!phone) return null;
+  return <a href={"tel:" + phone} style={{ textDecoration: "none", color: "inherit", ...style }}>{phone}</a>;
+}
+function LocationLink({ location, style }) {
+  if (!location) return null;
+  return <a href={"https://maps.google.com/?q=" + encodeURIComponent(location)} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit", ...style }}>{location}</a>;
+}
+function LinkedInLink({ linkedin, style }) {
+  if (!linkedin) return null;
+  const url = linkedin.startsWith("http") ? linkedin : "https://" + linkedin;
+  return <a href={url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit", ...style }}>{linkedin}</a>;
+}
+function EmailLink({ email, style }) {
+  if (!email) return null;
+  return <a href={"mailto:" + email} style={{ textDecoration: "none", color: "inherit", ...style }}>{email}</a>;
 }
 
 // ── TEMPLATE MAP ──
@@ -2541,38 +2567,8 @@ export default function ResumeBuilder() {
     finally { setSaving(false); }
   };
 
-  const handlePrint = async () => {
-    const inner = innerRef.current;
-    const savedTransform = inner.style.transform;
-    const savedOrigin = inner.style.transformOrigin;
-    const savedWidth = inner.style.width;
-    inner.style.transform = 'none';
-    inner.style.transformOrigin = '';
-    inner.style.width = '';
-    await new Promise(r => setTimeout(r, 150));
-    try {
-      // c8 ignore start
-      const canvas = await html2canvas(inner, {
-        scale: 4, useCORS: true, scrollY: 0, backgroundColor: '#ffffff',
-        windowHeight: inner.scrollHeight, windowWidth: inner.scrollWidth, logging: false, allowTaint: true
-      });
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const A4W = 210, A4H = 297;
-      const ratio = canvas.height / canvas.width;
-      let w = A4W, h = A4W * ratio;
-      if (h > A4H) { h = A4H; w = A4H / ratio; }
-      const x = (A4W - w) / 2;
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, 0, w, h);
-      pdf.save(`${resume.full_name || 'My'}_Resume.pdf`);
-      showToast("✅ PDF downloaded!");
-      // c8 ignore stop
-    } catch (err) {
-      console.error('PDF error:', err);
-      showToast("❌ PDF generation failed");
-    }
-    inner.style.transform = savedTransform;
-    inner.style.transformOrigin = savedOrigin;
-    inner.style.width = savedWidth;
+  const handlePrint = () => {
+    window.print();
   };
 
   const headers = { "Content-Type": "application/json" };
@@ -2657,6 +2653,23 @@ export default function ResumeBuilder() {
           .rb-save-pdf { padding: 6px 10px !important; font-size: 12px !important; }
           .rb-save-pdf svg { width: 12px !important; height: 12px !important; }
         }
+        @media print {
+          .rb-left-panel,
+          header,
+          .share-button-wrapper { display: none !important; }
+          .rb-main-container {
+            display: block !important;
+            height: auto !important;
+          }
+          .rb-right-panel {
+            display: flex !important;
+            padding: 0 !important;
+            background: white !important;
+            justify-content: center;
+          }
+          body { margin: 0 !important; background: white !important; }
+          @page { margin: 0; size: A4; }
+        }  
       `}</style>
 
       <header style={{

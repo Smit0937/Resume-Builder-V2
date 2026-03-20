@@ -2428,101 +2428,12 @@ export default function ResumeBuilder() {
   const componentRef = useRef(null);
   const innerRef = useRef(null);
 
-  // ✅ AUTH CHECK: Wait for auth to load, then check if user exists
-  useEffect(() => {
-    // Only redirect if auth loading is DONE and NO user
-    if (authLoading === false && !user) {
-      navigate('/login');
-    }
-  }, [authLoading, user, navigate]);
-
-  // ✅ REFRESH FIX: Fetch data only when user is confirmed authenticated
-  useEffect(() => {
-    if (authLoading === false && user) {
-      fetchAll();
-    }
-  }, [id, user, authLoading]);
-
-  // ✅ SHOW NOTHING WHILE LOADING - Prevents premature redirects
-  if (authLoading) {
-    return null;
-  }
-
-  // Auto-scale resume content to fit exactly one A4 page
-  // c8 ignore start
-  useLayoutEffect(() => {
-    const wrapper = componentRef.current;
-    const inner = innerRef.current;
-    if (!wrapper || !inner) return;
-    // Reset to measure natural height
-    inner.style.transform = '';
-    inner.style.transformOrigin = '';
-    inner.style.width = '';
-    const contentH = inner.scrollHeight;
-    const maxH = wrapper.clientHeight;
-    if (contentH > maxH) {
-      const s = maxH / contentH;
-      inner.style.transform = `scale(${s})`;
-      inner.style.transformOrigin = 'top left';
-      inner.style.width = `${100 / s}%`;
-    }
-  });
-  // c8 ignore stop
-
-  const handlePrint = async () => {
-    const inner = innerRef.current;
-    // Save current preview styles
-    const savedTransform = inner.style.transform;
-    const savedOrigin = inner.style.transformOrigin;
-    const savedWidth = inner.style.width;
-    // Reset transform for accurate full-size capture
-    inner.style.transform = 'none';
-    inner.style.transformOrigin = '';
-    inner.style.width = '';
-    await new Promise(r => setTimeout(r, 150));
-    try {
-      // c8 ignore start
-      // Capture the full content at high resolution for better quality
-      const canvas = await html2canvas(inner, {
-        scale: 4,
-        useCORS: true,
-        scrollY: 0,
-        backgroundColor: '#ffffff',
-        windowHeight: inner.scrollHeight,
-        windowWidth: inner.scrollWidth,
-        logging: false,
-        allowTaint: true
-      });
-      // Create single-page A4 PDF by fitting the image
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const A4W = 210, A4H = 297;
-      const ratio = canvas.height / canvas.width;
-      let w = A4W, h = A4W * ratio;
-      if (h > A4H) { h = A4H; w = A4H / ratio; }
-      const x = (A4W - w) / 2;
-      // Use PNG for lossless quality
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, 0, w, h);
-      pdf.save(`${resume.full_name || 'My'}_Resume.pdf`);
-      showToast("✅ PDF downloaded!");
-      // c8 ignore stop
-    } catch (err) {
-      console.error('PDF error:', err);
-      showToast("❌ PDF generation failed");
-    }
-    // Restore preview scaling
-    inner.style.transform = savedTransform;
-    inner.style.transformOrigin = savedOrigin;
-    inner.style.width = savedWidth;
-  };
-  // Cookie-based auth: credentials "include" sends the httpOnly cookie automatically
-  const headers = { "Content-Type": "application/json" };
-  const fetchOpts = { headers, credentials: "include" };
-
+  // ✅ All state MUST be declared at top, before any conditional returns
   const [activeTab, setActiveTab] = useState(0);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
   const [showExtra, setShowExtra] = useState(false);
-  const [editingItem, setEditingItem] = useState(null); // { type, index, data }
+  const [editingItem, setEditingItem] = useState(null);
 
   const [resume, setResume] = useState({
     title: "", summary: "", full_name: "", professional_title: "",
@@ -2547,6 +2458,28 @@ export default function ResumeBuilder() {
   const [certs, setCerts] = useState([]);
   const [certForm, setCertForm] = useState({ name: "", issuer: "", issue_date: "", expiry_date: "" });
 
+  // ✅ All Hooks (useState, useEffect, useLayoutEffect) MUST come first, BEFORE functions
+  // Auto-scale resume content to fit exactly one A4 page
+  // c8 ignore start
+  useLayoutEffect(() => {
+    const wrapper = componentRef.current;
+    const inner = innerRef.current;
+    if (!wrapper || !inner) return;
+    inner.style.transform = '';
+    inner.style.transformOrigin = '';
+    inner.style.width = '';
+    const contentH = inner.scrollHeight;
+    const maxH = wrapper.clientHeight;
+    if (contentH > maxH) {
+      const s = maxH / contentH;
+      inner.style.transform = `scale(${s})`;
+      inner.style.transformOrigin = 'top left';
+      inner.style.width = `${100 / s}%`;
+    }
+  });
+  // c8 ignore stop
+
+  // ✅ Helper functions come AFTER all Hooks
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(""), 3000);
@@ -2554,35 +2487,23 @@ export default function ResumeBuilder() {
 
   const fetchAll = async () => {
     try {
-      // 1. Fetch Resume Basic Info using the Axios 'api' instance
       const resResume = await api.get(`/resume/${id}`);
-      const data = resResume.data; // Axios automatically parses JSON into .data
-
-      // Note: your backend returns { resume: {...}, message: "..." } 
-      // based on the route code you shared earlier.
+      const data = resResume.data;
       const resumeData = data.resume || data;
 
       if (resumeData) {
         setResume(resumeData);
-
-        // ✅ STEP 5 LOGIC: Handle the Template Style
         if (resumeData.template_style) {
           setTemplateStyle(resumeData.template_style);
           console.log("✅ Applied saved style:", resumeData.template_style);
         } else {
-          // Fallback logic for older resumes that don't have a style saved yet
-          const fallbackMap = {
-            'simple': 'classic',
-            'modern': 'sidebar',
-            'creative': 'creative'
-          };
+          const fallbackMap = { 'simple': 'classic', 'modern': 'sidebar', 'creative': 'creative' };
           const fallback = fallbackMap[resumeData.template_name] || 'classic';
           setTemplateStyle(fallback);
           console.log("⚠️ No style found, using fallback:", fallback);
         }
       }
 
-      // 2. Fetch all related data in parallel using Axios
       const [resExp, resEdu, resSkills, resProj, resCerts] = await Promise.all([
         api.get(`/experience/${id}`),
         api.get(`/education/${id}`),
@@ -2591,28 +2512,62 @@ export default function ResumeBuilder() {
         api.get(`/certifications/${id}`)
       ]);
 
-      // Set the states using the .data property from Axios
       setExperiences(resExp.data || []);
       setEducations(resEdu.data || []);
       setSkills(resSkills.data || []);
       setProjects(resProj.data || []);
       setCerts(resCerts.data || []);
-
     } catch (err) {
       console.error("❌ Error in fetchAll:", err);
-      // Optional: showToast("Failed to load resume data");
     }
   };
 
   const saveResume = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/api/resume/${id}`, { method: "PUT", ...fetchOpts, body: JSON.stringify(resume) });
+      const res = await fetch(`${API_URL}/api/resume/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(resume) });
       if (res.ok) showToast("✅ Resume saved successfully!");
       else showToast("❌ Failed to save");
     } catch { showToast("❌ Failed to save"); }
     finally { setSaving(false); }
   };
+
+  const handlePrint = async () => {
+    const inner = innerRef.current;
+    const savedTransform = inner.style.transform;
+    const savedOrigin = inner.style.transformOrigin;
+    const savedWidth = inner.style.width;
+    inner.style.transform = 'none';
+    inner.style.transformOrigin = '';
+    inner.style.width = '';
+    await new Promise(r => setTimeout(r, 150));
+    try {
+      // c8 ignore start
+      const canvas = await html2canvas(inner, {
+        scale: 4, useCORS: true, scrollY: 0, backgroundColor: '#ffffff',
+        windowHeight: inner.scrollHeight, windowWidth: inner.scrollWidth, logging: false, allowTaint: true
+      });
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const A4W = 210, A4H = 297;
+      const ratio = canvas.height / canvas.width;
+      let w = A4W, h = A4W * ratio;
+      if (h > A4H) { h = A4H; w = A4H / ratio; }
+      const x = (A4W - w) / 2;
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, 0, w, h);
+      pdf.save(`${resume.full_name || 'My'}_Resume.pdf`);
+      showToast("✅ PDF downloaded!");
+      // c8 ignore stop
+    } catch (err) {
+      console.error('PDF error:', err);
+      showToast("❌ PDF generation failed");
+    }
+    inner.style.transform = savedTransform;
+    inner.style.transformOrigin = savedOrigin;
+    inner.style.width = savedWidth;
+  };
+
+  const headers = { "Content-Type": "application/json" };
+  const fetchOpts = { headers, credentials: "include" };
 
   const addItem = async (url, body, resetFn, type) => {
     try {
@@ -2661,6 +2616,11 @@ export default function ResumeBuilder() {
   const delBtn = { background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 12, fontWeight: 600, padding: "4px 8px", borderRadius: 6, transition: "all 0.15s ease" };
   const editBtn = { background: "none", border: "none", color: "#6366f1", cursor: "pointer", fontSize: 12, fontWeight: 600, padding: "4px 8px", borderRadius: 6, transition: "all 0.15s ease" };
   const aiBtn = { background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", borderRadius: 20, padding: "5px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", boxShadow: "0 2px 8px rgba(99,102,241,0.2)" };
+
+  // ✅ SHOW NOTHING WHILE LOADING - Prevents premature rendering or redirects
+  if (authLoading) {
+    return null;
+  }
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f1f5f9", fontFamily: "'Inter', sans-serif" }}>

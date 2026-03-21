@@ -98,7 +98,7 @@ export default function Dashboard() {
     if (pendingDelete && pendingDelete.id !== id) {
       clearTimeout(pendingDelete.timeoutId);
       clearInterval(deleteIntervalRef.current);
-      resumeService.delete(pendingDelete.id).catch(() => {});
+      resumeService.delete(pendingDelete.id).catch(() => { });
       setResumes(prev => prev.filter(r => r.id !== pendingDelete.id));
     }
     setResumes(prev => prev.filter(r => r.id !== id));
@@ -198,7 +198,7 @@ export default function Dashboard() {
   };
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
-  
+
   // ✅ SHOW NOTHING WHILE LOADING - Prevents premature rendering
   if (authLoading) return null;
   if (!user) return null;
@@ -209,7 +209,7 @@ export default function Dashboard() {
       id: "email", label: "Email", color: "#ef4444", bg: "#fef2f2",
       icon: (
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
-          <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       ),
       onClick: (e) => openEmailModal(e, resumeId),
@@ -218,7 +218,7 @@ export default function Dashboard() {
       id: "whatsapp", label: "WhatsApp", color: "#22c55e", bg: "#f0fdf4",
       icon: (
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
-          <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
       onClick: (e) => handleWhatsApp(e, resumeId),
@@ -227,8 +227,8 @@ export default function Dashboard() {
       id: "linkedin", label: "LinkedIn", color: "#0a66c2", bg: "#eff6ff",
       icon: (
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
-          <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="2"/>
+          <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="2" />
         </svg>
       ),
       onClick: (e) => handleLinkedIn(e, resumeId),
@@ -237,7 +237,7 @@ export default function Dashboard() {
       id: "copy", label: "Copy Link", color: "#f59e0b", bg: "#fffbeb",
       icon: (
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
-          <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       ),
       onClick: (e) => handleCopyLink(e, resumeId),
@@ -293,7 +293,7 @@ export default function Dashboard() {
         <div className="dash-header" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div className="dash-header-left" style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px -2px rgba(99,102,241,0.4)" }}>
-              <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M7 8h10M7 12h6M7 16h8M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="white" strokeWidth="2.5" strokeLinecap="round"/></svg>
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M7 8h10M7 12h6M7 16h8M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="white" strokeWidth="2.5" strokeLinecap="round" /></svg>
             </div>
             <span style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" }}>Resume<span style={{ color: "#6366f1" }}>AI</span></span>
           </div>
@@ -309,6 +309,9 @@ export default function Dashboard() {
                 🛡️ Admin
               </button>
             )}
+            <button onClick={() => navigate("/ats-checker")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 16px", borderRadius: 8, background: "linear-gradient(135deg, #059669, #10b981)", color: "#fff", border: "none", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+              📊 ATS Score
+            </button>
             <button onClick={handleLogout}
               style={{ padding: "8px 16px", borderRadius: 8, background: "transparent", border: "1px solid #e2e8f0", color: "#64748b", fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease" }}
               onMouseEnter={e => { e.currentTarget.style.background = "#fef2f2"; e.currentTarget.style.color = "#ef4444"; e.currentTarget.style.borderColor = "#fecaca"; }}
@@ -326,10 +329,17 @@ export default function Dashboard() {
             <h1 style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>My Resumes</h1>
             <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>Create and manage your AI-powered resumes</p>
           </div>
-          <button className="dash-btn-new dash-btn-new-mobile" onClick={createResume} style={{ display: "flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="white" strokeWidth="2.5" strokeLinecap="round"/></svg>
-            New Resume
-          </button>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button onClick={() => navigate("/ats-checker")} style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", color: "#059669", border: "1.5px solid #059669", padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "#f0fdf4"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "#fff"; }}>
+              📊 Check ATS Score
+            </button>
+            <button className="dash-btn-new dash-btn-new-mobile" onClick={createResume} style={{ display: "flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="white" strokeWidth="2.5" strokeLinecap="round" /></svg>
+              New Resume
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -339,14 +349,19 @@ export default function Dashboard() {
         ) : resumes.length === 0 ? (
           <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "64px 24px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", animation: "dash-fade-in 0.5s ease" }}>
             <div style={{ width: 64, height: 64, borderRadius: 16, background: "linear-gradient(135deg, #eef2ff, #f5f3ff)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-              <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2zM12 8v8M8 12h8" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2zM12 8v8M8 12h8" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round" /></svg>
             </div>
             <h3 style={{ fontSize: 20, fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>No resumes yet</h3>
             <p style={{ color: "#64748b", fontSize: 14, marginBottom: 24, textAlign: "center", maxWidth: 360 }}>Build your first AI-powered professional resume in minutes!</p>
-            <button className="dash-btn-new" onClick={createResume} style={{ display: "flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", padding: "12px 24px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="white" strokeWidth="2.5" strokeLinecap="round"/></svg>
-              Create Your First Resume
-            </button>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+              <button className="dash-btn-new" onClick={createResume} style={{ display: "flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", padding: "12px 24px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="white" strokeWidth="2.5" strokeLinecap="round" /></svg>
+                Create Your First Resume
+              </button>
+              <button onClick={() => navigate("/ats-checker")} style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", color: "#059669", border: "1.5px solid #059669", padding: "12px 24px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                📊 Check ATS Score
+              </button>
+            </div>
           </div>
         ) : (
           <div className="dash-grid" style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))" }}>
@@ -362,11 +377,11 @@ export default function Dashboard() {
                   <div className="dash-icon" style={{ width: 44, height: 44, borderRadius: 12, background: "#eef2ff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
                     {duplicateSuccess === resume.id ? (
                       <svg width="22" height="22" fill="none" viewBox="0 0 24 24" style={{ animation: "popIn 0.4s cubic-bezier(0.34,1.56,0.64,1)" }}>
-                        <circle cx="12" cy="12" r="10" fill="#dcfce7"/>
-                        <path d="M8 12l3 3 5-5" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ strokeDasharray: 40, strokeDashoffset: 0, animation: "checkDraw 0.4s ease 0.1s both" }}/>
+                        <circle cx="12" cy="12" r="10" fill="#dcfce7" />
+                        <path d="M8 12l3 3 5-5" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ strokeDasharray: 40, strokeDashoffset: 0, animation: "checkDraw 0.4s ease 0.1s both" }} />
                       </svg>
                     ) : (
-                      <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M7 8h10M7 12h6M7 16h8M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/></svg>
+                      <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M7 8h10M7 12h6M7 16h8M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" /></svg>
                     )}
                   </div>
 
@@ -380,10 +395,10 @@ export default function Dashboard() {
                       onClick={(e) => { e.stopPropagation(); setShareModal({ id: resume.id, title: resume.title || "Untitled Resume" }); }}
                     >
                       <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
-                        <circle cx="18" cy="5" r="3" stroke="currentColor" strokeWidth="2"/>
-                        <circle cx="6" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
-                        <circle cx="18" cy="19" r="3" stroke="currentColor" strokeWidth="2"/>
-                        <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        <circle cx="18" cy="5" r="3" stroke="currentColor" strokeWidth="2" />
+                        <circle cx="6" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+                        <circle cx="18" cy="19" r="3" stroke="currentColor" strokeWidth="2" />
+                        <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                       </svg>
                     </button>
 
@@ -391,16 +406,16 @@ export default function Dashboard() {
                     <button className="action-btn dup" title="Duplicate" disabled={duplicatingId === resume.id} onClick={(e) => duplicateResume(e, resume)}>
                       {duplicatingId === resume.id ? (
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ animation: "dash-spin 0.7s linear infinite" }}>
-                          <circle cx="12" cy="12" r="9" stroke="#22c55e" strokeWidth="2.5" strokeDasharray="28 56" strokeLinecap="round"/>
+                          <circle cx="12" cy="12" r="9" stroke="#22c55e" strokeWidth="2.5" strokeDasharray="28 56" strokeLinecap="round" />
                         </svg>
                       ) : (
-                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                       )}
                     </button>
 
                     {/* DELETE */}
                     <button className="action-btn del" title="Delete" onClick={(e) => deleteResume(e, resume.id, resume.title || "Untitled Resume")}>
-                      <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                      <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                     </button>
                   </div>
                 </div>
@@ -428,11 +443,11 @@ export default function Dashboard() {
       {pendingDelete && (
         <div style={{ position: "fixed", bottom: 32, left: 32, zIndex: 10000, background: "#1e293b", borderRadius: 14, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.08)", animation: "slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1)", minWidth: 320, maxWidth: 380 }}>
           <div style={{ height: 3, background: "rgba(255,255,255,0.1)" }}>
-            <div style={{ height: "100%", width: `${deleteProgress}%`, background: "linear-gradient(90deg, #6366f1, #a855f7)", transition: "width 0.1s linear", borderRadius: 2 }}/>
+            <div style={{ height: "100%", width: `${deleteProgress}%`, background: "linear-gradient(90deg, #6366f1, #a855f7)", transition: "width 0.1s linear", borderRadius: 2 }} />
           </div>
           <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(239,68,68,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/></svg>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" /></svg>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#f1f5f9" }}>Resume deleted</p>
@@ -446,11 +461,11 @@ export default function Dashboard() {
             </button>
             <div style={{ position: "relative", width: 28, height: 28, flexShrink: 0 }}>
               <svg width="28" height="28" viewBox="0 0 28 28" style={{ transform: "rotate(-90deg)" }}>
-                <circle cx="14" cy="14" r="11" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5"/>
+                <circle cx="14" cy="14" r="11" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" />
                 <circle cx="14" cy="14" r="11" fill="none" stroke="#6366f1" strokeWidth="2.5"
                   strokeDasharray={`${2 * Math.PI * 11}`}
                   strokeDashoffset={`${2 * Math.PI * 11 * (1 - deleteProgress / 100)}`}
-                  strokeLinecap="round" style={{ transition: "stroke-dashoffset 0.1s linear" }}/>
+                  strokeLinecap="round" style={{ transition: "stroke-dashoffset 0.1s linear" }} />
               </svg>
               <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#94a3b8" }}>
                 {Math.ceil(deleteProgress / 10)}
@@ -540,7 +555,7 @@ export default function Dashboard() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 16px", borderBottom: "1px solid #f1f5f9" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: "#fef2f2", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="17" height="17" fill="none" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/></svg>
+                  <svg width="17" height="17" fill="none" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" /></svg>
                 </div>
                 <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Share via Email</h3>
               </div>
@@ -548,7 +563,7 @@ export default function Dashboard() {
                 style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: 4, borderRadius: 6, display: "flex", transition: "all 0.2s" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "#f3f4f6"; e.currentTarget.style.color = "#374151"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "#9ca3af"; }}>
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
               </button>
             </div>
 
@@ -581,13 +596,13 @@ export default function Dashboard() {
                   {emailSending ? (
                     <>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ animation: "dash-spin 0.7s linear infinite" }}>
-                        <circle cx="12" cy="12" r="9" stroke="white" strokeWidth="2.5" strokeDasharray="28 56" strokeLinecap="round"/>
+                        <circle cx="12" cy="12" r="9" stroke="white" strokeWidth="2.5" strokeDasharray="28 56" strokeLinecap="round" />
                       </svg>
                       Sending...
                     </>
                   ) : (
                     <>
-                      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
+                      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="white" strokeWidth="2" strokeLinecap="round" /></svg>
                       Send Email
                     </>
                   )}

@@ -11,7 +11,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import ShareButton from "./components/ShareButton";
 import SharedResumeView from "./pages/SharedResumeView";
-
+import ATSChecker from "./pages/ATSChecker";
 
 
 
@@ -41,6 +41,7 @@ export default function AppRoutes() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} /> 
         <Route path="/resume/:id/preview" element={<SharedResumeView />} />
+        <Route path="/ats-checker" element={<PrivateRoute><ATSChecker /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   );

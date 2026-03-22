@@ -57,17 +57,25 @@ def ai_generate_project():
 @jwt_required()
 def analyze_resume():
     try:
-        data = request.get_json(silent=True)
-        resume_text = data.get("resume_text", "").strip()
+        data = request.get_json(force=True, silent=True)
+        
+        if not data:
+            return jsonify({"error": "Invalid JSON body"}), 400
+
+        resume_text = str(data.get("resume_text", "")).strip()
+        
         if not resume_text:
             return jsonify({"error": "resume_text is required"}), 400
+
+        if len(resume_text) < 50:
+            return jsonify({"error": "Resume text too short to analyze"}), 400
 
         prompt = f"""You are an expert ATS resume consultant. Analyze this resume and provide 5 specific, actionable improvements to increase the ATS score. Be concise and practical.
 
 Resume:
-{resume_text}
+{resume_text[:3000]}
 
-Respond ONLY in this exact JSON format with no extra text:
+Respond ONLY in this exact JSON format with no extra text or markdown:
 {{
   "improvements": [
     {{"title": "short title", "detail": "specific action to take", "impact": "high"}},
@@ -88,15 +96,22 @@ Respond ONLY in this exact JSON format with no extra text:
             temperature=0.3,
         )
         text = completion.choices[0].message.content.strip()
-        # Clean and parse JSON
         clean = text.replace("```json", "").replace("```", "").strip()
+        
+        # Find JSON in response
+        start = clean.find("{")
+        end = clean.rfind("}") + 1
+        if start != -1 and end > start:
+            clean = clean[start:end]
+        
         result = json.loads(clean)
         return jsonify(result), 200
 
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
         return jsonify({
-            "improvements": [{"title": "Analysis Complete", "detail": text, "impact": "medium"}],
+            "improvements": [{"title": "Analysis Complete", "detail": "AI response could not be parsed. Please try again.", "impact": "medium"}],
             "summary": "AI analysis completed."
         }), 200
     except Exception as e:
-        return jsonify({"error": f"AI analysis failed: {str(e)}"}), 500    
+        print(f"❌ analyze-resume error: {str(e)}")
+        return jsonify({"error": f"AI analysis failed: {str(e)}"}), 500

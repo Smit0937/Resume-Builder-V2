@@ -199,12 +199,12 @@ export default function Dashboard() {
         "service_v6fih3c",
         "template_uio18xg", // ← your share template ID
         {
-          to_email:        emailForm.recipientEmail.trim(),
-          to_name:         emailForm.recipientName.trim() || "Friend",
-          from_name:       sender_name || user?.email?.split("@")[0] || "Someone",
-          resume_title:    resume_title || "Resume",
-          share_link:      share_link,
-          custom_message:  emailForm.customMessage.trim() || "",
+          to_email: emailForm.recipientEmail.trim(),
+          to_name: emailForm.recipientName.trim() || "Friend",
+          from_name: sender_name || user?.email?.split("@")[0] || "Someone",
+          resume_title: resume_title || "Resume",
+          share_link: share_link,
+          custom_message: emailForm.customMessage.trim() || "",
         },
         "BubKxvVvR_jCZyxPm"
       );
@@ -302,12 +302,67 @@ export default function Dashboard() {
         .dash-grid { overflow: visible !important; }
         .dash-card { overflow: visible !important; }
         @media (max-width: 768px) {
-          .dash-header { padding: 0 16px !important; height: auto !important; flex-direction: column !important; gap: 12px !important; }
-          .dash-header-left, .dash-header-right { width: 100%; }
-          .dash-header-right { flex-wrap: wrap; justify-content: flex-start; }
-          .dash-title-row { flex-direction: column !important; gap: 12px !important; align-items: flex-start !important; }
-          .dash-btn-new-mobile { width: 100%; }
-          .dash-grid { grid-template-columns: 1fr !important; }
+  /* ── Header: single row, no wrapping ── */
+  .dash-header {
+    padding: 0 12px !important;
+    height: 56px !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+  }
+  .dash-header-left { flex-shrink: 0; }
+  .dash-header-right {
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    justify-content: flex-end !important;
+    overflow: hidden;
+  }
+  /* Hide username text on mobile, keep avatar only */
+  .dash-user-name { display: none !important; }
+  /* Make all header buttons compact */
+  .dash-header-right > div {
+    padding: 5px 8px !important;
+  }
+  .dash-header-right button {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    gap: 4px !important;
+  }
+  /* Hide ATS Score text in header on mobile, keep emoji */
+  .dash-ats-header-text { display: none !important; }
+
+  /* ── Main padding ── */
+  .dash-main { padding: 16px 12px !important; }
+
+  /* ── Title row: compact ── */
+  .dash-title-row {
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: flex-start !important;
+    margin-bottom: 20px !important;
+  }
+  .dash-title-row h1 { font-size: 22px !important; }
+  .dash-title-row p { font-size: 13px !important; margin-top: 2px !important; }
+
+  /* ── Action buttons row: side by side full width ── */
+  .dash-action-row {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+  }
+  .dash-action-row button {
+    flex: 1 !important;
+    justify-content: center !important;
+    padding: 10px 8px !important;
+    font-size: 13px !important;
+  }
+
+  /* ── Resume grid: single column ── */
+  .dash-grid { grid-template-columns: 1fr !important; }
+
+  /* ── Resume cards: tighter ── */
+  .dash-card { padding: 14px !important; }
         }
       `}</style>
 
@@ -325,7 +380,7 @@ export default function Dashboard() {
               <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700 }}>
                 {(user?.email || "U")[0].toUpperCase()}
               </div>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>{user?.email ? user.email.split("@")[0] : "User"}</span>
+              <span className="dash-user-name" style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>{user?.email ? user.email.split("@")[0] : "User"}</span>
             </div>
             {user?.role === "admin" && (
               <button onClick={() => navigate("/admin")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 16px", borderRadius: 8, background: "linear-gradient(135deg, #7c3aed, #6366f1)", color: "#fff", border: "none", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
@@ -333,7 +388,7 @@ export default function Dashboard() {
               </button>
             )}
             <button onClick={() => navigate("/ats-checker")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 16px", borderRadius: 8, background: "linear-gradient(135deg, #059669, #10b981)", color: "#fff", border: "none", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-              📊 ATS Score
+              📊 <span className="dash-ats-header-text">ATS Score</span>
             </button>
             <button onClick={handleLogout}
               style={{ padding: "8px 16px", borderRadius: 8, background: "transparent", border: "1px solid #e2e8f0", color: "#64748b", fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease" }}
@@ -346,13 +401,13 @@ export default function Dashboard() {
       </header>
 
       {/* ── Main ── */}
-      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px" }}>
+      <main className="dash-main" style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px" }}>
         <div className="dash-title-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32, animation: "dash-fade-in 0.5s ease" }}>
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>My Resumes</h1>
             <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>Create and manage your AI-powered resumes</p>
           </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div className="dash-action-row" style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button onClick={() => navigate("/ats-checker")} style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", color: "#059669", border: "1.5px solid #059669", padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}
               onMouseEnter={e => { e.currentTarget.style.background = "#f0fdf4"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "#fff"; }}>

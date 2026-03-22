@@ -159,30 +159,131 @@ const fetchResumes = async () => {
   return (
     <div style={s.page}>
       <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 768px) {
-          .admin-header-right { gap: 6px !important; }
-          .admin-header-right span { font-size: 11px; }
-          .admin-header-right button { padding: 4px 10px !important; font-size: 11px !important; }
-          .admin-tabs { flex-wrap: wrap; }
-          .admin-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-          .admin-table { min-width: 600px; }
-          .admin-table th, .admin-table td { padding: 10px 6px; font-size: 12px; }
-          .admin-actions { display: flex; gap: 4px; flex-direction: column; }
-          .admin-actions button { padding: 4px 8px; font-size: 11px; }
-          .admin-user-detail-grid { grid-template-columns: 1fr !important; }
-          .admin-user-detail-actions { flex-direction: column; gap: 8px; }
-          .admin-user-detail-actions button { width: 100%; }
-          .admin-recent-grid { grid-template-columns: 1fr !important; }
-        }
-        @media (max-width: 600px) {
-          .admin-header { padding: 8px 8px; }
-          .admin-header-title { font-size: 14px; }
-          .admin-body { padding: 8px 8px; }
-          .admin-stat-num { font-size: 24px; }
-          .admin-stat-label { font-size: 11px; }
-        }
-      `}</style>
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 768px) {
+    /* ── Header ── */
+    .admin-header {
+      padding: 10px 12px !important;
+      min-height: 52px !important;
+      flex-wrap: nowrap !important;
+      gap: 6px !important;
+    }
+    .admin-header-title {
+      font-size: 15px !important;
+      white-space: nowrap;
+    }
+    .admin-header-right {
+      gap: 6px !important;
+      flex-wrap: nowrap !important;
+      justify-content: flex-end !important;
+    }
+    .admin-header-right span {
+      display: none !important;
+    }
+    .admin-header-right button {
+      padding: 6px 12px !important;
+      font-size: 12px !important;
+      white-space: nowrap;
+      border-radius: 8px !important;
+    }
+
+    /* ── Body ── */
+    .admin-body {
+      padding: 12px 10px !important;
+    }
+
+    /* ── Tabs ── */
+    .admin-tabs {
+      width: 100% !important;
+      display: flex !important;
+    }
+    .admin-tabs button {
+      flex: 1 !important;
+      text-align: center !important;
+      padding: 8px 6px !important;
+      font-size: 12px !important;
+    }
+
+    /* ── Stat cards — 2 column grid on mobile ── */
+    .admin-stat-grid {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 10px !important;
+    }
+
+    /* ── Recent grid — stack on mobile ── */
+    .admin-recent-grid {
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+    }
+
+    /* ── Tables ── */
+    .admin-table-wrapper {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      border-radius: 0 0 14px 14px;
+    }
+    .admin-table {
+      min-width: 520px !important;
+    }
+    .admin-table th {
+      padding: 10px 8px !important;
+      font-size: 10px !important;
+    }
+    .admin-table td {
+      padding: 10px 8px !important;
+      font-size: 12px !important;
+    }
+
+    /* ── Action buttons ── */
+    .admin-actions {
+      display: flex !important;
+      gap: 4px !important;
+      flex-direction: row !important;
+      flex-wrap: wrap !important;
+    }
+    .admin-actions button {
+      padding: 4px 8px !important;
+      font-size: 11px !important;
+    }
+
+    /* ── User detail ── */
+    .admin-user-detail-grid {
+      grid-template-columns: 1fr 1fr !important;
+    }
+    .admin-user-detail-actions {
+      flex-direction: column !important;
+      gap: 6px !important;
+      align-items: flex-end !important;
+    }
+    .admin-user-detail-actions button {
+      width: auto !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    /* ── Header email hidden, just show icon title ── */
+    .admin-header-title {
+      font-size: 14px !important;
+    }
+
+    /* ── Stat cards — single column on very small ── */
+    .admin-stat-grid {
+      grid-template-columns: 1fr !important;
+    }
+    .admin-stat-num {
+      font-size: 26px !important;
+    }
+    .admin-stat-label {
+      font-size: 11px !important;
+    }
+
+    /* ── User detail grid ── */
+    .admin-user-detail-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+`}</style>
       {/* ─── HEADER ─── */}
       <header style={s.header} className="admin-header">
         <div style={s.headerTitle} className="admin-header-title">🛡️ Admin Panel</div>
@@ -233,7 +334,7 @@ const fetchResumes = async () => {
         {activeTab === 0 && stats && (
           <div>
             {/* Stat Cards */}
-            <div style={s.statGrid}>
+            <div style={s.statGrid} className="admin-stat-grid">
               <div style={s.statCard("#6366f1")}>
                 <p style={s.statNum} className="admin-stat-num">{stats.total_users}</p>
                 <p style={s.statLabel} className="admin-stat-label">Total Users</p>

@@ -61,7 +61,7 @@ const ShareButton = ({ resumeId, resumeData }) => {
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         {
-          to_email: recipientEmail.trim(),
+          to_email: recipientEmail,
           to_name: recipientName.trim() || "Friend",
           from_name: senderName,
           resume_title: resumeTitle,

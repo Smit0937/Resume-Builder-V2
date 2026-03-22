@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { resumeService } from "../services/resumeService";
 import api from "../services/api";
 import toast from "react-hot-toast";
+import emailjs from "@emailjs/browser";
 
 export default function Dashboard() {
   const { user, logout, loading: authLoading } = useAuth();
@@ -183,18 +184,40 @@ export default function Dashboard() {
     if (!emailForm.recipientEmail.trim()) return;
     setEmailSending(true);
     try {
-      await api.post("/share/email", {
+      // Step 1: Get share link from backend
+      const res = await api.post("/share/email", {
         resume_id: emailModal,
         recipient_email: emailForm.recipientEmail.trim(),
         recipient_name: emailForm.recipientName.trim() || "Friend",
         message: emailForm.customMessage.trim(),
       });
+
+      const { share_link, sender_name, resume_title } = res.data;
+
+      // Step 2: Send email via EmailJS
+      await emailjs.send(
+        "service_v6fih3c",
+        "template_uio18xg", // ← your share template ID
+        {
+          to_email:        emailForm.recipientEmail.trim(),
+          to_name:         emailForm.recipientName.trim() || "Friend",
+          from_name:       sender_name || user?.email?.split("@")[0] || "Someone",
+          resume_title:    resume_title || "Resume",
+          share_link:      share_link,
+          custom_message:  emailForm.customMessage.trim() || "",
+        },
+        "BubKxvVvR_jCZyxPm"
+      );
+
       toast.success(`✉️ Resume shared with ${emailForm.recipientEmail}!`);
       setEmailModal(null);
       setEmailForm({ recipientEmail: "", recipientName: "", customMessage: "" });
     } catch (err) {
-      toast.error(err?.response?.data?.error || "Failed to send email");
-    } finally { setEmailSending(false); }
+      console.error("Email send error:", err);
+      toast.error("Failed to send email. Please try again.");
+    } finally {
+      setEmailSending(false);
+    }
   };
 
   const handleLogout = async () => { await logout(); navigate('/login'); };

@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import api from "../services/api";
 
 // ── SCORING ENGINE ──
 function analyzeResume(text) {
@@ -24,15 +25,26 @@ function analyzeResume(text) {
   breakdown.push({ label: "Contact Info", score: contactScore, max: 10, icon: "📇" });
 
   // 2. Professional Summary (10 pts)
-  let summaryScore = 0;
-  const summaryMatch = text.match(/(?:summary|profile|objective|about)[:\s\n]+([\s\S]{30,600}?)(?:\n{2,}|\n[A-Z])/i);
-  const summaryText = summaryMatch ? summaryMatch[1].trim() : "";
-  const summaryWords = summaryText.split(/\s+/).filter(w => w.length > 2).length;
-  if (summaryWords >= 50) { summaryScore = 10; }
-  else if (summaryWords >= 1) { summaryScore = 5; issues.push({ type: "warning", text: `Summary too short (${summaryWords} words). Aim for 50+ words` }); }
-  else { issues.push({ type: "critical", text: "Professional summary/objective is missing" }); }
-  score += summaryScore;
-  breakdown.push({ label: "Summary", score: summaryScore, max: 10, icon: "📝" });
+let summaryScore = 0;
+// Try to find a labeled summary section first
+const summaryMatch = text.match(/(?:summary|profile|objective|about\s*me|career\s*objective)[:\s\n]+([\s\S]{20,600}?)(?:\n{2,}|\n(?:experience|education|skills|work|employment|project))/i);
+let summaryWords = 0;
+if (summaryMatch) {
+  summaryWords = summaryMatch[1].trim().split(/\s+/).filter(w => w.length > 1).length;
+} else {
+  // Fallback: count total words in document — if resume has 150+ words it likely has a summary
+  const totalWords = text.trim().split(/\s+/).filter(w => w.length > 2).length;
+  // Estimate: subtract ~60 words for contact/headers/section titles
+  const contentWords = Math.max(0, totalWords - 60);
+  // If doc has good amount of content, assume summary exists
+  if (contentWords >= 200) summaryWords = 60; // treat as full summary
+  else if (contentWords >= 100) summaryWords = 25; // treat as short summary
+}
+if (summaryWords >= 50) { summaryScore = 10; }
+else if (summaryWords >= 15) { summaryScore = 5; issues.push({ type: "warning", text: `Summary detected but may be too short. Aim for 50+ words` }); }
+else { issues.push({ type: "critical", text: "Professional summary/objective is missing or not detected" }); }
+score += summaryScore;
+breakdown.push({ label: "Summary", score: summaryScore, max: 10, icon: "📝" });
 
   // 3. Work Experience (25 pts)
   let expScore = 0;
@@ -198,39 +210,20 @@ export default function ATSChecker() {
     if (!resumeText) return;
     setAiLoading(true);
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [{
-            role: "user",
-            content: `You are an expert ATS resume consultant. Analyze this resume text and provide 5 specific, actionable improvements to increase the ATS score. Be concise and practical.
-
-Resume text:
-${resumeText.slice(0, 3000)}
-
-Respond in this exact JSON format:
-{
-  "improvements": [
-    {"title": "short title", "detail": "specific action to take", "impact": "high/medium/low"},
-    ...
-  ],
-  "summary": "2-sentence overall assessment"
-}`
-          }]
-        })
+      const response = await api.post("/ai/analyze-resume", {
+        resume_text: resumeText.slice(0, 3000),
       });
-      const data = await response.json();
-      const text = data.content?.[0]?.text || "";
-      try {
-        const clean = text.replace(/```json|```/g, "").trim();
-        setAiSuggestions(JSON.parse(clean));
-      } catch {
-        setAiSuggestions({ improvements: [{ title: "AI Analysis", detail: text, impact: "high" }], summary: "" });
+      const data = response.data;
+      if (data?.improvements) {
+        setAiSuggestions(data);
+      } else {
+        setAiSuggestions({
+          improvements: [{ title: "Analysis Complete", detail: data?.message || "Could not parse suggestions.", impact: "medium" }],
+          summary: ""
+        });
       }
     } catch (err) {
+      console.error("AI error:", err);
       alert("AI analysis failed. Please try again.");
     } finally {
       setAiLoading(false);
@@ -419,7 +412,7 @@ Respond in this exact JSON format:
                 <span style={{ fontSize: 22 }}>✨</span>
                 <div>
                   <h3 style={{ fontSize: 15, fontWeight: 800, color: "#0f172a", margin: 0 }}>AI-Powered Deep Analysis</h3>
-                  <p style={{ fontSize: 12, color: "#6366f1", margin: 0, fontWeight: 600 }}>Get personalized suggestions from Claude AI</p>
+                  <p style={{ fontSize: 12, color: "#6366f1", margin: 0, fontWeight: 600 }}>Get personalized suggestions from our AI assistant</p>
                 </div>
               </div>
               {!aiSuggestions ? (

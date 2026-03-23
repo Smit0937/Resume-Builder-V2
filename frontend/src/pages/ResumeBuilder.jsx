@@ -1110,8 +1110,8 @@ function TemplateHarvard({ resume, experiences, educations, skills, projects, ce
         {/* Contact Info */}
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "16px", fontSize: 11 }}>
           {email && <span>✉ <EmailLink email={email} /></span>}
-          {phone && <span>📱 <a href={`tel:${phone}`} style={{textDecoration:"none",color:"inherit"}}>{phone}</a></span>}
-          {location && <span>📍 <a href={`https://maps.google.com/?q=${encodeURIComponent(location)}`} target="_blank" rel="noreferrer" style={{textDecoration:"none",color:"inherit"}}>{location}</a></span>}
+          {phone && <span>📱 <a href={`tel:${phone}`} style={{ textDecoration: "none", color: "inherit" }}>{phone}</a></span>}
+          {location && <span>📍 <a href={`https://maps.google.com/?q=${encodeURIComponent(location)}`} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>{location}</a></span>}
           {linkedin && <span>🔗 <LinkedInLink linkedin={linkedin} /></span>}
         </div>
       </div>
@@ -1259,7 +1259,7 @@ function TemplateCreative({ resume, experiences, educations, skills, projects, c
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 16px", fontSize: 10.5, color: "#f1f5f9" }}>
           {email && <span>✉ <EmailLink email={email} /></span>}
-          {phone && <span>📱 <a href={`tel:${phone}`} style={{textDecoration:"none",color:"inherit"}}>{phone}</a></span>}
+          {phone && <span>📱 <a href={`tel:${phone}`} style={{ textDecoration: "none", color: "inherit" }}>{phone}</a></span>}
           {location && <span>📍 <LocationLink location={location} /></span>}
           {linkedin && <span>🔗 <LinkedInLink linkedin={linkedin} /></span>}
         </div>
@@ -1718,10 +1718,10 @@ function TemplateBlueAccent({ resume, experiences, educations, skills, projects,
         {professional_title && <div style={{ fontSize: 13.5, color: "#555", fontStyle: "italic", marginBottom: 8 }}>{professional_title}</div>}
 
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px 16px", fontSize: 10.5, color: "#444", fontWeight: 600 }}>
-         {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 <LocationLink location={location} /></span>}
-         {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ <EmailLink email={email} /></span>}
-         {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 <PhoneLink phone={phone} /></span>}
-         {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>🔗 <LinkedInLink linkedin={linkedin} /></span>}
+          {location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 <LocationLink location={location} /></span>}
+          {email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>✉ <EmailLink email={email} /></span>}
+          {phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📞 <PhoneLink phone={phone} /></span>}
+          {linkedin && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>🔗 <LinkedInLink linkedin={linkedin} /></span>}
         </div>
       </div>
 
@@ -2460,6 +2460,7 @@ export default function ResumeBuilder() {
   const [toast, setToast] = useState("");
   const [showExtra, setShowExtra] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [mobileView, setMobileView] = useState("edit"); 
 
   const [resume, setResume] = useState({
     title: "", summary: "", full_name: "", professional_title: "",
@@ -2640,19 +2641,40 @@ export default function ResumeBuilder() {
         
         /* Mobile responsive */
         @media (max-width: 1024px) {
-          .rb-main-container { grid-template-columns: 1fr !important; }
-          .rb-left-panel { border-right: none !important; border-bottom: 1px solid #e2e8f0 !important; }
-          .rb-right-panel { display: none; }
-        }
-        
-        @media (max-width: 768px) {
-          .rb-tab { font-size: 10px; padding: 6px 1px; }
-          .rb-left-panel { padding: 16px 14px !important; }
-          .rb-header-right { gap: 4px !important; }
-          .rb-header-right button { padding: 6px 10px !important; font-size: 12px !important; }
-          .rb-save-pdf { padding: 6px 10px !important; font-size: 12px !important; }
-          .rb-save-pdf svg { width: 12px !important; height: 12px !important; }
-        }
+  .rb-main-container { grid-template-columns: 1fr !important; height: auto !important; }
+  .rb-left-panel { border-right: none !important; border-bottom: none !important; }
+  .rb-right-panel { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  /* Header */
+  .rb-header { padding: 0 8px !important; height: 50px !important; }
+  .rb-title-input { width: 90px !important; font-size: 13px !important; }
+  .rb-header-right { gap: 3px !important; flex-wrap: nowrap !important; }
+  .rb-header-right > * { flex-shrink: 0; }
+  .rb-template-btn-text { display: none !important; }
+  .rb-template-btn-arrow { display: none !important; }
+  .rb-save-pdf-text { display: none !important; }
+  .rb-save-btn-text { display: none !important; }
+  .rb-header-right button { padding: 6px 8px !important; font-size: 12px !important; min-width: 32px; justify-content: center; }
+  .rb-save-pdf { padding: 6px 8px !important; }
+  .rb-save-pdf svg { width: 14px !important; height: 14px !important; }
+  /* Tabs */
+  .rb-tab { font-size: 9.5px !important; padding: 5px 1px !important; }
+  /* Left panel */
+  .rb-left-panel { padding: 12px 10px !important; height: auto !important; }
+  /* Right panel when shown on mobile preview tab */
+  .rb-right-panel-mobile { 
+    display: flex !important; 
+    background: #e2e8f0 !important;
+    padding: 16px 12px !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+  /* Share button */
+  .share-button-wrapper { bottom: 70px !important; right: 14px !important; z-index: 999 !important; }
+}
         @media print {
           .rb-left-panel,
           header,
@@ -2672,7 +2694,7 @@ export default function ResumeBuilder() {
         }  
       `}</style>
 
-      <header style={{
+      <header className="rb-header" style={{
         background: "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)",
         borderBottom: "1px solid rgba(226,232,240,0.7)", padding: "0 20px", height: 56,
         display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -2687,7 +2709,7 @@ export default function ResumeBuilder() {
             Dashboard
           </button>
           <div style={{ width: 1, height: 24, background: "#e2e8f0" }} />
-          <input value={resume.title} onChange={e => setResume({ ...resume, title: e.target.value })} placeholder="Resume Title"
+          <input className="rb-title-input" value={resume.title} onChange={e => setResume({ ...resume, title: e.target.value })} placeholder="Resume Title"
             style={{ border: "none", outline: "none", fontSize: 15, fontWeight: 700, color: "#0f172a", background: "transparent", width: 220, fontFamily: "inherit" }} />
         </div>
         <div className="rb-header-right" style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -2698,8 +2720,8 @@ export default function ResumeBuilder() {
               cursor: "pointer", color: "#4f46e5", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s ease", fontFamily: "inherit"
             }}>
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>
-              {TEMPLATE_OPTIONS.flatMap(g => g.items).find(t => t.style === templateStyle)?.name || "Template"}
-              <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" d="M19 9l-7 7-7-7" /></svg>
+              <span className="rb-template-btn-text">{TEMPLATE_OPTIONS.flatMap(g => g.items).find(t => t.style === templateStyle)?.name || "Template"}</span>
+              <svg className="rb-template-btn-arrow" width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" d="M19 9l-7 7-7-7" /></svg>
             </button>
             {showTemplateDropdown && (
               <>
@@ -2735,11 +2757,11 @@ export default function ResumeBuilder() {
           <button className="rb-save-pdf" onClick={async () => { showToast("📄 Preparing PDF..."); await handlePrint(); }}
             style={{ background: "#059669", color: "#fff", border: "none", borderRadius: 10, padding: "8px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 2px 8px rgba(5,150,105,0.25)", transition: "all 0.2s ease", fontFamily: "inherit" }}>
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-            Download PDF
+            <span className="rb-save-pdf-text">Download PDF</span>
           </button>
           <button onClick={saveResume} disabled={saving} style={{ ...btn, padding: "8px 18px", display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M5 13l4 4L19 7" /></svg>
-            {saving ? "Saving..." : "Save"}
+            <span className="rb-save-btn-text">{saving ? "Saving..." : "Save"}</span>
           </button>
         </div>
       </header>
@@ -2829,9 +2851,49 @@ export default function ResumeBuilder() {
         </div>
       )}
 
+      {/* Mobile Edit/Preview Toggle */}
+      <div style={{ display: "none" }} className="rb-mobile-toggle">
+        <style>{`
+    @media (max-width: 1024px) {
+      .rb-mobile-toggle { 
+        display: flex !important; 
+        background: #fff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 8px 12px;
+        gap: 8px;
+        position: sticky;
+        top: 50px;
+        z-index: 40;
+      }
+    }
+  `}</style>
+        <button
+          onClick={() => setMobileView("edit")}
+          style={{
+            flex: 1, padding: "9px", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700,
+            cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
+            background: mobileView === "edit" ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "#f1f5f9",
+            color: mobileView === "edit" ? "#fff" : "#64748b",
+          }}
+        >
+          ✏️ Edit Resume
+        </button>
+        <button
+          onClick={() => setMobileView("preview")}
+          style={{
+            flex: 1, padding: "9px", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700,
+            cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
+            background: mobileView === "preview" ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "#f1f5f9",
+            color: mobileView === "preview" ? "#fff" : "#64748b",
+          }}
+        >
+          👁️ Preview
+        </button>
+      </div>
+
       <div className="rb-main-container" style={{ display: "grid", gridTemplateColumns: "480px 1fr", height: "calc(100vh - 56px)" }}>
         {/* LEFT */}
-        <div className="rb-left-panel" style={{ overflowY: "auto", padding: "24px 22px", borderRight: "1px solid #e2e8f0", background: "#fff" }}>
+        <div className="rb-left-panel" style={{ overflowY: "auto", padding: "24px 22px", borderRight: "1px solid #e2e8f0", background: "#fff", display: mobileView === "preview" ? "none" : "block" }}>
           <div style={{ display: "flex", gap: 3, backgroundColor: "#f1f5f9", borderRadius: 10, padding: 3, marginBottom: 24 }}>
             {TABS.map((tab, i) => (
               <button key={tab} onClick={() => setActiveTab(i)} className="rb-tab"
@@ -3116,7 +3178,16 @@ export default function ResumeBuilder() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div className="rb-right-panel" style={{ overflowY: "auto", background: "linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)", padding: "24px 0", display: "flex", justifyContent: "center" }}>
+        <div
+          className={mobileView === "preview" ? "rb-right-panel rb-right-panel-mobile" : "rb-right-panel"}
+          style={{
+            overflowY: "auto",
+            background: "linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)",
+            padding: "24px 0",
+            display: "flex",
+            justifyContent: "center"
+          }}
+        >
 
           {/* ✅ The A4 Canvas Wrapper */}
           <div
@@ -3130,7 +3201,13 @@ export default function ResumeBuilder() {
               position: "relative",
               boxShadow: "0 4px 24px rgba(0,0,0,0.1)",
               WebkitPrintColorAdjust: "exact",
-              printColorAdjust: "exact"
+              printColorAdjust: "exact",
+              // Scale down for mobile
+              ...(window.innerWidth <= 768 ? {
+                transform: `scale(${(window.innerWidth - 24) / 794})`,
+                transformOrigin: "top center",
+                marginBottom: `-${297 * (1 - (window.innerWidth - 24) / 794)}mm`,
+              } : {})
             }}
           >
             <div ref={innerRef} style={{ display: "flex", flexDirection: "column" }}>

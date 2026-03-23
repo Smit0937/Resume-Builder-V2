@@ -58,33 +58,32 @@ def ai_generate_project():
 def analyze_resume():
     try:
         data = request.get_json(force=True, silent=True)
-        
         if not data:
             return jsonify({"error": "Invalid JSON body"}), 400
 
         resume_text = str(data.get("resume_text", "")).strip()
-        
-        if not resume_text:
+        job_description = str(data.get("job_description", "")).strip()
+
+        if not resume_text or len(resume_text) < 50:
             return jsonify({"error": "resume_text is required"}), 400
 
-        if len(resume_text) < 50:
-            return jsonify({"error": "Resume text too short to analyze"}), 400
+        jd_section = f"\n\nJob Description to match against:\n{job_description}" if job_description else ""
 
-        prompt = f"""You are an expert ATS resume consultant. Analyze this resume and provide 5 specific, actionable improvements to increase the ATS score. Be concise and practical.
+        prompt = f"""You are an expert ATS resume consultant. Analyze this resume and provide 5 specific actionable improvements.{jd_section}
 
 Resume:
-{resume_text[:3000]}
+{resume_text}
 
-Respond ONLY in this exact JSON format with no extra text or markdown:
+Respond ONLY in this exact JSON with no extra text:
 {{
   "improvements": [
-    {{"title": "short title", "detail": "specific action to take", "impact": "high"}},
-    {{"title": "short title", "detail": "specific action to take", "impact": "medium"}},
-    {{"title": "short title", "detail": "specific action to take", "impact": "high"}},
-    {{"title": "short title", "detail": "specific action to take", "impact": "low"}},
-    {{"title": "short title", "detail": "specific action to take", "impact": "medium"}}
+    {{"title": "title", "detail": "specific action", "impact": "high"}},
+    {{"title": "title", "detail": "specific action", "impact": "medium"}},
+    {{"title": "title", "detail": "specific action", "impact": "high"}},
+    {{"title": "title", "detail": "specific action", "impact": "low"}},
+    {{"title": "title", "detail": "specific action", "impact": "medium"}}
   ],
-  "summary": "2-sentence overall assessment of this resume."
+  "summary": "2-sentence assessment."
 }}"""
 
         from groq import Groq
@@ -97,20 +96,17 @@ Respond ONLY in this exact JSON format with no extra text or markdown:
         )
         text = completion.choices[0].message.content.strip()
         clean = text.replace("```json", "").replace("```", "").strip()
-        
-        # Find JSON in response
         start = clean.find("{")
         end = clean.rfind("}") + 1
         if start != -1 and end > start:
             clean = clean[start:end]
-        
         result = json.loads(clean)
         return jsonify(result), 200
 
-    except json.JSONDecodeError as e:
+    except json.JSONDecodeError:
         return jsonify({
-            "improvements": [{"title": "Analysis Complete", "detail": "AI response could not be parsed. Please try again.", "impact": "medium"}],
-            "summary": "AI analysis completed."
+            "improvements": [{"title": "Try Again", "detail": "AI could not parse the response. Please try again.", "impact": "medium"}],
+            "summary": "Analysis incomplete."
         }), 200
     except Exception as e:
         print(f"❌ analyze-resume error: {str(e)}")

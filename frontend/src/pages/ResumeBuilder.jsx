@@ -2460,7 +2460,7 @@ export default function ResumeBuilder() {
   const [toast, setToast] = useState("");
   const [showExtra, setShowExtra] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [mobileView, setMobileView] = useState("edit"); 
+  const [mobileView, setMobileView] = useState("edit");
 
   const [resume, setResume] = useState({
     title: "", summary: "", full_name: "", professional_title: "",
@@ -2568,34 +2568,9 @@ export default function ResumeBuilder() {
     finally { setSaving(false); }
   };
 
-const handlePrint = async () => {
-  try {
-    showToast("📄 Preparing PDF...");
-    const response = await fetch(`${API_URL}/api/resume/download/${id}`, {
-      method: "GET",
-      credentials: "include",
-    });
-    
-    if (!response.ok) {
-      throw new Error("Failed to download PDF");
-    }
-    
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${resume.title || "resume"}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-    
-    showToast("✅ PDF downloaded successfully!");
-  } catch (error) {
-    console.error("Download error:", error);
-    showToast("❌ Failed to download PDF");
-  }
-};
+  const handlePrint = () => {
+    window.print();
+  };
 
   const headers = { "Content-Type": "application/json" };
   const fetchOpts = { headers, credentials: "include" };
@@ -2701,22 +2676,58 @@ const handlePrint = async () => {
   .share-button-wrapper { bottom: 70px !important; right: 14px !important; z-index: 999 !important; }
 }
         @media print {
-          .rb-left-panel,
-          header,
-          .share-button-wrapper { display: none !important; }
-          .rb-main-container {
-            display: block !important;
-            height: auto !important;
-          }
-          .rb-right-panel {
-            display: flex !important;
-            padding: 0 !important;
-            background: white !important;
-            justify-content: center;
-          }
-          body { margin: 0 !important; background: white !important; }
-          @page { margin: 0; size: A4; }
-        }  
+ .rb-left-panel,
+header,
+.share-button-wrapper,
+.rb-mobile-toggle,
+.no-print { 
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Hide toast notification during print */
+div[style*="position: fixed"][style*="top: 16px"],
+div[style*="position:fixed"][style*="top:16px"] {
+  display: none !important;
+}
+
+  /* ── Remove all top spacing ── */
+body, html {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.rb-main-container {
+  display: block !important;
+  height: auto !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+#root > div {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+  
+  .rb-right-panel {
+    display: block !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+  
+  /* ── KEY FIX: Force background colors and images to print ── */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  
+  body { margin: 0 !important; background: white !important; }
+  @page { margin: 0; size: A4; }
+}  
       `}</style>
 
       <header className="rb-header" style={{
@@ -2779,7 +2790,15 @@ const handlePrint = async () => {
               </>
             )}
           </div>
-          <button className="rb-save-pdf" onClick={async () => { showToast("📄 Preparing PDF..."); await handlePrint(); }}
+          <button className="rb-save-pdf" onClick={async () => {
+            // Save first so PDF shows current template
+            await saveResume();
+            showToast("📄 Preparing PDF...");
+            setTimeout(() => {
+              setToast(""); // Clear toast before printing
+              setTimeout(() => window.print(), 100);
+            }, 800);
+          }}
             style={{ background: "#059669", color: "#fff", border: "none", borderRadius: 10, padding: "8px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 2px 8px rgba(5,150,105,0.25)", transition: "all 0.2s ease", fontFamily: "inherit" }}>
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
             <span className="rb-save-pdf-text">Download PDF</span>
@@ -2877,7 +2896,7 @@ const handlePrint = async () => {
       )}
 
       {/* Mobile Edit/Preview Toggle */}
-      <div style={{ display: "none" }} className="rb-mobile-toggle">
+      <div style={{ display: "none" }} className="rb-mobile-toggle no-print">
         <style>{`
     @media (max-width: 1024px) {
       .rb-mobile-toggle { 

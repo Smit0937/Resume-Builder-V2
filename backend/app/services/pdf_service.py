@@ -28,6 +28,21 @@ def fetch(resume_id):
         "certs":       Certification.query.filter_by(resume_id=resume_id).all(),
     }
 
+def contact_line_with_links(resume):
+    """Generate clickable contact links for PDF"""
+    parts = []
+    
+    if resume.email:
+        parts.append(f'<a href="mailto:{resume.email}" color="blue">{resume.email}</a>')
+    if resume.phone:
+        parts.append(f'<a href="tel:{resume.phone}" color="blue">{resume.phone}</a>')
+    if resume.location:
+        parts.append(f'<a href="geo:0,0?q={resume.location}" color="blue">{resume.location}</a>')
+    if resume.linkedin:
+        parts.append(f'<a href="{resume.linkedin}" color="blue">{resume.linkedin}</a>')
+    
+    return "  |  ".join(parts)
+
 def contact_line(resume):
     return "  |  ".join(v for v in [
         resume.email, resume.phone, resume.location, resume.linkedin
@@ -69,7 +84,7 @@ def pdf_simple(data, buffer):
     if resume.professional_title:  # pragma: no cover
         els.append(Paragraph(resume.professional_title, SUB))
     
-    cl = contact_line(resume)
+    cl = contact_line_with_links(resume)
     if cl:  # pragma: no cover
         els.append(Paragraph(cl, CON))
         
@@ -157,8 +172,14 @@ def pdf_modern(data, buffer):
         side.append(Paragraph(resume.professional_title, ST))
         
     side.append(Paragraph("CONTACT", SH))
-    for v in [resume.email, resume.phone, resume.location, resume.linkedin]:
-        if v: side.append(Paragraph(v, SI))  # pragma: no cover
+    if resume.email:
+        side.append(Paragraph(f'<a href="mailto:{resume.email}" color="white">{resume.email}</a>', SI))
+    if resume.phone:
+        side.append(Paragraph(f'<a href="tel:{resume.phone}" color="white">{resume.phone}</a>', SI))
+    if resume.location:
+        side.append(Paragraph(f'<a href="geo:0,0?q={resume.location}" color="white">{resume.location}</a>', SI))
+    if resume.linkedin:
+        side.append(Paragraph(f'<a href="{resume.linkedin}" color="white">{resume.linkedin}</a>', SI))
         
     if data["skills"]:  # pragma: no cover
         side.append(Paragraph("SKILLS", SH))
@@ -258,7 +279,7 @@ def pdf_creative(data, buffer):
     if resume.professional_title:  # pragma: no cover
         banner_els.append(Paragraph(resume.professional_title, BSU))
         
-    cl = contact_line(resume)
+    cl = contact_line_with_links(resume)
     if cl: banner_els.append(Paragraph(cl, BCO))  # pragma: no cover
 
     kif = KeepInFrame(W - 76, 110, banner_els)

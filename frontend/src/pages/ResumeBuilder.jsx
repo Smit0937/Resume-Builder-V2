@@ -2488,22 +2488,7 @@ export default function ResumeBuilder() {
   // ✅ All Hooks (useState, useEffect, useLayoutEffect) MUST come first, BEFORE functions
   // Auto-scale resume content to fit exactly one A4 page
   // c8 ignore start
-  useLayoutEffect(() => {
-    const wrapper = componentRef.current;
-    const inner = innerRef.current;
-    if (!wrapper || !inner) return;
-    inner.style.transform = '';
-    inner.style.transformOrigin = '';
-    inner.style.width = '';
-    const contentH = inner.scrollHeight;
-    const maxH = wrapper.clientHeight;
-    if (contentH > maxH) {
-      const s = maxH / contentH;
-      inner.style.transform = `scale(${s})`;
-      inner.style.transformOrigin = 'top left';
-      inner.style.width = `${100 / s}%`;
-    }
-  });
+ useLayoutEffect(() => {}, []);
   // c8 ignore stop
 
   // ✅ Fetch resume data when component mounts or id changes
@@ -3239,14 +3224,13 @@ body, html {
             style={{
               background: "#fff",
               width: "210mm",
-              height: "297mm",
-              overflow: "hidden",
+              minHeight: "297mm",  // ← minHeight instead of height
+              overflow: "visible", // ← visible instead of hidden
               boxSizing: "border-box",
               position: "relative",
               boxShadow: "0 4px 24px rgba(0,0,0,0.1)",
               WebkitPrintColorAdjust: "exact",
               printColorAdjust: "exact",
-              // Scale down for mobile
               ...(window.innerWidth <= 768 ? {
                 transform: `scale(${(window.innerWidth - 24) / 794})`,
                 transformOrigin: "top center",

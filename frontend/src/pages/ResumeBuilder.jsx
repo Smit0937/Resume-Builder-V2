@@ -2568,9 +2568,34 @@ export default function ResumeBuilder() {
     finally { setSaving(false); }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+const handlePrint = async () => {
+  try {
+    showToast("📄 Preparing PDF...");
+    const response = await fetch(`${API_URL}/api/resume/download/${id}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to download PDF");
+    }
+    
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${resume.title || "resume"}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    showToast("✅ PDF downloaded successfully!");
+  } catch (error) {
+    console.error("Download error:", error);
+    showToast("❌ Failed to download PDF");
+  }
+};
 
   const headers = { "Content-Type": "application/json" };
   const fetchOpts = { headers, credentials: "include" };

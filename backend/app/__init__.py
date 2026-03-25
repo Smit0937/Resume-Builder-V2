@@ -36,7 +36,9 @@ def create_app(test_config=None):
     
     # JWT Cookie Configuration
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "jwtsecret")
-    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies", "headers"]
+    app.config["JWT_HEADER_NAME"] = "Authorization"      # ← ADD THIS
+    app.config["JWT_HEADER_TYPE"] = "Bearer"             # ← ADD THIS
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)
     app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"

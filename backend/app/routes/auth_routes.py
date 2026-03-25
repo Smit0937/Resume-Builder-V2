@@ -142,7 +142,8 @@ def login():
             "message": "Login successful",
             "email": user.email,
             "role": user.role,
-            "user_id": user.id
+            "user_id": user.id,
+            "access_token": access_token
         }), 200)
 
         response.set_cookie(

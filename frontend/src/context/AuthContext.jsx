@@ -95,10 +95,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = (userData) => {
-    console.log('✅ Login - setting user:', userData);
-    setUser(userData);
-    localStorage.setItem('cachedUser', JSON.stringify(userData));
-  };
+  console.log('✅ Login - setting user:', userData);
+  setUser(userData);
+  localStorage.setItem('cachedUser', JSON.stringify(userData));
+  // ← Store token for iOS/Android cross-origin requests
+  if (userData.access_token) {
+    localStorage.setItem('access_token', userData.access_token);
+  }
+};
 
   const logout = async () => {
     try {
@@ -112,6 +116,7 @@ export const AuthProvider = ({ children }) => {
     console.log('🧹 LOGOUT: Clearing all local data...');
     setUser(null);
     localStorage.removeItem('cachedUser');
+    localStorage.removeItem('access_token');
     sessionStorage.clear();
     clearAllCookies();
     console.log('✅ LOGOUT: Complete - user data cleared locally');

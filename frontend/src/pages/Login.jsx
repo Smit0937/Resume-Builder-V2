@@ -23,12 +23,7 @@ export default function Login() {
 
     try {
       const data = await loginUser(form);
-      login({
-        email: data.email,
-        role: data.role,
-        user_id: data.user_id,
-        access_token: data.access_token  // ← ADD THIS
-      });
+      login(data);
 
       toast.success("Login successful!");
       navigate("/dashboard", { replace: true });

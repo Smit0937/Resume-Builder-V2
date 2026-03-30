@@ -23,6 +23,9 @@ export default function Login() {
 
     try {
       const data = await loginUser(form);
+      if (data.access_token) {
+        localStorage.setItem("access_token", data.access_token);
+      }
       login(data);
 
       toast.success("Login successful!");

@@ -1118,7 +1118,7 @@ export default function TemplateSelect() {
     return matchFilter && matchSearch;
   });
 
-  const counts = {
+  const counts = {  
     "All Templates": TEMPLATES.length,
     Simple: TEMPLATES.filter(t => t.tag === "Simple").length,
     Modern: TEMPLATES.filter(t => t.tag === "Modern").length,
@@ -1127,10 +1127,15 @@ export default function TemplateSelect() {
 
   const createWithTemplate = async (templateId, templateStyle) => {
     try {
+      // ✅ Grab the token for iOS devices
+      const token = localStorage.getItem('access_token'); 
+
       const res = await fetch(`${API_URL}/api/resume/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // ✅ Inject the Bearer token into the headers if it exists
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         credentials: "include",
         body: JSON.stringify({

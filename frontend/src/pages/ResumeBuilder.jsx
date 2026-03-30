@@ -2488,7 +2488,7 @@ export default function ResumeBuilder() {
   // ✅ All Hooks (useState, useEffect, useLayoutEffect) MUST come first, BEFORE functions
   // Auto-scale resume content to fit exactly one A4 page
   // c8 ignore start
- useLayoutEffect(() => {}, []);
+  useLayoutEffect(() => { }, []);
   // c8 ignore stop
 
   // ✅ Fetch resume data when component mounts or id changes
@@ -2546,7 +2546,12 @@ export default function ResumeBuilder() {
   const saveResume = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/api/resume/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(resume) });
+      const res = await fetch(`${API_URL}/api/resume/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeader },
+        credentials: "include",
+        body: JSON.stringify(resume)
+      });
       if (res.ok) showToast("✅ Resume saved successfully!");
       else showToast("❌ Failed to save");
     } catch { showToast("❌ Failed to save"); }
@@ -2557,7 +2562,10 @@ export default function ResumeBuilder() {
     window.print();
   };
 
-  const headers = { "Content-Type": "application/json" };
+  // ✅ Replace with this:
+  const token = localStorage.getItem('access_token');
+  const authHeader = token ? { 'Authorization': `Bearer ${token}` } : {};
+  const headers = { "Content-Type": "application/json", ...authHeader };
   const fetchOpts = { headers, credentials: "include" };
 
   const addItem = async (url, body, resetFn, type) => {

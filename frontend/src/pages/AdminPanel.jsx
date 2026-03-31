@@ -21,36 +21,23 @@ export default function AdminPanel() {
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
-  // ─── ADD THESE 3 FUNCTIONS ───
-const fetchStats = async () => {
-  try {
-    const res = await api.get("/admin/stats");
-    setStats(res.data);
-  } catch (err) { showToast("❌ Failed to load stats"); }
-};
+  const fetchStats = async () => {
+    try { const res = await api.get("/admin/stats"); setStats(res.data); }
+    catch { showToast("❌ Failed to load stats"); }
+  };
+  const fetchUsers = async () => {
+    try { const res = await api.get("/admin/users"); setUsers(res.data); }
+    catch { showToast("❌ Failed to load users"); }
+  };
+  const fetchResumes = async () => {
+    try { const res = await api.get("/admin/resumes"); setResumes(res.data); }
+    catch { showToast("❌ Failed to load resumes"); }
+  };
 
-const fetchUsers = async () => {
-  try {
-    const res = await api.get("/admin/users");
-    setUsers(res.data);
-  } catch (err) { showToast("❌ Failed to load users"); }
-};
-
-const fetchResumes = async () => {
-  try {
-    const res = await api.get("/admin/resumes");
-    setResumes(res.data);
-  } catch (err) { showToast("❌ Failed to load resumes"); }
-};
-
-  // ─── AUTH CHECK: Wait for auth to load, then verify admin role ───
   useEffect(() => {
-    if (authLoading === false && (!user || user.role !== "admin")) {
-      navigate("/dashboard");
-    }
+    if (authLoading === false && (!user || user.role !== "admin")) navigate("/dashboard");
   }, [authLoading, user, navigate]);
 
-  // ─── FETCH DATA: Only fetch if auth is complete and user is admin ───
   useEffect(() => {
     if (authLoading === false && user?.role === "admin") {
       setLoading(true);
@@ -58,21 +45,15 @@ const fetchResumes = async () => {
     }
   }, [authLoading, user]);
 
-  // ✅ SHOW NOTHING WHILE LOADING - Prevents premature redirects
-  if (authLoading) {
-    return null;
-  }
+  if (authLoading) return null;
 
-  // ─── ACTIONS ───
   const deleteUser = async (userId) => {
     try {
       const res = await api.delete(`/admin/users/${userId}`);
       showToast("✅ " + res.data.message);
       setUsers(prev => prev.filter(u => u.id !== userId));
       setResumes(prev => prev.filter(r => r.user_id !== userId));
-      setConfirmDelete(null);
-      setSelectedUser(null);
-      fetchStats();
+      setConfirmDelete(null); setSelectedUser(null); fetchStats();
     } catch (err) { showToast("❌ " + (err.response?.data?.error || "Failed to delete user")); }
   };
 
@@ -90,12 +71,10 @@ const fetchResumes = async () => {
       await api.delete(`/admin/resumes/${resumeId}`);
       showToast("✅ Resume deleted");
       setResumes(prev => prev.filter(r => r.id !== resumeId));
-      setConfirmDelete(null);
-      fetchStats();
+      setConfirmDelete(null); fetchStats();
     } catch { showToast("❌ Failed to delete resume"); }
   };
 
-  // ─── HELPERS ───
   const formatDate = (iso) => {
     if (!iso) return "—";
     return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -105,216 +84,273 @@ const fetchResumes = async () => {
     u.name.toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())
   );
-
   const filteredResumes = resumes.filter(r =>
     r.title.toLowerCase().includes(search.toLowerCase()) ||
     r.user_name.toLowerCase().includes(search.toLowerCase()) ||
     r.user_email.toLowerCase().includes(search.toLowerCase())
   );
-
   const getToggledRole = (role) => (role === "admin" ? "user" : "admin");
-
-  // ─── STYLES ───
-  const s = {
-    page: { minHeight: "100vh", background: "linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f5f3ff 100%)", fontFamily: "'Inter', system-ui, sans-serif" },
-    header: { background: "linear-gradient(135deg, #0f172a, #1e293b)", color: "#fff", padding: "0 16px", height: "auto", minHeight: 56, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 50, flexWrap: "wrap", gap: 8 },
-    headerTitle: { fontSize: 18, fontWeight: 800, display: "flex", alignItems: "center", gap: 8 },
-    headerRight: { display: "flex", alignItems: "center", gap: 8, fontSize: 13, flexWrap: "wrap", justifyContent: "flex-end" },
-    body: { maxWidth: 1200, margin: "0 auto", padding: "16px 12px" },
-    tabs: { display: "flex", gap: 4, background: "#e2e8f0", borderRadius: 10, padding: 4, marginBottom: 24, width: "fit-content", overflowX: "auto" },
-    tab: (active) => ({ padding: "8px 16px", borderRadius: 8, border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", background: active ? "#fff" : "transparent", color: active ? "#4f46e5" : "#64748b", boxShadow: active ? "0 1px 4px rgba(99,102,241,0.12)" : "none", transition: "all 0.2s ease", whiteSpace: "nowrap" }),
-    statGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 24 },
-    statCard: (color) => ({ background: "#fff", borderRadius: 14, padding: "20px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", borderLeft: `4px solid ${color}` }),
-    statNum: { fontSize: 28, fontWeight: 800, color: "#0f172a", margin: 0 },
-    statLabel: { fontSize: 12, color: "#64748b", marginTop: 4 },
-    card: { background: "#fff", borderRadius: 14, boxShadow: "0 1px 4px rgba(0,0,0,0.04)", overflow: "hidden", border: "1px solid #e2e8f0" },
-    cardHeader: { padding: "14px 12px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 },
-    cardTitle: { fontSize: 15, fontWeight: 700, color: "#0f172a" },
-    searchInput: { border: "2px solid #e2e8f0", borderRadius: 10, padding: "8px 12px", fontSize: 13, outline: "none", width: "100%", maxWidth: 300, background: "#f8fafc", transition: "all 0.2s ease", boxSizing: "border-box" },
-    table: { width: "100%", borderCollapse: "collapse", overflowX: "auto" },
-    th: { padding: "12px 8px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #f1f5f9", background: "#fafbfc" },
-    td: { padding: "12px 8px", fontSize: 13, color: "#334155", borderBottom: "1px solid #f8fafc" },
-    badge: (role) => ({ display: "inline-block", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: role === "admin" ? "#eef2ff" : "#ecfdf5", color: role === "admin" ? "#6366f1" : "#059669" }),
-    btnDanger: { background: "#fee2e2", color: "#dc2626", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease", whiteSpace: "nowrap" },
-    btnRole: { background: "#eef2ff", color: "#6366f1", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease", whiteSpace: "nowrap" },
-    btnBack: { background: "none", border: "none", color: "#6366f1", cursor: "pointer", fontSize: 13, fontWeight: 600 },
-    empty: { padding: 40, textAlign: "center", color: "#94a3b8", fontSize: 14 },
-    toast: (ok) => ({ position: "fixed", top: 70, right: 12, zIndex: 999, background: ok ? "linear-gradient(135deg, #059669, #10b981)" : "linear-gradient(135deg, #dc2626, #ef4444)", color: "#fff", padding: "12px 16px", borderRadius: 12, fontSize: 13, fontWeight: 600, boxShadow: "0 8px 24px rgba(0,0,0,0.15)", backdropFilter: "blur(8px)" }),
-    overlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 12 },
-    modal: { background: "#fff", borderRadius: 20, padding: 24, width: "100%", maxWidth: 420, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "90vh", overflowY: "auto" },
-  };
 
   if (loading) {
     return (
-      <div style={{ ...s.page, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #f1f5f9 0%, #eef2ff 50%, #f5f3ff 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', sans-serif" }}>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }`}</style>
         <div style={{ textAlign: "center" }}>
-          <div style={{ width: 40, height: 40, border: "4px solid #2563eb", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto 16px" }} />
-          <p style={{ color: "#64748b", fontSize: 14 }}>Loading admin panel...</p>
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <div style={{ width: 52, height: 52, border: "4px solid rgba(99,102,241,0.2)", borderTopColor: "#6366f1", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 20px" }} />
+          <p style={{ color: "#6366f1", fontSize: 15, fontWeight: 600, animation: "pulse 1.5s ease infinite" }}>Loading admin panel...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={s.page}>
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #f1f5f9 0%, #eef2ff 60%, #f5f3ff 100%)", fontFamily: "'Inter', sans-serif", position: "relative" }}>
       <style>{`
-  @keyframes spin { to { transform: rotate(360deg); } }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-  @media (max-width: 768px) {
-    /* ── Header ── */
-    .admin-header {
-      padding: 10px 12px !important;
-      min-height: 52px !important;
-      flex-wrap: nowrap !important;
-      gap: 6px !important;
-    }
-    .admin-header-title {
-      font-size: 15px !important;
-      white-space: nowrap;
-    }
-    .admin-header-right {
-      gap: 6px !important;
-      flex-wrap: nowrap !important;
-      justify-content: flex-end !important;
-    }
-    .admin-header-right span {
-      display: none !important;
-    }
-    .admin-header-right button {
-      padding: 6px 12px !important;
-      font-size: 12px !important;
-      white-space: nowrap;
-      border-radius: 8px !important;
-    }
+        * { box-sizing: border-box; }
 
-    /* ── Body ── */
-    .admin-body {
-      padding: 12px 10px !important;
-    }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeInDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes slideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes toastIn { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        @keyframes scaleIn { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 
-    /* ── Tabs ── */
-    .admin-tabs {
-      width: 100% !important;
-      display: flex !important;
-    }
-    .admin-tabs button {
-      flex: 1 !important;
-      text-align: center !important;
-      padding: 8px 6px !important;
-      font-size: 12px !important;
-    }
+        .admin-page { animation: fadeInUp 0.4s ease; }
 
-    /* ── Stat cards — 2 column grid on mobile ── */
-    .admin-stat-grid {
-      grid-template-columns: 1fr 1fr !important;
-      gap: 10px !important;
-    }
+        /* Glassmorphism card */
+        .glass-card {
+          background: rgba(255,255,255,0.72);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.9);
+          box-shadow: 0 4px 24px rgba(99,102,241,0.06), 0 1px 2px rgba(0,0,0,0.04);
+          border-radius: 20px;
+          transition: box-shadow 0.25s ease, transform 0.2s ease;
+        }
+        .glass-card:hover {
+          box-shadow: 0 8px 32px rgba(99,102,241,0.12), 0 2px 4px rgba(0,0,0,0.06);
+        }
 
-    /* ── Recent grid — stack on mobile ── */
-    .admin-recent-grid {
-      grid-template-columns: 1fr !important;
-      gap: 12px !important;
-    }
+        /* Stat card hover */
+        .stat-card {
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          cursor: default;
+          animation: fadeInUp 0.5s ease both;
+        }
+        .stat-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 16px 40px rgba(99,102,241,0.15) !important;
+        }
 
-    /* ── Tables ── */
-    .admin-table-wrapper {
-      overflow-x: auto !important;
-      -webkit-overflow-scrolling: touch !important;
-      border-radius: 0 0 14px 14px;
-    }
-    .admin-table {
-      min-width: 520px !important;
-    }
-    .admin-table th {
-      padding: 10px 8px !important;
-      font-size: 10px !important;
-    }
-    .admin-table td {
-      padding: 10px 8px !important;
-      font-size: 12px !important;
-    }
+        /* Table row hover */
+        .admin-row {
+          transition: background 0.15s ease;
+        }
+        .admin-row:hover {
+          background: rgba(99,102,241,0.04) !important;
+        }
 
-    /* ── Action buttons ── */
-    .admin-actions {
-      display: flex !important;
-      gap: 4px !important;
-      flex-direction: row !important;
-      flex-wrap: wrap !important;
-    }
-    .admin-actions button {
-      padding: 4px 8px !important;
-      font-size: 11px !important;
-    }
+        /* Button hover effects */
+        .btn-role:hover { background: #e0e7ff !important; transform: scale(1.04); }
+        .btn-danger:hover { background: #fecaca !important; transform: scale(1.04); }
+        .btn-back:hover { color: #4f46e5 !important; }
+        .btn-primary:hover { opacity: 0.9; transform: scale(1.02); }
 
-    /* ── User detail ── */
-    .admin-user-detail-grid {
-      grid-template-columns: 1fr 1fr !important;
-    }
-    .admin-user-detail-actions {
-      flex-direction: column !important;
-      gap: 6px !important;
-      align-items: flex-end !important;
-    }
-    .admin-user-detail-actions button {
-      width: auto !important;
-    }
-  }
+        /* Tab button */
+        .admin-tab {
+          padding: 9px 22px;
+          border-radius: 12px;
+          border: none;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.25s ease;
+          white-space: nowrap;
+          letter-spacing: 0.01em;
+        }
+        .admin-tab:hover { transform: translateY(-1px); }
+        .admin-tab.active {
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          color: #fff;
+          box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+        }
+        .admin-tab.inactive {
+          background: transparent;
+          color: #64748b;
+        }
+        .admin-tab.inactive:hover {
+          background: rgba(99,102,241,0.07);
+          color: #6366f1;
+        }
 
-  @media (max-width: 480px) {
-    /* ── Header email hidden, just show icon title ── */
-    .admin-header-title {
-      font-size: 14px !important;
-    }
+        /* Search input */
+        .admin-search:focus {
+          border-color: #818cf8 !important;
+          box-shadow: 0 0 0 3px rgba(129,140,248,0.15) !important;
+          background: #fff !important;
+          outline: none;
+        }
 
-    /* ── Stat cards — single column on very small ── */
-    .admin-stat-grid {
-      grid-template-columns: 1fr !important;
-    }
-    .admin-stat-num {
-      font-size: 26px !important;
-    }
-    .admin-stat-label {
-      font-size: 11px !important;
-    }
+        /* Orbs background */
+        .orb {
+          position: fixed;
+          border-radius: 50%;
+          filter: blur(80px);
+          opacity: 0.3;
+          pointer-events: none;
+          z-index: 0;
+          animation: float 8s ease-in-out infinite;
+        }
 
-    /* ── User detail grid ── */
-    .admin-user-detail-grid {
-      grid-template-columns: 1fr !important;
-    }
-  }
-`}</style>
+        /* Badge */
+        .role-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+        }
+
+        /* Modal animation */
+        .modal-inner { animation: scaleIn 0.25s ease; }
+
+        @media (max-width: 768px) {
+          .admin-header { padding: 10px 14px !important; min-height: 52px !important; }
+          .admin-header-title { font-size: 16px !important; }
+          .admin-header-email { display: none !important; }
+          .admin-header-right button { padding: 6px 12px !important; font-size: 12px !important; }
+          .admin-body { padding: 14px 10px !important; }
+          .admin-tabs-wrap { width: 100% !important; }
+          .admin-tab { flex: 1; text-align: center; padding: 8px 8px !important; font-size: 12px !important; }
+          .admin-stat-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+          .admin-recent-grid { grid-template-columns: 1fr !important; }
+          .admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .admin-table { min-width: 520px; }
+          .admin-user-detail-grid { grid-template-columns: 1fr 1fr !important; }
+          .admin-actions { flex-wrap: wrap; gap: 4px; }
+          .admin-actions button { padding: 4px 8px !important; font-size: 11px !important; }
+          .orb { display: none; }
+        }
+
+        @media (max-width: 480px) {
+          .admin-stat-grid { grid-template-columns: 1fr !important; }
+          .admin-user-detail-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+
+      {/* Background orbs */}
+      <div className="orb" style={{ width: 500, height: 500, background: "radial-gradient(circle, #6366f1, transparent)", top: -100, right: -100, animationDelay: "0s" }} />
+      <div className="orb" style={{ width: 400, height: 400, background: "radial-gradient(circle, #8b5cf6, transparent)", bottom: 100, left: -80, animationDelay: "3s" }} />
+      <div className="orb" style={{ width: 300, height: 300, background: "radial-gradient(circle, #06b6d4, transparent)", top: "40%", left: "40%", animationDelay: "5s" }} />
+
       {/* ─── HEADER ─── */}
-      <header style={s.header} className="admin-header">
-        <div style={s.headerTitle} className="admin-header-title">🛡️ Admin Panel</div>
-        <div style={s.headerRight} className="admin-header-right">
-          <span style={{ opacity: 0.7 }}>{user?.email}</span>
-          <button onClick={() => navigate("/dashboard")} style={{ background: "#1e293b", color: "#94a3b8", border: "1px solid #334155", borderRadius: 6, padding: "5px 12px", fontSize: 12, cursor: "pointer" }}>
-            ← Dashboard
+      <header className="admin-header" style={{
+        background: "rgba(255,255,255,0.7)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderBottom: "1px solid rgba(226,232,240,0.8)",
+        padding: "0 24px",
+        height: 62,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        position: "sticky",
+        top: 0,
+        zIndex: 50,
+        animation: "fadeInDown 0.4s ease",
+      }}>
+        <div className="admin-header-title" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 18, boxShadow: "0 4px 12px rgba(99,102,241,0.35)"
+          }}>🛡️</div>
+          <div>
+            <div style={{ fontSize: 17, fontWeight: 800, color: "#0f172a", lineHeight: 1.1 }}>Admin Panel</div>
+            <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>Resume Builder</div>
+          </div>
+        </div>
+        <div className="admin-header-right" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span className="admin-header-email" style={{ fontSize: 13, color: "#64748b", fontWeight: 500, background: "rgba(99,102,241,0.07)", padding: "5px 12px", borderRadius: 20, border: "1px solid rgba(99,102,241,0.12)" }}>
+            {user?.email}
+          </span>
+          <button onClick={() => navigate("/dashboard")} style={{
+            background: "rgba(241,245,249,0.9)", color: "#64748b", border: "1px solid #e2e8f0",
+            borderRadius: 10, padding: "7px 14px", fontSize: 13, fontWeight: 600,
+            cursor: "pointer", transition: "all 0.2s ease", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background = "#eef2ff"; e.currentTarget.style.color = "#6366f1"; e.currentTarget.style.borderColor = "#c7d2fe"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "rgba(241,245,249,0.9)"; e.currentTarget.style.color = "#64748b"; e.currentTarget.style.borderColor = "#e2e8f0"; }}
+          >
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Dashboard
           </button>
-          <button onClick={() => { logout(); navigate("/login"); }} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 6, padding: "5px 12px", fontSize: 12, cursor: "pointer" }}>
+          <button onClick={() => { logout(); navigate("/login"); }} style={{
+            background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "#fff", border: "none",
+            borderRadius: 10, padding: "7px 14px", fontSize: 13, fontWeight: 600,
+            cursor: "pointer", transition: "all 0.2s ease", fontFamily: "inherit",
+            boxShadow: "0 2px 8px rgba(239,68,68,0.3)"
+          }}>
             Logout
           </button>
         </div>
       </header>
 
       {/* ─── TOAST ─── */}
-      {toast && <div style={s.toast(toast.startsWith("✅"))}>{toast}</div>}
+      {toast && (
+        <div style={{
+          position: "fixed", top: 76, right: 20, zIndex: 999,
+          background: toast.startsWith("✅")
+            ? "linear-gradient(135deg, #059669, #10b981)"
+            : "linear-gradient(135deg, #dc2626, #ef4444)",
+          color: "#fff", padding: "13px 20px", borderRadius: 14, fontSize: 14, fontWeight: 600,
+          boxShadow: "0 8px 28px rgba(0,0,0,0.18)",
+          animation: "toastIn 0.3s ease",
+          backdropFilter: "blur(8px)", display: "flex", alignItems: "center", gap: 8
+        }}>
+          {toast}
+        </div>
+      )}
 
       {/* ─── CONFIRM DELETE MODAL ─── */}
       {confirmDelete && (
-        <div style={s.overlay} onClick={() => setConfirmDelete(null)}>
-          <div style={s.modal} onClick={e => e.stopPropagation()}>
-            <h3 style={{ margin: "0 0 8px", fontSize: 18, fontWeight: 800, color: "#dc2626" }}>⚠️ Confirm Delete</h3>
-            <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.6, margin: "0 0 24px" }}>
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(15,23,42,0.5)",
+          backdropFilter: "blur(6px)", display: "flex", alignItems: "center",
+          justifyContent: "center", zIndex: 100, padding: 16
+        }} onClick={() => setConfirmDelete(null)}>
+          <div className="modal-inner" onClick={e => e.stopPropagation()} style={{
+            background: "rgba(255,255,255,0.95)", backdropFilter: "blur(20px)",
+            borderRadius: 24, padding: 32, width: "100%", maxWidth: 440,
+            boxShadow: "0 24px 64px rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.9)"
+          }}>
+            <div style={{ width: 52, height: 52, borderRadius: 16, background: "linear-gradient(135deg, #fee2e2, #fecaca)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 16 }}>⚠️</div>
+            <h3 style={{ margin: "0 0 10px", fontSize: 20, fontWeight: 800, color: "#0f172a" }}>Confirm Delete</h3>
+            <p style={{ color: "#64748b", fontSize: 14, lineHeight: 1.7, margin: "0 0 28px" }}>
               {confirmDelete.type === "user"
-                ? `This will permanently delete user "${confirmDelete.name}" and ALL their resumes, experiences, education, skills, projects, and certifications.`
+                ? `This will permanently delete user "${confirmDelete.name}" and ALL their resumes and data.`
                 : `This will permanently delete resume "${confirmDelete.name}" and all its data.`}
             </p>
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button onClick={() => setConfirmDelete(null)} style={{ background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+              <button onClick={() => setConfirmDelete(null)} style={{
+                background: "#f1f5f9", color: "#475569", border: "1.5px solid #e2e8f0",
+                borderRadius: 12, padding: "10px 22px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit"
+              }}>Cancel</button>
               <button onClick={() => confirmDelete.type === "user" ? deleteUser(confirmDelete.id) : deleteResume(confirmDelete.id)}
-                style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                style={{
+                  background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "#fff", border: "none",
+                  borderRadius: 12, padding: "10px 22px", fontSize: 13, fontWeight: 600,
+                  cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 12px rgba(239,68,68,0.3)"
+                }}>
                 Delete Forever
               </button>
             </div>
@@ -323,113 +359,139 @@ const fetchResumes = async () => {
       )}
 
       {/* ─── BODY ─── */}
-      <div style={s.body} className="admin-body">
-        <div style={s.tabs} className="admin-tabs">
+      <div className="admin-body admin-page" style={{ maxWidth: 1260, margin: "0 auto", padding: "28px 20px", position: "relative", zIndex: 1 }}>
+
+        {/* Tabs */}
+        <div className="admin-tabs-wrap" style={{ display: "flex", gap: 4, background: "rgba(255,255,255,0.6)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderRadius: 16, padding: 5, marginBottom: 28, width: "fit-content", border: "1px solid rgba(255,255,255,0.9)", boxShadow: "0 2px 12px rgba(99,102,241,0.08)" }}>
           {TABS.map((tab, i) => (
-            <button key={tab} onClick={() => { setActiveTab(i); setSearch(""); setSelectedUser(null); }} style={s.tab(activeTab === i)}>{tab}</button>
+            <button key={tab} onClick={() => { setActiveTab(i); setSearch(""); setSelectedUser(null); }}
+              className={`admin-tab ${activeTab === i ? "active" : "inactive"}`}>
+              {i === 0 ? "📊 " : i === 1 ? "👥 " : "📄 "}{tab}
+            </button>
           ))}
         </div>
 
         {/* ════════ DASHBOARD TAB ════════ */}
         {activeTab === 0 && stats && (
-          <div>
+          <div style={{ animation: "fadeInUp 0.4s ease" }}>
             {/* Stat Cards */}
-            <div style={s.statGrid} className="admin-stat-grid">
-              <div style={s.statCard("#6366f1")}>
-                <p style={s.statNum} className="admin-stat-num">{stats.total_users}</p>
-                <p style={s.statLabel} className="admin-stat-label">Total Users</p>
-              </div>
-              <div style={s.statCard("#10b981")}>
-                <p style={s.statNum} className="admin-stat-num">{stats.total_resumes}</p>
-                <p style={s.statLabel} className="admin-stat-label">Total Resumes</p>
-              </div>
-              <div style={s.statCard("#8b5cf6")}>
-                <p style={s.statNum} className="admin-stat-num">{stats.total_admins}</p>
-                <p style={s.statLabel} className="admin-stat-label">Admin Users</p>
-              </div>
+            <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18, marginBottom: 28 }}>
+              {[
+                { label: "Total Users", value: stats.total_users, icon: "👥", color: "#6366f1", bg: "linear-gradient(135deg, #eef2ff, #e0e7ff)", delay: "0s" },
+                { label: "Total Resumes", value: stats.total_resumes, icon: "📄", color: "#059669", bg: "linear-gradient(135deg, #ecfdf5, #d1fae5)", delay: "0.08s" },
+                { label: "Admin Users", value: stats.total_admins, icon: "🛡️", color: "#8b5cf6", bg: "linear-gradient(135deg, #f5f3ff, #ede9fe)", delay: "0.16s" },
+              ].map(({ label, value, icon, color, bg, delay }) => (
+                <div key={label} className="stat-card glass-card" style={{ padding: "26px 24px", animationDelay: delay }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div>
+                      <div style={{ fontSize: 38, fontWeight: 900, color, letterSpacing: "-0.02em", lineHeight: 1 }}>{value}</div>
+                      <div style={{ fontSize: 13, color: "#64748b", marginTop: 6, fontWeight: 500 }}>{label}</div>
+                    </div>
+                    <div style={{ width: 52, height: 52, borderRadius: 16, background: bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, border: `1px solid ${color}20` }}>{icon}</div>
+                  </div>
+                  <div style={{ marginTop: 18, height: 4, borderRadius: 4, background: `${color}20` }}>
+                    <div style={{ height: "100%", borderRadius: 4, background: `linear-gradient(90deg, ${color}, ${color}99)`, width: "70%" }} />
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* Recent Users & Resumes side by side */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="admin-recent-grid">
-              <div style={s.card}>
-                <div style={s.cardHeader}><span style={s.cardTitle}>Recent Users</span></div>
-                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="admin-table-wrapper">
-                  <table style={s.table} className="admin-table">
-                    <thead><tr><th style={s.th}>Name</th><th style={s.th}>Email</th><th style={s.th}>Joined</th></tr></thead>
-                    <tbody>
-                      {stats.recent_users.map(u => (
-                        <tr key={u.id}>
-                          <td style={s.td}><span style={{ fontWeight: 600 }}>{u.name}</span></td>
-                          <td style={s.td}>{u.email}</td>
-                          <td style={s.td}>{formatDate(u.created_at)}</td>
+            {/* Recent Users & Resumes */}
+            <div className="admin-recent-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+              {[
+                { title: "Recent Users", cols: ["Name", "Email", "Joined"], rows: stats.recent_users, renderRow: u => [<span style={{ fontWeight: 700 }}>{u.name}</span>, u.email, formatDate(u.created_at)] },
+                { title: "Recent Resumes", cols: ["Title", "Template", "Created"], rows: stats.recent_resumes, renderRow: r => [<span style={{ fontWeight: 700 }}>{r.title}</span>, r.template_name, formatDate(r.created_at)] },
+              ].map(({ title, cols, rows, renderRow }) => (
+                <div key={title} className="glass-card" style={{ overflow: "hidden" }}>
+                  <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(226,232,240,0.6)", display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }} />
+                    <span style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>{title}</span>
+                  </div>
+                  <div className="admin-table-wrap">
+                    <table style={{ width: "100%", borderCollapse: "collapse" }} className="admin-table">
+                      <thead>
+                        <tr style={{ background: "rgba(248,250,252,0.8)" }}>
+                          {cols.map(c => <th key={c} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1px solid rgba(226,232,240,0.5)" }}>{c}</th>)}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {rows.map((row, i) => (
+                          <tr key={i} className="admin-row">
+                            {renderRow(row).map((cell, j) => (
+                              <td key={j} style={{ padding: "12px 16px", fontSize: 13, color: "#334155", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>{cell}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-              <div style={s.card}>
-                <div style={s.cardHeader}><span style={s.cardTitle}>Recent Resumes</span></div>
-                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="admin-table-wrapper">
-                  <table style={s.table} className="admin-table">
-                    <thead><tr><th style={s.th}>Title</th><th style={s.th}>Template</th><th style={s.th}>Created</th></tr></thead>
-                    <tbody>
-                      {stats.recent_resumes.map(r => (
-                        <tr key={r.id}>
-                          <td style={s.td}><span style={{ fontWeight: 600 }}>{r.title}</span></td>
-                          <td style={s.td}>{r.template_name}</td>
-                          <td style={s.td}>{formatDate(r.created_at)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         )}
 
         {/* ════════ USERS TAB ════════ */}
         {activeTab === 1 && !selectedUser && (
-          <div style={s.card}>
-            <div style={s.cardHeader}>
-              <span style={s.cardTitle}>All Users ({filteredUsers.length})</span>
-              <input style={s.searchInput} placeholder="🔍 Search by name or email..." value={search} onChange={e => setSearch(e.target.value)} />
+          <div className="glass-card" style={{ overflow: "hidden", animation: "fadeInUp 0.4s ease" }}>
+            <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(226,232,240,0.6)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }} />
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>All Users</span>
+                <span style={{ background: "linear-gradient(135deg, #eef2ff, #e0e7ff)", color: "#6366f1", fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 20 }}>{filteredUsers.length}</span>
+              </div>
+              <input className="admin-search" value={search} onChange={e => setSearch(e.target.value)}
+                placeholder="🔍  Search by name or email..."
+                style={{ border: "1.5px solid #e2e8f0", borderRadius: 12, padding: "9px 14px", fontSize: 13, background: "rgba(248,250,252,0.8)", width: "100%", maxWidth: 300, fontFamily: "inherit", transition: "all 0.2s" }}
+              />
             </div>
             {filteredUsers.length === 0 ? (
-              <div style={s.empty}>No users found</div>
+              <div style={{ padding: 48, textAlign: "center", color: "#94a3b8", fontSize: 14 }}>
+                <div style={{ fontSize: 36, marginBottom: 12 }}>🔍</div>
+                No users found
+              </div>
             ) : (
-              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="admin-table-wrapper">
-                <table style={s.table} className="admin-table">
+              <div className="admin-table-wrap">
+                <table style={{ width: "100%", borderCollapse: "collapse" }} className="admin-table">
                   <thead>
-                    <tr>
-                      <th style={s.th}>ID</th>
-                      <th style={s.th}>Name</th>
-                      <th style={s.th}>Email</th>
-                      <th style={s.th}>Role</th>
-                      <th style={s.th}>Resumes</th>
-                      <th style={s.th}>Joined</th>
-                      <th style={s.th}>Actions</th>
+                    <tr style={{ background: "rgba(248,250,252,0.8)" }}>
+                      {["ID", "Name", "Email", "Role", "Resumes", "Joined", "Actions"].map(h => (
+                        <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1px solid rgba(226,232,240,0.5)", whiteSpace: "nowrap" }}>{h}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
                     {filteredUsers.map(u => (
-                      <tr key={u.id} style={{ cursor: "pointer" }} onClick={() => setSelectedUser(u)}>
-                        <td style={s.td}>{u.id}</td>
-                        <td style={s.td}><span style={{ fontWeight: 600 }}>{u.name}</span></td>
-                        <td style={s.td}>{u.email}</td>
-                        <td style={s.td}><span style={s.badge(u.role)}>{u.role}</span></td>
-                        <td style={s.td}>{u.resume_count}</td>
-                        <td style={s.td}>{formatDate(u.created_at)}</td>
-                        <td style={s.td} onClick={e => e.stopPropagation()}>
-                          <div style={{ display: "flex", gap: 4 }} className="admin-actions">
-                            <button style={s.btnRole}
-                              onClick={() => changeRole(u.id, getToggledRole(u.role))}>
+                      <tr key={u.id} className="admin-row" style={{ cursor: "pointer" }} onClick={() => setSelectedUser(u)}>
+                        <td style={{ padding: "13px 16px", fontSize: 13, color: "#94a3b8", borderBottom: "1px solid rgba(241,245,249,0.8)", fontWeight: 600 }}>{u.id}</td>
+                        <td style={{ padding: "13px 16px", fontSize: 13, color: "#0f172a", borderBottom: "1px solid rgba(241,245,249,0.8)", fontWeight: 700 }}>{u.name}</td>
+                        <td style={{ padding: "13px 16px", fontSize: 13, color: "#64748b", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>{u.email}</td>
+                        <td style={{ padding: "13px 16px", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>
+                          <span className="role-badge" style={{
+                            background: u.role === "admin" ? "linear-gradient(135deg, #eef2ff, #e0e7ff)" : "linear-gradient(135deg, #ecfdf5, #d1fae5)",
+                            color: u.role === "admin" ? "#6366f1" : "#059669",
+                            border: `1px solid ${u.role === "admin" ? "#c7d2fe" : "#a7f3d0"}`
+                          }}>
+                            {u.role === "admin" ? "🛡️" : "👤"} {u.role}
+                          </span>
+                        </td>
+                        <td style={{ padding: "13px 16px", fontSize: 13, color: "#334155", borderBottom: "1px solid rgba(241,245,249,0.8)", fontWeight: 600 }}>{u.resume_count}</td>
+                        <td style={{ padding: "13px 16px", fontSize: 13, color: "#64748b", borderBottom: "1px solid rgba(241,245,249,0.8)", whiteSpace: "nowrap" }}>{formatDate(u.created_at)}</td>
+                        <td style={{ padding: "13px 16px", borderBottom: "1px solid rgba(241,245,249,0.8)" }} onClick={e => e.stopPropagation()}>
+                          <div className="admin-actions" style={{ display: "flex", gap: 6 }}>
+                            <button className="btn-role" onClick={() => changeRole(u.id, getToggledRole(u.role))} style={{
+                              background: "linear-gradient(135deg, #eef2ff, #e0e7ff)", color: "#6366f1",
+                              border: "1px solid #c7d2fe", borderRadius: 8, padding: "5px 11px",
+                              fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.18s ease"
+                            }}>
                               {u.role === "admin" ? "→ User" : "→ Admin"}
                             </button>
-                            <button style={s.btnDanger}
-                              onClick={() => setConfirmDelete({ type: "user", id: u.id, name: u.name })}>
-                              Delete
+                            <button className="btn-danger" onClick={() => setConfirmDelete({ type: "user", id: u.id, name: u.name })} style={{
+                              background: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#dc2626",
+                              border: "1px solid #fca5a5", borderRadius: 8, padding: "5px 11px",
+                              fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.18s ease"
+                            }}>
+                              🗑️ Delete
                             </button>
                           </div>
                         </td>
@@ -444,108 +506,160 @@ const fetchResumes = async () => {
 
         {/* ════════ USER DETAIL VIEW ════════ */}
         {activeTab === 1 && selectedUser && (
-          <div>
-            <button style={s.btnBack} onClick={() => setSelectedUser(null)}>← Back to Users</button>
-            <div style={{ ...s.card, marginTop: 12 }}>
-              <div style={{ padding: 24 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-                  <div>
-                    <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{selectedUser.name}</h2>
-                    <p style={{ margin: 0, color: "#64748b", fontSize: 14 }}>{selectedUser.email}</p>
+          <div style={{ animation: "fadeInUp 0.35s ease" }}>
+            <button className="btn-back" onClick={() => setSelectedUser(null)} style={{
+              background: "rgba(255,255,255,0.7)", color: "#6366f1", border: "1.5px solid #c7d2fe",
+              borderRadius: 10, padding: "7px 16px", fontSize: 13, fontWeight: 600,
+              cursor: "pointer", fontFamily: "inherit", marginBottom: 16, display: "flex", alignItems: "center", gap: 6,
+              backdropFilter: "blur(8px)", transition: "all 0.2s"
+            }}>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+              Back to Users
+            </button>
+            <div className="glass-card" style={{ overflow: "hidden" }}>
+              {/* User header */}
+              <div style={{ padding: "28px 28px 24px", background: "linear-gradient(135deg, rgba(99,102,241,0.06), rgba(139,92,246,0.04))", borderBottom: "1px solid rgba(226,232,240,0.6)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 18, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 800, color: "#fff", boxShadow: "0 4px 16px rgba(99,102,241,0.35)" }}>
+                      {selectedUser.name?.[0]?.toUpperCase()}
+                    </div>
+                    <div>
+                      <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{selectedUser.name}</h2>
+                      <p style={{ margin: 0, color: "#64748b", fontSize: 14 }}>{selectedUser.email}</p>
+                    </div>
                   </div>
-                  <div style={{ display: "flex", gap: 8 }} className="admin-user-detail-actions">
-                    <span style={s.badge(selectedUser.role)}>{selectedUser.role}</span>
-                    <button style={s.btnRole}
-                      onClick={() => { changeRole(selectedUser.id, getToggledRole(selectedUser.role)); setSelectedUser(prev => ({ ...prev, role: getToggledRole(prev.role) })); }}>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                    <span className="role-badge" style={{
+                      background: selectedUser.role === "admin" ? "linear-gradient(135deg, #eef2ff, #e0e7ff)" : "linear-gradient(135deg, #ecfdf5, #d1fae5)",
+                      color: selectedUser.role === "admin" ? "#6366f1" : "#059669",
+                      border: `1px solid ${selectedUser.role === "admin" ? "#c7d2fe" : "#a7f3d0"}`,
+                      fontSize: 13, padding: "6px 14px"
+                    }}>
+                      {selectedUser.role === "admin" ? "🛡️ Admin" : "👤 User"}
+                    </span>
+                    <button className="btn-role" onClick={() => { changeRole(selectedUser.id, getToggledRole(selectedUser.role)); setSelectedUser(prev => ({ ...prev, role: getToggledRole(prev.role) })); }}
+                      style={{ background: "linear-gradient(135deg, #eef2ff, #e0e7ff)", color: "#6366f1", border: "1.5px solid #c7d2fe", borderRadius: 10, padding: "8px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.18s" }}>
                       {selectedUser.role === "admin" ? "Demote to User" : "Promote to Admin"}
+                    </button>
+                    <button className="btn-danger" onClick={() => setConfirmDelete({ type: "user", id: selectedUser.id, name: selectedUser.name })}
+                      style={{ background: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#dc2626", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "8px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.18s" }}>
+                      🗑️ Delete User
                     </button>
                   </div>
                 </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }} className="admin-user-detail-grid">
-                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
-                    <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>User ID</p>
-                    <p style={{ margin: "4px 0 0", fontWeight: 700, fontSize: 16 }}>{selectedUser.id}</p>
-                  </div>
-                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
-                    <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Total Resumes</p>
-                    <p style={{ margin: "4px 0 0", fontWeight: 700, fontSize: 16 }}>{selectedUser.resume_count}</p>
-                  </div>
-                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: 16 }}>
-                    <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Joined</p>
-                    <p style={{ margin: "4px 0 0", fontWeight: 700, fontSize: 16 }}>{formatDate(selectedUser.created_at)}</p>
-                  </div>
-                </div>
-
-                <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12 }}>Resumes by this user</h3>
-                {resumes.filter(r => r.user_id === selectedUser.id).length === 0 ? (
-                  <div style={s.empty}>No resumes</div>
-                ) : (
-                  <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="admin-table-wrapper">
-                    <table style={s.table} className="admin-table">
-                      <thead><tr><th style={s.th}>ID</th><th style={s.th}>Title</th><th style={s.th}>Template</th><th style={s.th}>Created</th><th style={s.th}>Actions</th></tr></thead>
-                      <tbody>
-                        {resumes.filter(r => r.user_id === selectedUser.id).map(r => (
-                          <tr key={r.id}>
-                            <td style={s.td}>{r.id}</td>
-                            <td style={s.td}><span style={{ fontWeight: 600 }}>{r.title}</span></td>
-                            <td style={s.td}>{r.template_name}</td>
-                            <td style={s.td}>{formatDate(r.created_at)}</td>
-                            <td style={s.td} onClick={e => e.stopPropagation()}>
-                              <div style={{ display: "flex", gap: 4 }} className="admin-actions">
-                                <button style={s.btnDanger} onClick={() => setConfirmDelete({ type: "resume", id: r.id, name: r.title })}>Delete</button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
               </div>
+
+              {/* Stats row */}
+              <div className="admin-user-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 0, borderBottom: "1px solid rgba(226,232,240,0.6)" }}>
+                {[
+                  { label: "User ID", value: `#${selectedUser.id}`, icon: "🆔" },
+                  { label: "Total Resumes", value: selectedUser.resume_count, icon: "📄" },
+                  { label: "Member Since", value: formatDate(selectedUser.created_at), icon: "📅" },
+                ].map(({ label, value, icon }, i) => (
+                  <div key={label} style={{ padding: "20px 24px", borderRight: i < 2 ? "1px solid rgba(226,232,240,0.6)" : "none", textAlign: "center" }}>
+                    <div style={{ fontSize: 22, marginBottom: 6 }}>{icon}</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a" }}>{value}</div>
+                    <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2, fontWeight: 500 }}>{label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Resumes table */}
+              <div style={{ padding: "20px 24px 0" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#6366f1" }} />
+                  <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0, color: "#0f172a" }}>Resumes by this user</h3>
+                </div>
+              </div>
+              {resumes.filter(r => r.user_id === selectedUser.id).length === 0 ? (
+                <div style={{ padding: "28px 24px 32px", textAlign: "center", color: "#94a3b8", fontSize: 14 }}>
+                  <div style={{ fontSize: 32, marginBottom: 10 }}>📭</div>
+                  No resumes yet
+                </div>
+              ) : (
+                <div className="admin-table-wrap">
+                  <table style={{ width: "100%", borderCollapse: "collapse" }} className="admin-table">
+                    <thead>
+                      <tr style={{ background: "rgba(248,250,252,0.8)" }}>
+                        {["ID", "Title", "Template", "Style", "Created", "Actions"].map(h => (
+                          <th key={h} style={{ padding: "11px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", borderTop: "1px solid rgba(226,232,240,0.5)", borderBottom: "1px solid rgba(226,232,240,0.5)" }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {resumes.filter(r => r.user_id === selectedUser.id).map(r => (
+                        <tr key={r.id} className="admin-row">
+                          <td style={{ padding: "12px 16px", fontSize: 13, color: "#94a3b8", fontWeight: 600, borderBottom: "1px solid rgba(241,245,249,0.8)" }}>{r.id}</td>
+                          <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 700, color: "#0f172a", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>{r.title}</td>
+                          <td style={{ padding: "12px 16px", fontSize: 13, color: "#64748b", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>{r.template_name}</td>
+                          <td style={{ padding: "12px 16px", fontSize: 13, color: "#64748b", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>{r.template_style || "—"}</td>
+                          <td style={{ padding: "12px 16px", fontSize: 13, color: "#64748b", borderBottom: "1px solid rgba(241,245,249,0.8)", whiteSpace: "nowrap" }}>{formatDate(r.created_at)}</td>
+                          <td style={{ padding: "12px 16px", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>
+                            <button className="btn-danger" onClick={() => setConfirmDelete({ type: "resume", id: r.id, name: r.title })}
+                              style={{ background: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, padding: "5px 11px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.18s" }}>
+                              🗑️ Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <div style={{ height: 8 }} />
             </div>
           </div>
         )}
 
         {/* ════════ RESUMES TAB ════════ */}
         {activeTab === 2 && (
-          <div style={s.card}>
-            <div style={s.cardHeader}>
-              <span style={s.cardTitle}>All Resumes ({filteredResumes.length})</span>
-              <input style={s.searchInput} placeholder="🔍 Search by title, user name or email..." value={search} onChange={e => setSearch(e.target.value)} />
+          <div className="glass-card" style={{ overflow: "hidden", animation: "fadeInUp 0.4s ease" }}>
+            <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(226,232,240,0.6)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }} />
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>All Resumes</span>
+                <span style={{ background: "linear-gradient(135deg, #eef2ff, #e0e7ff)", color: "#6366f1", fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 20 }}>{filteredResumes.length}</span>
+              </div>
+              <input className="admin-search" value={search} onChange={e => setSearch(e.target.value)}
+                placeholder="🔍  Search by title, name or email..."
+                style={{ border: "1.5px solid #e2e8f0", borderRadius: 12, padding: "9px 14px", fontSize: 13, background: "rgba(248,250,252,0.8)", width: "100%", maxWidth: 340, fontFamily: "inherit", transition: "all 0.2s" }}
+              />
             </div>
             {filteredResumes.length === 0 ? (
-              <div style={s.empty}>No resumes found</div>
+              <div style={{ padding: 48, textAlign: "center", color: "#94a3b8", fontSize: 14 }}>
+                <div style={{ fontSize: 36, marginBottom: 12 }}>📭</div>
+                No resumes found
+              </div>
             ) : (
-              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="admin-table-wrapper">
-                <table style={s.table} className="admin-table">
+              <div className="admin-table-wrap">
+                <table style={{ width: "100%", borderCollapse: "collapse" }} className="admin-table">
                   <thead>
-                    <tr>
-                      <th style={s.th}>ID</th>
-                      <th style={s.th}>Title</th>
-                      <th style={s.th}>Owner</th>
-                      <th style={s.th}>Template</th>
-                      <th style={s.th}>Style</th>
-                      <th style={s.th}>Created</th>
-                      <th style={s.th}>Actions</th>
+                    <tr style={{ background: "rgba(248,250,252,0.8)" }}>
+                      {["ID", "Title", "Owner", "Template", "Style", "Created", "Actions"].map(h => (
+                        <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1px solid rgba(226,232,240,0.5)", whiteSpace: "nowrap" }}>{h}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
                     {filteredResumes.map(r => (
-                      <tr key={r.id}>
-                        <td style={s.td}>{r.id}</td>
-                        <td style={s.td}><span style={{ fontWeight: 600 }}>{r.title}</span></td>
-                        <td style={s.td}>
-                          <div>{r.user_name}</div>
-                          <div style={{ fontSize: 11, color: "#94a3b8" }}>{r.user_email}</div>
+                      <tr key={r.id} className="admin-row">
+                        <td style={{ padding: "13px 16px", fontSize: 13, color: "#94a3b8", fontWeight: 600, borderBottom: "1px solid rgba(241,245,249,0.8)" }}>{r.id}</td>
+                        <td style={{ padding: "13px 16px", fontSize: 13, fontWeight: 700, color: "#0f172a", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>{r.title}</td>
+                        <td style={{ padding: "13px 16px", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>{r.user_name}</div>
+                          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 1 }}>{r.user_email}</div>
                         </td>
-                        <td style={s.td}>{r.template_name}</td>
-                        <td style={s.td}>{r.template_style || "—"}</td>
-                        <td style={s.td}>{formatDate(r.created_at)}</td>
-                        <td style={s.td} onClick={e => e.stopPropagation()}>
-                          <div style={{ display: "flex", gap: 4 }} className="admin-actions">
-                            <button style={s.btnDanger} onClick={() => setConfirmDelete({ type: "resume", id: r.id, name: r.title })}>Delete</button>
-                          </div>
+                        <td style={{ padding: "13px 16px", fontSize: 13, color: "#64748b", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>
+                          <span style={{ background: "rgba(99,102,241,0.08)", color: "#6366f1", padding: "2px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600 }}>{r.template_name}</span>
+                        </td>
+                        <td style={{ padding: "13px 16px", fontSize: 13, color: "#64748b", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>{r.template_style || "—"}</td>
+                        <td style={{ padding: "13px 16px", fontSize: 13, color: "#64748b", borderBottom: "1px solid rgba(241,245,249,0.8)", whiteSpace: "nowrap" }}>{formatDate(r.created_at)}</td>
+                        <td style={{ padding: "13px 16px", borderBottom: "1px solid rgba(241,245,249,0.8)" }}>
+                          <button className="btn-danger" onClick={() => setConfirmDelete({ type: "resume", id: r.id, name: r.title })}
+                            style={{ background: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, padding: "5px 11px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.18s" }}>
+                            🗑️ Delete
+                          </button>
                         </td>
                       </tr>
                     ))}

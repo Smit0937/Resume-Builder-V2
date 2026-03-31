@@ -5,7 +5,7 @@ const AuthContext = createContext();
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-// ── Public routes that should never trigger an auth check ──
+// ── Public routes that should NEVER trigger auth check or wake screen ──
 const PUBLIC_PATHS = [
   '/forgot-password',
   '/reset-password',
@@ -17,30 +17,40 @@ const isPublicPath = (pathname) =>
   PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
   pathname.includes('/preview');
 
-// ── Ping backend, show wake screen if sleeping ──
-async function wakeUpServer(onWaking, onReady) {
+// ── Ping backend once, return true if awake ──
+async function pingServer(timeoutMs = 5000) {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4000);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
     const res = await fetch(`${BACKEND_URL}/`, { signal: controller.signal });
     clearTimeout(timeout);
-    if (res.ok) return true; // already awake
-  } catch { /* sleeping */ }
-
-  onWaking(); // show wake screen
-
-  // Retry every 3s for up to 90s
-  for (let i = 0; i < 30; i++) {
-    await new Promise(r => setTimeout(r, 3000));
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
-      const res = await fetch(`${BACKEND_URL}/`, { signal: controller.signal });
-      clearTimeout(timeout);
-      if (res.ok) { onReady(); return true; }
-    } catch { /* still waking */ }
+    return res.ok;
+  } catch {
+    return false;
   }
-  onReady(); // give up after 90s
+}
+
+// ── Wake server up with retries, callbacks for UI ──
+async function wakeUpServer(onWaking, onReady) {
+  // Fast first check (3s timeout)
+  const awake = await pingServer(3000);
+  if (awake) return true;
+
+  // Server is sleeping — show wake screen
+  onWaking();
+
+  // Retry every 3s for up to 60s (20 attempts)
+  for (let i = 0; i < 20; i++) {
+    await new Promise(r => setTimeout(r, 3000));
+    const isUp = await pingServer(5000);
+    if (isUp) {
+      onReady();
+      return true;
+    }
+  }
+
+  // Give up after 60s — hide wake screen and try anyway
+  onReady();
   return false;
 }
 
@@ -50,43 +60,50 @@ export const AuthProvider = ({ children }) => {
   const [serverWaking, setServerWaking] = useState(false);
 
   useEffect(() => {
-    // ✅ Skip auth check entirely on public pages
-    if (isPublicPath(window.location.pathname)) {
+    const pathname = window.location.pathname;
+
+    // ✅ On public pages (login/register/etc): skip EVERYTHING
+    // No ping, no wake screen, no auth check — just set loading false
+    if (isPublicPath(pathname)) {
       setLoading(false);
+      setServerWaking(false);
       return;
     }
 
+    // ✅ On protected pages: load cached user immediately so UI isn't blank
     const cachedUser = localStorage.getItem('cachedUser');
     if (cachedUser) {
       try {
         setUser(JSON.parse(cachedUser));
-      } catch (e) {
+      } catch {
         localStorage.removeItem('cachedUser');
       }
     }
 
+    // Then wake server + verify auth in background
     startAuthFlow();
   }, []);
 
   const startAuthFlow = async () => {
     await wakeUpServer(
-      () => setServerWaking(true),
-      () => setServerWaking(false),
+      () => setServerWaking(true),   // server sleeping → show wake screen
+      () => setServerWaking(false),  // server awake → hide wake screen
     );
     await checkAuth();
   };
 
   const checkAuth = async () => {
     try {
-      console.log('🔍 AUTH: Checking authentication with backend...');
       const data = await getCurrentUser();
-      console.log('✅ AUTH: User authenticated:', data.email);
       setUser(data);
       localStorage.setItem('cachedUser', JSON.stringify(data));
-    } catch (err) {
-      console.log('❌ AUTH: User not authenticated:', err.message);
-      setUser(null);
-      localStorage.removeItem('cachedUser');
+    } catch {
+      // Only clear user if we don't have a cached one
+      // This prevents logout on temporary network blips
+      const cachedUser = localStorage.getItem('cachedUser');
+      if (!cachedUser) {
+        setUser(null);
+      }
       sessionStorage.clear();
     } finally {
       setLoading(false);
@@ -95,31 +112,25 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = (userData) => {
-  console.log('✅ Login - setting user:', userData);
-  setUser(userData);
-  localStorage.setItem('cachedUser', JSON.stringify(userData));
-  // ← Store token for iOS/Android cross-origin requests
-  if (userData.access_token) {
-    localStorage.setItem('access_token', userData.access_token);
-  }
-};
+    setUser(userData);
+    localStorage.setItem('cachedUser', JSON.stringify(userData));
+    // Store token for iOS/Android cross-origin requests
+    if (userData.access_token) {
+      localStorage.setItem('access_token', userData.access_token);
+    }
+  };
 
   const logout = async () => {
     try {
-      console.log('🚪 LOGOUT: Attempting to call logout API...');
-      const result = await logoutUser();
-      console.log('✅ LOGOUT: API call successful', result);
+      await logoutUser();
     } catch (err) {
       console.error('⚠️ LOGOUT: API call failed:', err.message);
     }
-
-    console.log('🧹 LOGOUT: Clearing all local data...');
     setUser(null);
     localStorage.removeItem('cachedUser');
     localStorage.removeItem('access_token');
     sessionStorage.clear();
     clearAllCookies();
-    console.log('✅ LOGOUT: Complete - user data cleared locally');
   };
 
   const clearAllCookies = () => {
@@ -129,13 +140,12 @@ export const AuthProvider = ({ children }) => {
           .replace(/^ +/, '')
           .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
       });
-      console.log('🧹 Cleared all accessible cookies via JS');
     } catch (e) {
-      console.warn('⚠️ Could not clear cookies via JS (httpOnly?):', e.message);
+      console.warn('⚠️ Could not clear cookies:', e.message);
     }
   };
 
-  // ── Server waking up screen ──
+  // ── Wake screen — ONLY shown on protected routes ──
   if (serverWaking) {
     return (
       <div style={{
@@ -177,7 +187,6 @@ export const AuthProvider = ({ children }) => {
           marginBottom: 28,
         }} />
 
-        {/* Message */}
         <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: '0 0 10px' }}>
           Starting up the server...
         </h2>
@@ -186,7 +195,6 @@ export const AuthProvider = ({ children }) => {
           being idle. This only happens once — thank you for your patience! ☕
         </p>
 
-        {/* Animated dots */}
         <div style={{ display: 'flex', gap: 8 }}>
           {[0, 1, 2].map(i => (
             <div key={i} style={{
@@ -214,8 +222,6 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
